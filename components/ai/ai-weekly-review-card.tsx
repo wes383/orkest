@@ -141,12 +141,15 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
       {/* Time Allocation */}
       {data.timeStats.byCategory.length > 0 && (
         <div className="mb-3">
-          <div className="mb-1.5 flex items-center gap-1">
+          <div className="mb-1 flex items-center gap-1">
             <Clock className="h-3 w-3 text-[#7e7982] dark:text-[#a3a3a3]" />
             <p className="text-[10px] font-semibold tracking-[0.1em] text-[#8c8691] uppercase dark:text-[#737373]">
               {t("review.timeAllocation")}
             </p>
           </div>
+          <p className="mb-1.5 text-[10px] italic text-[#8c8691] dark:text-[#737373]">
+            {t("review.timeAllocationHint")}
+          </p>
           <div className="space-y-1.5">
             {data.timeStats.byCategory.map((cat, index) => (
               <div key={index}>

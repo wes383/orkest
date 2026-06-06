@@ -774,6 +774,7 @@ const en = {
   "review.thisWeek": "This week",
   "review.lastWeek": "Last week",
   "review.timeAllocation": "Time Allocation",
+  "review.timeAllocationHint": "Tasks with multiple tags are counted in each tag — totals can exceed 100%.",
   "review.total": "Total",
   "review.focusSessions": "Focus Sessions",
   "review.sessions": "Sessions",
@@ -1560,6 +1561,7 @@ const zh: Dictionary = {
   "review.thisWeek": "本周",
   "review.lastWeek": "上周",
   "review.timeAllocation": "时间分配",
+  "review.timeAllocationHint": "带多个标签的任务会在每个标签下分别计入，总和可能超过 100%。",
   "review.total": "总计",
   "review.focusSessions": "专注会话",
   "review.sessions": "会话数",
@@ -2317,6 +2319,7 @@ const es: Dictionary = {
   "email.disableHint": "Puedes desactivar este correo en Ajustes.",
   "email.subject": "Resumen diario de Orkest",
   "email.proOnly": "Pro",
+  "review.timeAllocationHint": "Las tareas con varias etiquetas se contabilizan en cada una — el total puede superar el 100%.",
 };
 
 const fr: Dictionary = {
@@ -3065,6 +3068,7 @@ const fr: Dictionary = {
   "email.disableHint": "Vous pouvez désactiver cet email dans les Paramètres.",
   "email.subject": "Résumé quotidien Orkest",
   "email.proOnly": "Pro",
+  "review.timeAllocationHint": "Les tâches avec plusieurs étiquettes sont comptées dans chaque étiquette — le total peut dépasser 100 %.",
 };
 
 const de: Dictionary = {
@@ -3813,6 +3817,7 @@ const de: Dictionary = {
   "email.disableHint": "Du kannst diese E-Mail in den Einstellungen deaktivieren.",
   "email.subject": "Orkest Tägliche Zusammenfassung",
   "email.proOnly": "Pro",
+  "review.timeAllocationHint": "Aufgaben mit mehreren Tags werden in jedem Tag gezählt — die Summe kann 100 % übersteigen.",
 };
 
 const ja: Dictionary = {
@@ -4561,6 +4566,7 @@ const ja: Dictionary = {
   "email.disableHint": "設定からこのメールを無効にできます。",
   "email.subject": "Orkest 毎日サマリー",
   "email.proOnly": "Pro",
+  "review.timeAllocationHint": "複数のタグを持つタスクは各タグで集計されます。合計が 100% を超える場合があります。",
 };
 
 const pt: Dictionary = {
@@ -5299,6 +5305,7 @@ const pt: Dictionary = {
   "email.disableHint": "Você pode desativar este email nas Configurações.",
   "email.subject": "Resumo diário do Orkest",
   "email.proOnly": "Pro",
+  "review.timeAllocationHint": "Tarefas com várias tags são contadas em cada uma — o total pode ultrapassar 100%.",
 };
 
 const dictionaries: Record<Locale, Dictionary> = {

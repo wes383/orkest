@@ -202,6 +202,22 @@ const chatContextSchema = z.object({
   locale: z.enum(["en", "zh-CN", "es", "fr", "de", "ja", "pt"]).default("en"),
   language: z.string().optional(),
   preferredTool: z.string().optional(),
+  // Zod's default mode is "strip": any field not declared here is silently
+  // dropped. Both of these were missing from the schema, so they never
+  // reached the server-side context.
+  focusSessions: z
+    .array(
+      z.object({
+        itemId: z.string().optional(),
+        taskTitle: z.string().optional(),
+        // startedAt is serialized to an ISO string by JSON; coerce back to Date
+        startedAt: z.coerce.date(),
+        durationSeconds: z.number().int().nonnegative(),
+        tags: z.array(z.string()).optional(),
+      }),
+    )
+    .optional(),
+  weekStartDay: z.number().int().min(0).max(6).optional(),
 });
 
 function makeActionId(prefix: string) {
@@ -2321,8 +2337,15 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           // Skip if no duration
           if (duration <= 0) continue;
 
-          const category = item.projectName || (item.tags && item.tags.length > 0 ? item.tags[0] : "Uncategorized");
-          timeByCategory.set(category, (timeByCategory.get(category) ?? 0) + duration);
+          // Multi-bucket allocation: a task's duration is credited to EACH of
+          // its tags, not just the first one. Tasks with no tags fall into
+          // "Uncategorized". `totalTimeMinutes` counts each task's duration
+          // exactly once, so the per-bucket percentages can legitimately sum
+          // to more than 100% — that simply reflects overlap across tags.
+          const taskTags = item.tags && item.tags.length > 0 ? item.tags : ["Uncategorized"];
+          for (const tag of taskTags) {
+            timeByCategory.set(tag, (timeByCategory.get(tag) ?? 0) + duration);
+          }
           totalTimeMinutes += duration;
         }
 
@@ -2338,8 +2361,15 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         // Focus session stats
         const focusSessions = context.focusSessions ?? [];
         const weekFocusSessions = focusSessions.filter((session) => {
-          const sessionDate = new Date(session.startedAt);
-          return sessionDate >= weekStart && sessionDate <= weekEnd;
+          // Compare in the user's timezone by local date string rather than
+          // absolute timestamps. The week boundary is anchored at "12:00
+          // local" of the start/end day, so comparing timestamps directly
+          // would mis-classify sessions after noon on the boundary day into
+          // the adjacent week.
+          const sessionDateStr = dayjs(session.startedAt)
+            .tz(context.timezone)
+            .format("YYYY-MM-DD");
+          return sessionDateStr >= weekStartStr && sessionDateStr <= weekEndStr;
         });
 
         const totalFocusMinutes = weekFocusSessions.reduce(
