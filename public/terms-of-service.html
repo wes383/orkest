@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service | Orkest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #ffffff;
+      color: #3c3841;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #ffffff;
+    }
+
+    .content-wrap {
+      width: 100%;
+      max-width: 48rem;
+      padding: 4rem 1.5rem;
+    }
+
+    /* Top nav */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.875rem;
+      flex-wrap: wrap;
+    }
+
+    .top-nav a {
+      text-decoration: none;
+      color: #6b6b6b;
+      transition: color 0.15s;
+    }
+
+    .top-nav a:hover { color: #000; }
+    .top-nav a.active { color: #111; }
+    .top-nav .sep { color: #ccc; }
+
+    /* Article */
+    article h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 1.5rem;
+      line-height: 1.3;
+    }
+
+    article h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #111;
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    article h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    article h1-skip {
+      display: none; /* hide duplicate h1 from markdown */
+    }
+
+    article p {
+      margin-bottom: 0.875rem;
+      color: #3c3841;
+      font-size: 0.9375rem;
+    }
+
+    article ul, article ol {
+      margin: 0 0 0.875rem 1.5rem;
+      color: #3c3841;
+      font-size: 0.9375rem;
+    }
+
+    article li { margin-bottom: 0.375rem; }
+
+    article a {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    article a:hover { color: #000; }
+
+    article code {
+      font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85em;
+      background: rgba(0,0,0,0.05);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }
+
+    article blockquote {
+      border-left: 3px solid #e5e5e5;
+      margin: 0.875rem 0;
+      padding-left: 1rem;
+      color: #6b6b6b;
+      font-style: italic;
+    }
+
+    article hr {
+      border: none;
+      border-top: 1px solid #e5e5e5;
+      margin: 1.5rem 0;
+    }
+
+    article strong { font-weight: 600; color: #111; }
+
+    /* Tables Styling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+      color: #3c3841;
+    }
+
+    th {
+      background-color: #f9f9fb;
+      color: #111;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e5e5e5;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fcfcfd;
+    }
+
+
+    /* Footer */
+    .page-footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e5e5;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #888;
+    }
+
+    @media (max-width: 640px) {
+      .content-wrap { padding: 2rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="content-wrap">
+
+      <nav class="top-nav">
+        <a href="/">Back to Orkest</a>
+        <span class="sep">|</span>
+        <a href="/privacy-policy.html" class="">Privacy</a>
+        <span class="sep">|</span>
+        <a href="/terms-of-service.html" class="active">Terms</a>
+        <span class="sep">|</span>
+        <a href="/refund-policy.html" class="">Refund Policy</a>
+      </nav>
+
+      <article>
+        <h1>Terms of Service</h1>
+        <div>
+          <p><strong>Last Updated: May 29, 2026</strong></p>
+<h2>1. Introduction</h2>
+<p>Welcome to Orkest ("the Application," "we," "us," or "our"). These Terms of Service ("Terms") govern your access to and use of the Orkest web application (located at <a href="https://orkest.wesluma.com" target="_blank" rel="noopener noreferrer">https://orkest.wesluma.com</a>), including all associated features, AI assistants, and services (collectively, "the Service").</p>
+<p>Please read these Terms carefully before using the Service. By creating an account or using the Service, you agree to be bound by these Terms. If you do not agree, do not use the Service.</p>
+<h2>2. Eligibility</h2>
+<p>By using the Service, you represent and warrant that:</p>
+<ul>
+  <li>You are at least 16 years of age (or the age of digital consent in your country of residence);</li>
+  <li>You have the full authority to enter into these Terms;</li>
+  <li>You are not located in a country subject to a U.S. government embargo or designated as a "terrorist-supporting" nation; and</li>
+  <li>You are not listed on any U.S. government list of prohibited or restricted parties.</li>
+</ul>
+<p>If you are using the Service on behalf of an organization, you represent that you have the authority to bind that organization to these Terms.</p>
+<h2>3. Account Registration and Security</h2>
+<h3>3.1 Registration</h3>
+<p>To use the Service, you must register for an account. You may register via email and password or through supported third-party authentication providers (e.g., Google OAuth). You agree to provide accurate, current, and complete information during the registration process and to update such information as necessary.</p>
+<h3>3.2 Account Responsibility</h3>
+<p>You are solely responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account. You must notify us immediately at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong> of any unauthorized use of your account or any other security breach.</p>
+<h3>3.3 Email Verification</h3>
+<p>Registration requires email verification via a one-time password (OTP) sent to your email address. Your access to certain features may be limited until your email is verified.</p>
+<h2>4. Description of the Service</h2>
+<p>Orkest is an AI-powered personal task orchestration application that provides, among other features:</p>
+<ul>
+  <li>Task and project management with scheduling, priorities, tags, and subtasks;</li>
+  <li>Recurring task support with custom recurrence rules;</li>
+  <li>Multiple views: Today timeline, All tasks (timeline/list/calendar), and Focus (countdown/stopwatch);</li>
+  <li>An AI assistant capable of managing tasks via natural language, providing scheduling suggestions, and answering queries about your tasks;</li>
+  <li>AI memory: the assistant may learn and store your preferences, habits, and work patterns for cross-session personalization;</li>
+  <li>Daily digest with AI-generated messages based on your task summary;</li>
+  <li>Voice-to-text input for the AI assistant;</li>
+  <li>Focus timer sessions with statistics tracking;</li>
+  <li>Google Calendar synchronization (bidirectional sync of tasks and events, when you connect your Google account);</li>
+  <li>Calendar export (ICS/CSV) and data export (JSON for AI conversations and memories);</li>
+  <li>Cross-device synchronization via cloud infrastructure;</li>
+  <li>Task reminder notifications via push (browser notifications) and email;</li>
+  <li>Offline-first architecture with queued sync.</li>
+</ul>
+<h2>5. Acceptable Use</h2>
+<h3>5.1 Prohibited Conduct</h3>
+<p>You agree not to, and not to attempt to:</p>
+<ul>
+  <li>Use the Service for any unlawful purpose or in violation of any applicable local, national, or international law;</li>
+  <li>Upload, store, or transmit any content that is harmful, threatening, abusive, harassing, defamatory, obscene, or otherwise objectionable;</li>
+  <li>Interfere with or disrupt the integrity or performance of the Service or its infrastructure;</li>
+  <li>Attempt to gain unauthorized access to the Service, other user accounts, or the underlying systems (including Supabase, database, or server infrastructure);</li>
+  <li>Reverse-engineer, decompile, disassemble, or otherwise attempt to extract the source code of the Service;</li>
+  <li>Use any automated means (bots, scrapers, crawlers, etc.) to access or interact with the Service without our express written permission;</li>
+  <li>Use the Service to transmit any malware, viruses, or other harmful code;</li>
+  <li>Use the AI assistant to generate, store, or process content that violates these Terms.</li>
+</ul>
+<h3>5.2 AI Feature Usage</h3>
+<p>The AI assistant and related features are provided as productivity aids. You are responsible for reviewing and approving any actions proposed by the AI before they are executed. We make no guarantees regarding the accuracy, completeness, or appropriateness of AI-generated content or suggestions.</p>
+<h3>5.3 AI Usage Limits</h3>
+<p>To ensure fair access and service stability, the AI assistant feature is subject to a daily usage limit. The default limit is <strong>50 conversations per user per day</strong> for users on the 7-day free trial, and <strong>200 conversations per user per day</strong> for users with an active Orkest Pro subscription. We reserve the right to adjust these limits at any time without prior notice. The usage counter resets daily at midnight (UTC). If you reach your daily limit, you will be unable to send additional AI messages until the next day.</p>
+<h2>6. User Content and Data</h2>
+<h3>6.1 Ownership</h3>
+<p>You retain all ownership rights to the content, data, and information you create, store, or process using the Service ("Your Data"). We do not claim ownership over Your Data.</p>
+<h3>6.2 License to Operate the Service</h3>
+<p>By using the Service, you grant us a worldwide, non-exclusive, royalty-free license to access, use, process, copy, store, and transmit Your Data solely to the extent necessary to provide, maintain, and improve the Service (including backups, sync, AI processing, and compliance with legal obligations).</p>
+<h3>6.3 Data Processing</h3>
+<p>Certain Service features require processing Your Data through third-party services:</p>
+<ul>
+  <li><strong>AI Features:</strong> Task data and chat messages may be sent to Alibaba Cloud (via DashScope) or compatible AI providers as configured for the purpose of generating AI responses.</li>
+  <li><strong>Voice Input:</strong> Audio recordings may be sent to Deepgram for transcription.</li>
+  <li><strong>Google Calendar Sync:</strong> When you connect your Google Calendar, we access your calendar list and events through Google Calendar API to enable bidirectional synchronization. You can enable or disable sync for individual calendars at any time.</li>
+  <li><strong>Push Notifications:</strong> When you enable browser push notifications, your device is registered with OneSignal to receive reminder notifications. You can revoke notification permission at any time through your browser settings.</li>
+  <li><strong>Email Reminders:</strong> When you configure email reminders, task details and your email address are processed through Inngest and Resend to deliver scheduled reminder emails.</li>
+</ul>
+<p>For details, see our Privacy Policy.</p>
+<h2>7. Third-Party Services and Dependencies</h2>
+<p>The Service relies on the following third-party providers, each with their own terms of service and privacy policies:</p>
+<div class="table-container">
+<table>
+  <thead>
+    <tr>
+      <th>Provider</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Supabase</td>
+      <td>Database, authentication, real-time sync</td>
+    </tr>
+    <tr>
+      <td>Vercel</td>
+      <td>Application hosting and deployment</td>
+    </tr>
+    <tr>
+      <td>Google</td>
+      <td>Google Calendar synchronization, OAuth authentication</td>
+    </tr>
+    <tr>
+      <td>Alibaba Cloud (DashScope)</td>
+      <td>AI chat completions, task summaries, Daily Quote translation, Today in History translation, Daily Book and Daily Movie translation and recommendation</td>
+    </tr>
+    <tr>
+      <td>Wikimedia Foundation</td>
+      <td>Historical event data (Wikipedia REST API)</td>
+    </tr>
+    <tr>
+      <td>quote.wesluma.com</td>
+      <td>Quote data for Daily Quote feature</td>
+    </tr>
+    <tr>
+      <td>book.wesluma.com</td>
+      <td>Book data for Daily Book Recommendation</td>
+    </tr>
+    <tr>
+      <td>movie.wesluma.com</td>
+      <td>Movie data for Daily Movie Recommendation</td>
+    </tr>
+    <tr>
+      <td>Cloudflare</td>
+      <td>Bot protection (Turnstile)</td>
+    </tr>
+    <tr>
+      <td>Deepgram</td>
+      <td>Voice-to-text transcription</td>
+    </tr>
+    <tr>
+      <td>Resend</td>
+      <td>Transactional and reminder email delivery</td>
+    </tr>
+    <tr>
+      <td>OneSignal</td>
+      <td>Push notification delivery</td>
+    </tr>
+    <tr>
+      <td>Inngest</td>
+      <td>Scheduled email reminder delivery (background job processing)</td>
+    </tr>
+    <tr>
+      <td>Upstash</td>
+      <td>Rate limiting (Redis)</td>
+    </tr>
+    <tr>
+      <td>Paddle</td>
+      <td>Subscription payment processing, tax compliance, and invoicing (Merchant of Record)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>We are not responsible for the operation, availability, or security of these third-party services. Your use of these services through the Application is subject to their respective terms.</p>
+<h2>8. Intellectual Property Rights</h2>
+<h3>8.1 Our IP</h3>
+<p>The Service, including its code, design, layout, graphics, logos, trademarks, and overall "look and feel" (excluding Your Data and open-source components), is owned by Orkest or its licensors and is protected by applicable intellectual property laws. The Service incorporates certain open-source software components, each governed by their respective licenses. Nothing in these Terms restricts your rights under those open-source licenses.</p>
+<h3>8.2 Feedback</h3>
+<p>If you provide us with suggestions, enhancement requests, recommendations, or other feedback regarding the Service, we may use such feedback without any obligation to you.</p>
+<h2>9. Fees and Payments</h2>
+<h3>9.1 Subscription Model and Fees</h3>
+<p>The Service is provided under a subscription model:</p>
+<ul>
+  <li><strong>7-Day Free Trial</strong>: New users are eligible for a one-time 7-day free trial to experience all features of Orkest Pro. No credit card or payment information is required upfront. Upon expiration of the 7-day trial, your access will be suspended or limited to a read-only basic state unless you purchase a subscription.</li>
+  <li><strong>Orkest Pro Subscription</strong>: Orkest Pro is available at a rate of <strong>$9.99 USD per month</strong> (or local equivalents, plus applicable taxes). By subscribing to Orkest Pro, you authorize our Merchant of Record, Paddle, to charge your designated payment method on a recurring monthly basis.</li>
+</ul>
+<h3>9.2 Automatic Renewal, Cancellation, and Refunds</h3>
+<ul>
+  <li><strong>Automatic Renewal</strong>: Your Orkest Pro subscription will automatically renew at the end of each billing cycle (monthly) unless you cancel your subscription before the renewal date.</li>
+  <li><strong>Cancellation</strong>: You may cancel your subscription at any time through the Billing section within your Account Settings, or by contacting our Merchant of Record, Paddle. Cancellation will prevent the next scheduled renewal charge, and you will retain full access to Orkest Pro until the end of your current billing period.</li>
+  <li><strong>Merchant of Record</strong>: All financial transactions, checkout procedures, tax calculation, and payment processing are securely handled by <strong>Paddle</strong> (Paddle Payments / Paddle.com Market Limited), acting as our official Merchant of Record.</li>
+  <li><strong>Refunds</strong>: Since we offer a 7-day free trial with no card upfront, subscriptions are generally non-refundable. However, if you believe you have been charged in error or have a specific billing dispute, please contact <a href="mailto:support@wesluma.com">support@wesluma.com</a> or Paddle customer support within 14 days of the charge.</li>
+</ul>
+<h3>9.3 Non-Payment</h3>
+<p>Failure to pay applicable fees may result in suspension or termination of your access to paid features or the Service as a whole.</p>
+<h2>10. Data Retention and Account Deletion</h2>
+<h3>10.1 Account Deletion by You</h3>
+<p>You may delete your account at any time through the Settings page. Upon account deletion:</p>
+<ul>
+  <li>Your account will be immediately disabled;</li>
+  <li>All Your Data across all database tables will be permanently deleted within <strong>30 days</strong>;</li>
+  <li>Residual copies may remain in backups for up to <strong>30 additional days</strong>;</li>
+  <li>Deletion is irreversible.</li>
+</ul>
+<h3>10.2 Termination by Us</h3>
+<p>We may suspend or terminate your account at any time if:</p>
+<ul>
+  <li>You violate these Terms;</li>
+  <li>Your conduct could harm other users, third parties, or the Service;</li>
+  <li>We are required to do so by law;</li>
+  <li>We decide to discontinue the Service (with reasonable notice).</li>
+</ul>
+<h3>10.3 Data Export</h3>
+<p>Prior to account deletion, you may export your data using the ICS, CSV, or JSON export features available in the Service (including AI conversations and memories). We are not obligated to provide data after account termination.</p>
+<h2>11. Privacy</h2>
+<p>Your privacy is important to us. Our <a href="./privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> explains how we collect, use, process, and protect your personal information. By using the Service, you agree to the practices described in the Privacy Policy.</p>
+<h2>12. Disclaimer of Warranties</h2>
+<p>THE SERVICE IS PROVIDED ON AN <strong>"AS IS"</strong> AND <strong>"AS AVAILABLE"</strong> BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, OR AVAILABILITY.</p>
+<p>WE DO NOT WARRANT THAT:</p>
+<ul>
+  <li>THE SERVICE WILL BE UNINTERRUPTED, TIMELY, SECURE, OR ERROR-FREE;</li>
+  <li>THE AI FEATURES WILL PRODUCE ACCURATE, RELIABLE, OR APPROPRIATE OUTPUT;</li>
+  <li>ANY DEFECTS OR ERRORS WILL BE CORRECTED;</li>
+  <li>THE SERVICE WILL MEET YOUR SPECIFIC REQUIREMENTS OR EXPECTATIONS.</li>
+</ul>
+<p>YOU USE THE SERVICE AT YOUR OWN RISK. YOU ARE SOLELY RESPONSIBLE FOR YOUR TASK MANAGEMENT DECISIONS AND ANY ACTIONS TAKEN BASED ON AI-GENERATED SUGGESTIONS.</p>
+<h2>13. Limitation of Liability</h2>
+<p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW:</p>
+<ul>
+  <li>WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICE;</li>
+  <li>OUR TOTAL CUMULATIVE LIABILITY FOR ANY CLAIMS ARISING UNDER THESE TERMS SHALL NOT EXCEED THE GREATER OF (A) THE TOTAL AMOUNT YOU HAVE PAID US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, OR (B) USD $100;</li>
+  <li>WE SHALL NOT BE LIABLE FOR ANY LOSS OF DATA, LOST PROFITS, OR BUSINESS INTERRUPTION, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</li>
+</ul>
+<p>SOME JURISDICTIONS (INCLUDING THE EUROPEAN UNION) DO NOT ALLOW THE EXCLUSION OF CERTAIN WARRANTIES OR THE LIMITATION OF LIABILITY FOR CERTAIN DAMAGES. IF YOU ARE LOCATED IN SUCH A JURISDICTION, SOME OF THE ABOVE LIMITATIONS MAY NOT APPLY TO YOU.</p>
+<h2>14. Indemnification</h2>
+<p>You agree to indemnify, defend, and hold harmless Orkest, its operators, affiliates, and service providers from and against any claims, liabilities, damages, losses, and expenses (including reasonable attorneys' fees) arising out of or related to:</p>
+<ul>
+  <li>Your use or misuse of the Service;</li>
+  <li>Your violation of these Terms;</li>
+  <li>Your violation of any applicable law or regulation;</li>
+  <li>Your Data or any content you submit through the Service.</li>
+</ul>
+<h2>15. Governing Law and Dispute Resolution</h2>
+<h3>15.1 Governing Law</h3>
+<p>These Terms shall be governed by and construed in accordance with the laws of the <strong>People's Republic of China</strong>, without regard to its conflict of law provisions.</p>
+<h3>15.2 Informal Resolution</h3>
+<p>Before initiating any legal proceeding, you agree to first contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong> and attempt to resolve the dispute informally for at least <strong>30 days</strong>.</p>
+<h3>15.3 Binding Arbitration (Outside Mainland China)</h3>
+<p>For users located outside Mainland China, any dispute arising from these Terms shall be finally settled by binding arbitration administered by the <strong>Hong Kong International Arbitration Centre (HKIAC)</strong> under its rules. The seat of arbitration shall be Hong Kong. The language of arbitration shall be English.</p>
+<h3>15.4 Consumer Rights (EU/EEA/UK)</h3>
+<p>If you are a consumer resident in the European Union, European Economic Area, or the United Kingdom:</p>
+<ul>
+  <li>Nothing in these Terms affects your statutory rights under applicable consumer protection laws;</li>
+  <li>You may bring proceedings in the courts of your country of residence, and nothing in Section 15.3 (Binding Arbitration) shall deprive you of that right.</li>
+</ul>
+<h3>15.5 California Users (CCPA)</h3>
+<p>If you are a California resident, you have specific rights regarding your personal information as described in our Privacy Policy.</p>
+<h2>16. Service Availability and Modifications</h2>
+<h3>16.1 Modifications to the Service</h3>
+<p>We reserve the right to modify, suspend, or discontinue any part of the Service at any time, with or without notice. We will make reasonable efforts to provide advance notice of material changes.</p>
+<p>We do not guarantee any specific level of service availability or uptime. While we strive to maintain the Service operational at all times, we do not offer service level agreements (SLAs) or uptime guarantees.</p>
+<h3>16.2 Modifications to These Terms</h3>
+<p>We may revise these Terms from time to time. Material changes will be communicated via email and/or in-app notification at least <strong>30 days</strong> before they take effect. Your continued use of the Service after the effective date constitutes acceptance of the revised Terms.</p>
+<h3>16.3 Beta Features</h3>
+<p>From time to time, we may offer new or experimental features ("Beta Features"). Beta Features are provided "as is" without any warranty and may be subject to additional terms. We may discontinue Beta Features at any time without notice.</p>
+<h2>17. Force Majeure</h2>
+<p>We shall not be liable for any delay or failure to perform our obligations under these Terms due to circumstances beyond our reasonable control, including but not limited to acts of God, natural disasters, war, terrorism, riots, government actions, internet service provider failures, or cyberattacks.</p>
+<h2>18. Severability</h2>
+<p>If any provision of these Terms is found to be unenforceable or invalid by a court of competent jurisdiction, that provision shall be limited or severed to the minimum extent necessary, and the remaining provisions shall remain in full force and effect.</p>
+<h2>19. Entire Agreement</h2>
+<p>These Terms, together with the Privacy Policy, constitute the entire agreement between you and Orkest regarding your use of the Service and supersede any prior agreements or understandings.</p>
+<h2>20. Contact Information</h2>
+<p>For questions, concerns, or legal notices regarding these Terms, please contact us at:</p>
+<ul>
+  <li><strong>Email:</strong> <a href="mailto:support@wesluma.com">support@wesluma.com</a></li>
+  <li><strong>Website:</strong> <a href="https://orkest.wesluma.com" target="_blank" rel="noopener noreferrer">https://orkest.wesluma.com</a></li>
+</ul>
+        </div>
+      </article>
+
+      <footer class="page-footer">
+        <p>© 2026 Orkest. All rights reserved.</p>
+      </footer>
+
+    </div>
+  </div>
+</body>
+</html>

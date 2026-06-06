@@ -1,0 +1,3 @@
+#!/bin/sh
+node scripts/generate-licenses.js
+git add public/legal/OPEN_SOURCE_LICENSES.md lib/legal/content.json public/privacy-policy.html public/terms-of-service.html public/refund-policy.html

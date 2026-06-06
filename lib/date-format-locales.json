@@ -1,0 +1,2264 @@
+[
+  {
+    "code": "aa-ER",
+    "lang": "Afar",
+    "country": "Eritrea",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "af-NA",
+    "lang": "Afrikaans",
+    "country": "Namibia",
+    "fmt": "Donderdag 14 Mei 2026"
+  },
+  {
+    "code": "af-ZA",
+    "lang": "Afrikaans",
+    "country": "South Africa",
+    "fmt": "Donderdag 14 Mei 2026"
+  },
+  {
+    "code": "am-ET",
+    "lang": "Amharic",
+    "country": "Ethiopia",
+    "fmt": "ሐሙስ 14 ሜይ 2026"
+  },
+  {
+    "code": "ar-AE",
+    "lang": "Arabic",
+    "country": "United Arab Emirates",
+    "fmt": "الخميس، 14 مايو 2026"
+  },
+  {
+    "code": "ar-BH",
+    "lang": "Arabic",
+    "country": "Bahrain",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-DJ",
+    "lang": "Arabic",
+    "country": "Djibouti",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-DZ",
+    "lang": "Arabic",
+    "country": "Algeria",
+    "fmt": "الخميس، 14 ماي 2026"
+  },
+  {
+    "code": "ar-EG",
+    "lang": "Arabic",
+    "country": "Egypt",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-ER",
+    "lang": "Arabic",
+    "country": "Eritrea",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-IL",
+    "lang": "Arabic",
+    "country": "Israel",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-IQ",
+    "lang": "Arabic",
+    "country": "Iraq",
+    "fmt": "الخميس، ١٤ أيار ٢٠٢٦"
+  },
+  {
+    "code": "ar-JO",
+    "lang": "Arabic",
+    "country": "Jordan",
+    "fmt": "الخميس، ١٤ أيار ٢٠٢٦"
+  },
+  {
+    "code": "ar-KM",
+    "lang": "Arabic",
+    "country": "Comoros",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-KW",
+    "lang": "Arabic",
+    "country": "Kuwait",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-LB",
+    "lang": "Arabic",
+    "country": "Lebanon",
+    "fmt": "الخميس، ١٤ أيار ٢٠٢٦"
+  },
+  {
+    "code": "ar-LY",
+    "lang": "Arabic",
+    "country": "Libya",
+    "fmt": "الخميس، 14 مايو 2026"
+  },
+  {
+    "code": "ar-MA",
+    "lang": "Arabic",
+    "country": "Morocco",
+    "fmt": "الخميس، 14 ماي 2026"
+  },
+  {
+    "code": "ar-MR",
+    "lang": "Arabic",
+    "country": "Mauritania",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-OM",
+    "lang": "Arabic",
+    "country": "Oman",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-PS",
+    "lang": "Arabic",
+    "country": "Palestine",
+    "fmt": "الخميس، ١٤ أيار ٢٠٢٦"
+  },
+  {
+    "code": "ar-QA",
+    "lang": "Arabic",
+    "country": "Qatar",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-SA",
+    "lang": "Arabic",
+    "country": "Saudi Arabia",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-SD",
+    "lang": "Arabic",
+    "country": "Sudan",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-SO",
+    "lang": "Arabic",
+    "country": "Somalia",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-SY",
+    "lang": "Arabic",
+    "country": "Syria",
+    "fmt": "الخميس، ١٤ أيار ٢٠٢٦"
+  },
+  {
+    "code": "ar-TD",
+    "lang": "Arabic",
+    "country": "Chad",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ar-TN",
+    "lang": "Arabic",
+    "country": "Tunisia",
+    "fmt": "الخميس، 14 ماي 2026"
+  },
+  {
+    "code": "ar-YE",
+    "lang": "Arabic",
+    "country": "Yemen",
+    "fmt": "الخميس، ١٤ مايو ٢٠٢٦"
+  },
+  {
+    "code": "ay-BO",
+    "lang": "Aymara",
+    "country": "Bolivia",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "az-AZ",
+    "lang": "Azerbaijani",
+    "country": "Azerbaijan",
+    "fmt": "14 may 2026, cümə axşamı"
+  },
+  {
+    "code": "be-BY",
+    "lang": "Belarusian",
+    "country": "Belarus",
+    "fmt": "чацвер, 14 мая 2026 г."
+  },
+  {
+    "code": "bg-BG",
+    "lang": "Bulgarian",
+    "country": "Bulgaria",
+    "fmt": "четвъртък, 14 май 2026 г."
+  },
+  {
+    "code": "bi-VU",
+    "lang": "Bislama",
+    "country": "Vanuatu",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "bn-BD",
+    "lang": "Bengali",
+    "country": "Bangladesh",
+    "fmt": "বৃহস্পতিবার, ১৪ মে, ২০২৬"
+  },
+  {
+    "code": "bs-BA",
+    "lang": "Bosnian",
+    "country": "Bosnia and Herzegovina",
+    "fmt": "četvrtak, 14. maj 2026."
+  },
+  {
+    "code": "bs-ME",
+    "lang": "Bosnian",
+    "country": "Montenegro",
+    "fmt": "četvrtak, 14. maj 2026."
+  },
+  {
+    "code": "byn-ER",
+    "lang": "Bilen",
+    "country": "Eritrea",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ca-AD",
+    "lang": "Catalan",
+    "country": "Andorra",
+    "fmt": "dijous, 14 de maig del 2026"
+  },
+  {
+    "code": "ch-GU",
+    "lang": "Chamorro",
+    "country": "Guam",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ch-MP",
+    "lang": "Chamorro",
+    "country": "Northern Mariana Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "cs-CZ",
+    "lang": "Czech",
+    "country": "Czechia",
+    "fmt": "čtvrtek 14. května 2026"
+  },
+  {
+    "code": "da-DK",
+    "lang": "Danish",
+    "country": "Denmark",
+    "fmt": "torsdag den 14. maj 2026"
+  },
+  {
+    "code": "de-AT",
+    "lang": "German",
+    "country": "Austria",
+    "fmt": "Donnerstag, 14. Mai 2026"
+  },
+  {
+    "code": "de-BE",
+    "lang": "German",
+    "country": "Belgium",
+    "fmt": "Donnerstag, 14. Mai 2026"
+  },
+  {
+    "code": "de-CH",
+    "lang": "German",
+    "country": "Switzerland",
+    "fmt": "Donnerstag, 14. Mai 2026"
+  },
+  {
+    "code": "de-DE",
+    "lang": "German",
+    "country": "Germany",
+    "fmt": "Donnerstag, 14. Mai 2026"
+  },
+  {
+    "code": "de-LI",
+    "lang": "German",
+    "country": "Liechtenstein",
+    "fmt": "Donnerstag, 14. Mai 2026"
+  },
+  {
+    "code": "de-LU",
+    "lang": "German",
+    "country": "Luxembourg",
+    "fmt": "Donnerstag, 14. Mai 2026"
+  },
+  {
+    "code": "de-VA",
+    "lang": "German",
+    "country": "Vatican City",
+    "fmt": "Donnerstag, 14. Mai 2026"
+  },
+  {
+    "code": "dv-MV",
+    "lang": "Divehi",
+    "country": "Maldives",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "dz-BT",
+    "lang": "Dzongkha",
+    "country": "Bhutan",
+    "fmt": "གཟའ་པ་སངས་, སྤྱི་ལོ་༢༠༢༦ ཟླ་ལྔ་པ་ ཚེས་༡༤"
+  },
+  {
+    "code": "el-CY",
+    "lang": "Greek (modern)",
+    "country": "Cyprus",
+    "fmt": "Πέμπτη 14 Μαΐου 2026"
+  },
+  {
+    "code": "el-GR",
+    "lang": "Greek (modern)",
+    "country": "Greece",
+    "fmt": "Πέμπτη 14 Μαΐου 2026"
+  },
+  {
+    "code": "en-AG",
+    "lang": "English",
+    "country": "Antigua and Barbuda",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-AI",
+    "lang": "English",
+    "country": "Anguilla",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-AQ",
+    "lang": "English",
+    "country": "Antarctica",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-AS",
+    "lang": "English",
+    "country": "American Samoa",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-AU",
+    "lang": "English",
+    "country": "Australia",
+    "fmt": "Thursday 14 May 2026"
+  },
+  {
+    "code": "en-BB",
+    "lang": "English",
+    "country": "Barbados",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-BM",
+    "lang": "English",
+    "country": "Bermuda",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-BS",
+    "lang": "English",
+    "country": "Bahamas",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-BW",
+    "lang": "English",
+    "country": "Botswana",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-BZ",
+    "lang": "English",
+    "country": "Belize",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-CA",
+    "lang": "English",
+    "country": "Canada",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-CC",
+    "lang": "English",
+    "country": "Cocos (Keeling) Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-CK",
+    "lang": "English",
+    "country": "Cook Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-CM",
+    "lang": "English",
+    "country": "Cameroon",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-CW",
+    "lang": "English",
+    "country": "Curacao",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-CX",
+    "lang": "English",
+    "country": "Christmas Island",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-DM",
+    "lang": "English",
+    "country": "Dominica",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-ER",
+    "lang": "English",
+    "country": "Eritrea",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-FJ",
+    "lang": "English",
+    "country": "Fiji",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-FK",
+    "lang": "English",
+    "country": "Falkland Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-FM",
+    "lang": "English",
+    "country": "Federated States of Micronesia",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-GB",
+    "lang": "English",
+    "country": "United Kingdom",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-GD",
+    "lang": "English",
+    "country": "Grenada",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-GG",
+    "lang": "English",
+    "country": "Guernsey",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-GH",
+    "lang": "English",
+    "country": "Ghana",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-GI",
+    "lang": "English",
+    "country": "Gibraltar",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-GM",
+    "lang": "English",
+    "country": "Gambia",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-GS",
+    "lang": "English",
+    "country": "South Georgia and South Sandwich Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-GU",
+    "lang": "English",
+    "country": "Guam",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-GY",
+    "lang": "English",
+    "country": "Guyana",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-HK",
+    "lang": "English",
+    "country": "Hong Kong",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-HM",
+    "lang": "English",
+    "country": "Heard Island and McDonald Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-IE",
+    "lang": "English",
+    "country": "Ireland",
+    "fmt": "Thursday 14 May 2026"
+  },
+  {
+    "code": "en-IM",
+    "lang": "English",
+    "country": "Isle of Man",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-IN",
+    "lang": "English",
+    "country": "India",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-IO",
+    "lang": "English",
+    "country": "British Indian Ocean Territory",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-JE",
+    "lang": "English",
+    "country": "Jersey",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-JM",
+    "lang": "English",
+    "country": "Jamaica",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-KE",
+    "lang": "English",
+    "country": "Kenya",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-KI",
+    "lang": "English",
+    "country": "Kiribati",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-KN",
+    "lang": "English",
+    "country": "Saint Kitts and Nevis",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-KY",
+    "lang": "English",
+    "country": "Cayman Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-LC",
+    "lang": "English",
+    "country": "Saint Lucia",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-LR",
+    "lang": "English",
+    "country": "Liberia",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-LS",
+    "lang": "English",
+    "country": "Lesotho",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-MF",
+    "lang": "English",
+    "country": "Saint Martin",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-MH",
+    "lang": "English",
+    "country": "Marshall Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-MP",
+    "lang": "English",
+    "country": "Northern Mariana Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-MS",
+    "lang": "English",
+    "country": "Montserrat",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-MT",
+    "lang": "English",
+    "country": "Malta",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-MU",
+    "lang": "English",
+    "country": "Mauritius",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-MW",
+    "lang": "English",
+    "country": "Malawi",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-NA",
+    "lang": "English",
+    "country": "Namibia",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-NF",
+    "lang": "English",
+    "country": "Norfolk Island",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-NG",
+    "lang": "English",
+    "country": "Nigeria",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-NR",
+    "lang": "English",
+    "country": "Nauru",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-NU",
+    "lang": "English",
+    "country": "Niue",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-NZ",
+    "lang": "English",
+    "country": "New Zealand",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-PG",
+    "lang": "English",
+    "country": "Papua New Guinea",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-PH",
+    "lang": "English",
+    "country": "Philippines",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-PK",
+    "lang": "English",
+    "country": "Pakistan",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-PN",
+    "lang": "English",
+    "country": "Pitcairn Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-PR",
+    "lang": "English",
+    "country": "Puerto Rico",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-PW",
+    "lang": "English",
+    "country": "Palau",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-RW",
+    "lang": "English",
+    "country": "Rwanda",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SB",
+    "lang": "English",
+    "country": "Solomon Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SC",
+    "lang": "English",
+    "country": "Seychelles",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SD",
+    "lang": "English",
+    "country": "Sudan",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SG",
+    "lang": "English",
+    "country": "Singapore",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SH",
+    "lang": "English",
+    "country": "Saint Helena, Ascension and Tristan da Cunha",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SL",
+    "lang": "English",
+    "country": "Sierra Leone",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SS",
+    "lang": "English",
+    "country": "South Sudan",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SX",
+    "lang": "English",
+    "country": "Sint Maarten",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-SZ",
+    "lang": "English",
+    "country": "Eswatini",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-TC",
+    "lang": "English",
+    "country": "Turks and Caicos Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-TK",
+    "lang": "English",
+    "country": "Tokelau",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-TO",
+    "lang": "English",
+    "country": "Tonga",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-TT",
+    "lang": "English",
+    "country": "Trinidad and Tobago",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-TV",
+    "lang": "English",
+    "country": "Tuvalu",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-TZ",
+    "lang": "English",
+    "country": "Tanzania",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-UG",
+    "lang": "English",
+    "country": "Uganda",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-UM",
+    "lang": "English",
+    "country": "United States Minor Outlying Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-US",
+    "lang": "English",
+    "country": "United States of America",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-VC",
+    "lang": "English",
+    "country": "Saint Vincent and the Grenadines",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-VG",
+    "lang": "English",
+    "country": "British Virgin Islands",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-VI",
+    "lang": "English",
+    "country": "Virgin Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "en-VU",
+    "lang": "English",
+    "country": "Vanuatu",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-WS",
+    "lang": "English",
+    "country": "Samoa",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-ZA",
+    "lang": "English",
+    "country": "South Africa",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-ZM",
+    "lang": "English",
+    "country": "Zambia",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "en-ZW",
+    "lang": "English",
+    "country": "Zimbabwe",
+    "fmt": "Thursday, 14 May 2026"
+  },
+  {
+    "code": "es-AR",
+    "lang": "Spanish",
+    "country": "Argentina",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-BO",
+    "lang": "Spanish",
+    "country": "Bolivia",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-BZ",
+    "lang": "Spanish",
+    "country": "Belize",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-CL",
+    "lang": "Spanish",
+    "country": "Chile",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-CO",
+    "lang": "Spanish",
+    "country": "Colombia",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-CR",
+    "lang": "Spanish",
+    "country": "Costa Rica",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-CU",
+    "lang": "Spanish",
+    "country": "Cuba",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-DO",
+    "lang": "Spanish",
+    "country": "Dominican Republic",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-EC",
+    "lang": "Spanish",
+    "country": "Ecuador",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-EH",
+    "lang": "Spanish",
+    "country": "Western Sahara",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-ES",
+    "lang": "Spanish",
+    "country": "Spain",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-GQ",
+    "lang": "Spanish",
+    "country": "Equatorial Guinea",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-GT",
+    "lang": "Spanish",
+    "country": "Guatemala",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-GU",
+    "lang": "Spanish",
+    "country": "Guam",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-HN",
+    "lang": "Spanish",
+    "country": "Honduras",
+    "fmt": "jueves 14 de mayo de 2026"
+  },
+  {
+    "code": "es-MX",
+    "lang": "Spanish",
+    "country": "Mexico",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-NI",
+    "lang": "Spanish",
+    "country": "Nicaragua",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-PA",
+    "lang": "Spanish",
+    "country": "Panama",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-PE",
+    "lang": "Spanish",
+    "country": "Peru",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-PR",
+    "lang": "Spanish",
+    "country": "Puerto Rico",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-PY",
+    "lang": "Spanish",
+    "country": "Paraguay",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-SV",
+    "lang": "Spanish",
+    "country": "El Salvador",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-UY",
+    "lang": "Spanish",
+    "country": "Uruguay",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "es-VE",
+    "lang": "Spanish",
+    "country": "Venezuela",
+    "fmt": "jueves, 14 de mayo de 2026"
+  },
+  {
+    "code": "et-EE",
+    "lang": "Estonian",
+    "country": "Estonia",
+    "fmt": "neljapäev, 14. mai 2026"
+  },
+  {
+    "code": "fa-IR",
+    "lang": "Persian (Farsi)",
+    "country": "Iran",
+    "fmt": "۱۴۰۵ اردیبهشت ۲۴, پنجشنبه"
+  },
+  {
+    "code": "fan-GQ",
+    "lang": "Fang",
+    "country": "Equatorial Guinea",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ff-BF",
+    "lang": "Fula",
+    "country": "Burkina Faso",
+    "fmt": "naasaande 14 duujal 2026"
+  },
+  {
+    "code": "ff-GN",
+    "lang": "Fula",
+    "country": "Guinea",
+    "fmt": "naasaande 14 duujal 2026"
+  },
+  {
+    "code": "fi-FI",
+    "lang": "Finnish",
+    "country": "Finland",
+    "fmt": "torstaina 14. toukokuuta 2026"
+  },
+  {
+    "code": "fj-FJ",
+    "lang": "Fijian",
+    "country": "Fiji",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "fo-FO",
+    "lang": "Faroese",
+    "country": "Faroe Islands",
+    "fmt": "hósdagur, 14. mai 2026"
+  },
+  {
+    "code": "fr-BE",
+    "lang": "French",
+    "country": "Belgium",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-BF",
+    "lang": "French",
+    "country": "Burkina Faso",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-BI",
+    "lang": "French",
+    "country": "Burundi",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-BJ",
+    "lang": "French",
+    "country": "Benin",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-BL",
+    "lang": "French",
+    "country": "Saint Barthelemy",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-CA",
+    "lang": "French",
+    "country": "Canada",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-CD",
+    "lang": "French",
+    "country": "Democratic Republic of the Congo",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-CF",
+    "lang": "French",
+    "country": "Central African Republic",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-CG",
+    "lang": "French",
+    "country": "Republic of the Congo",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-CH",
+    "lang": "French",
+    "country": "Switzerland",
+    "fmt": "jeudi, 14 mai 2026"
+  },
+  {
+    "code": "fr-CI",
+    "lang": "French",
+    "country": "Ivory Coast",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-CM",
+    "lang": "French",
+    "country": "Cameroon",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-DJ",
+    "lang": "French",
+    "country": "Djibouti",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-FR",
+    "lang": "French",
+    "country": "France",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-GA",
+    "lang": "French",
+    "country": "Gabon",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-GF",
+    "lang": "French",
+    "country": "French Guiana",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-GG",
+    "lang": "French",
+    "country": "Guernsey",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-GN",
+    "lang": "French",
+    "country": "Guinea",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-GP",
+    "lang": "French",
+    "country": "Guadeloupe",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-GQ",
+    "lang": "French",
+    "country": "Equatorial Guinea",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-HT",
+    "lang": "French",
+    "country": "Haiti",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-JE",
+    "lang": "French",
+    "country": "Jersey",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-KM",
+    "lang": "French",
+    "country": "Comoros",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-LB",
+    "lang": "French",
+    "country": "Lebanon",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-LU",
+    "lang": "French",
+    "country": "Luxembourg",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-MC",
+    "lang": "French",
+    "country": "Principality of Monaco",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-MF",
+    "lang": "French",
+    "country": "Saint Martin",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-MG",
+    "lang": "French",
+    "country": "Madagascar",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-ML",
+    "lang": "French",
+    "country": "Mali",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-MQ",
+    "lang": "French",
+    "country": "Martinique",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-NC",
+    "lang": "French",
+    "country": "New Caledonia",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-NE",
+    "lang": "French",
+    "country": "Niger",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-PF",
+    "lang": "French",
+    "country": "French Polynesia",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-PM",
+    "lang": "French",
+    "country": "Saint Pierre and Miquelon",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-RE",
+    "lang": "French",
+    "country": "Reunion",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-RW",
+    "lang": "French",
+    "country": "Rwanda",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-SC",
+    "lang": "French",
+    "country": "Seychelles",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-SN",
+    "lang": "French",
+    "country": "Senegal",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-TD",
+    "lang": "French",
+    "country": "Chad",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-TF",
+    "lang": "French",
+    "country": "French Southern and Antarctic Lands",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-TG",
+    "lang": "French",
+    "country": "Togo",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-VA",
+    "lang": "French",
+    "country": "Vatican City",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-VU",
+    "lang": "French",
+    "country": "Vanuatu",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-WF",
+    "lang": "French",
+    "country": "Wallis and Futuna",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "fr-YT",
+    "lang": "French",
+    "country": "Mayotte",
+    "fmt": "jeudi 14 mai 2026"
+  },
+  {
+    "code": "ga-IE",
+    "lang": "Irish",
+    "country": "Ireland",
+    "fmt": "Déardaoin 14 Bealtaine 2026"
+  },
+  {
+    "code": "gn-AR",
+    "lang": "Guaraní",
+    "country": "Argentina",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "gn-PY",
+    "lang": "Guaraní",
+    "country": "Paraguay",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "gv-IM",
+    "lang": "Manx",
+    "country": "Isle of Man",
+    "fmt": "2026 Boaldyn 14, Jerdein"
+  },
+  {
+    "code": "he-IL",
+    "lang": "Hebrew (modern)",
+    "country": "Israel",
+    "fmt": "יום חמישי, 14 במאי 2026"
+  },
+  {
+    "code": "hi-IN",
+    "lang": "Hindi",
+    "country": "India",
+    "fmt": "गुरुवार, 14 मई 2026"
+  },
+  {
+    "code": "hif-FJ",
+    "lang": "Fiji Hindi",
+    "country": "Fiji",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "hr-BA",
+    "lang": "Croatian",
+    "country": "Bosnia and Herzegovina",
+    "fmt": "četvrtak, 14. svibnja 2026."
+  },
+  {
+    "code": "hr-HR",
+    "lang": "Croatian",
+    "country": "Croatia",
+    "fmt": "četvrtak, 14. svibnja 2026."
+  },
+  {
+    "code": "hr-ME",
+    "lang": "Croatian",
+    "country": "Montenegro",
+    "fmt": "četvrtak, 14. svibnja 2026."
+  },
+  {
+    "code": "ht-HT",
+    "lang": "Haitian",
+    "country": "Haiti",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "hu-HU",
+    "lang": "Hungarian",
+    "country": "Hungary",
+    "fmt": "2026. május 14., csütörtök"
+  },
+  {
+    "code": "hy-AM",
+    "lang": "Armenian",
+    "country": "Armenia",
+    "fmt": "2026 թ. մայիսի 14, հինգշաբթի"
+  },
+  {
+    "code": "hy-CY",
+    "lang": "Armenian",
+    "country": "Cyprus",
+    "fmt": "2026 թ. մայիսի 14, հինգշաբթի"
+  },
+  {
+    "code": "id-ID",
+    "lang": "Indonesian",
+    "country": "Indonesia",
+    "fmt": "Kamis, 14 Mei 2026"
+  },
+  {
+    "code": "is-IS",
+    "lang": "Icelandic",
+    "country": "Iceland",
+    "fmt": "fimmtudagur, 14. maí 2026"
+  },
+  {
+    "code": "it-CH",
+    "lang": "Italian",
+    "country": "Switzerland",
+    "fmt": "giovedì, 14 maggio 2026"
+  },
+  {
+    "code": "it-IT",
+    "lang": "Italian",
+    "country": "Italy",
+    "fmt": "giovedì 14 maggio 2026"
+  },
+  {
+    "code": "it-SM",
+    "lang": "Italian",
+    "country": "San Marino",
+    "fmt": "giovedì 14 maggio 2026"
+  },
+  {
+    "code": "it-VA",
+    "lang": "Italian",
+    "country": "Vatican City",
+    "fmt": "giovedì 14 maggio 2026"
+  },
+  {
+    "code": "ja-JP",
+    "lang": "Japanese",
+    "country": "Japan",
+    "fmt": "2026年5月14日木曜日"
+  },
+  {
+    "code": "ka-GE",
+    "lang": "Georgian",
+    "country": "Georgia",
+    "fmt": "ხუთშაბათი, 14 მაისი, 2026"
+  },
+  {
+    "code": "kg-CD",
+    "lang": "Kongo",
+    "country": "Democratic Republic of the Congo",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "kk-KZ",
+    "lang": "Kazakh",
+    "country": "Kazakhstan",
+    "fmt": "2026 ж. 14 мамыр, бейсенбі"
+  },
+  {
+    "code": "kl-GL",
+    "lang": "Greenlandic",
+    "country": "Greenland",
+    "fmt": "2026 maajip 14, sisamanngorneq"
+  },
+  {
+    "code": "km-KH",
+    "lang": "Khmer",
+    "country": "Cambodia",
+    "fmt": "ព្រហស្បតិ៍ 14 ឧសភា 2026"
+  },
+  {
+    "code": "ko-KP",
+    "lang": "Korean",
+    "country": "North Korea",
+    "fmt": "2026년 5월 14일 목요일"
+  },
+  {
+    "code": "ko-KR",
+    "lang": "Korean",
+    "country": "South Korea",
+    "fmt": "2026년 5월 14일 목요일"
+  },
+  {
+    "code": "ku-IQ",
+    "lang": "Kurdish",
+    "country": "Iraq",
+    "fmt": "pêncşem, 14ê gulana 2026an"
+  },
+  {
+    "code": "kun-ER",
+    "lang": "Kunama",
+    "country": "Eritrea",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ky-KG",
+    "lang": "Kyrgyz",
+    "country": "Kyrgyzstan",
+    "fmt": "2026-ж., 14-май, бейшемби"
+  },
+  {
+    "code": "la-VA",
+    "lang": "Latin",
+    "country": "Vatican City",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "lb-LU",
+    "lang": "Luxembourgish",
+    "country": "Luxembourg",
+    "fmt": "Donneschdeg, 14. Mee 2026"
+  },
+  {
+    "code": "ln-CD",
+    "lang": "Lingala",
+    "country": "Democratic Republic of the Congo",
+    "fmt": "mokɔlɔ ya mínéi 14 sánzá ya mítáno 2026"
+  },
+  {
+    "code": "ln-CG",
+    "lang": "Lingala",
+    "country": "Republic of the Congo",
+    "fmt": "mokɔlɔ ya mínéi 14 sánzá ya mítáno 2026"
+  },
+  {
+    "code": "lo-LA",
+    "lang": "Lao",
+    "country": "Laos",
+    "fmt": "ວັນພະຫັດ, 14 ພຶດສະພາ 2026"
+  },
+  {
+    "code": "lt-LT",
+    "lang": "Lithuanian",
+    "country": "Lithuania",
+    "fmt": "2026 m. gegužės 14 d., ketvirtadienis"
+  },
+  {
+    "code": "lu-CD",
+    "lang": "Luba-Katanga",
+    "country": "Democratic Republic of the Congo",
+    "fmt": "Njòwa 14 Lumùngùlù 2026"
+  },
+  {
+    "code": "lv-LV",
+    "lang": "Latvian",
+    "country": "Latvia",
+    "fmt": "ceturtdiena, 2026. gada 14. maijs"
+  },
+  {
+    "code": "mg-MG",
+    "lang": "Malagasy",
+    "country": "Madagascar",
+    "fmt": "Alakamisy 14 Mey 2026"
+  },
+  {
+    "code": "mh-MH",
+    "lang": "Marshallese",
+    "country": "Marshall Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "mi-NZ",
+    "lang": "Māori",
+    "country": "New Zealand",
+    "fmt": "Tāite, 14 Mei 2026"
+  },
+  {
+    "code": "mk-MK",
+    "lang": "Macedonian",
+    "country": "North Macedonia",
+    "fmt": "четврток, 14 мај 2026 г."
+  },
+  {
+    "code": "mn-MN",
+    "lang": "Mongolian",
+    "country": "Mongolia",
+    "fmt": "2026 оны тавдугаар сарын 14, пүрэв гараг"
+  },
+  {
+    "code": "ms-BN",
+    "lang": "Malay",
+    "country": "Brunei",
+    "fmt": "Khamis, 14 Mei 2026"
+  },
+  {
+    "code": "ms-MY",
+    "lang": "Malay",
+    "country": "Malaysia",
+    "fmt": "Khamis, 14 Mei 2026"
+  },
+  {
+    "code": "ms-SG",
+    "lang": "Malay",
+    "country": "Singapore",
+    "fmt": "Khamis, 14 Mei 2026"
+  },
+  {
+    "code": "mt-MT",
+    "lang": "Maltese",
+    "country": "Malta",
+    "fmt": "Il-Ħamis, 14 ta’ Mejju 2026"
+  },
+  {
+    "code": "my-MM",
+    "lang": "Burmese",
+    "country": "Myanmar",
+    "fmt": "၂၀၂၆ မေ ၁၄ ကြာသပတေး"
+  },
+  {
+    "code": "na-NR",
+    "lang": "Nauruan",
+    "country": "Nauru",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "nb-BV",
+    "lang": "Norwegian Bokmål",
+    "country": "Bouvet Island",
+    "fmt": "torsdag 14. mai 2026"
+  },
+  {
+    "code": "nb-NO",
+    "lang": "Norwegian Bokmål",
+    "country": "Norway",
+    "fmt": "torsdag 14. mai 2026"
+  },
+  {
+    "code": "nd-ZW",
+    "lang": "Northern Ndebele",
+    "country": "Zimbabwe",
+    "fmt": "Sine, 14 Nkwenkwezi 2026"
+  },
+  {
+    "code": "ne-NP",
+    "lang": "Nepali",
+    "country": "Nepal",
+    "fmt": "२०२६ मे १४, बिहिबार"
+  },
+  {
+    "code": "nl-AW",
+    "lang": "Dutch",
+    "country": "Aruba",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nl-BE",
+    "lang": "Dutch",
+    "country": "Belgium",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nl-BQ",
+    "lang": "Dutch",
+    "country": "Caribbean Netherlands",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nl-CW",
+    "lang": "Dutch",
+    "country": "Curacao",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nl-MF",
+    "lang": "Dutch",
+    "country": "Saint Martin",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nl-NL",
+    "lang": "Dutch",
+    "country": "Netherlands",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nl-SR",
+    "lang": "Dutch",
+    "country": "Suriname",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nl-SX",
+    "lang": "Dutch",
+    "country": "Sint Maarten",
+    "fmt": "donderdag 14 mei 2026"
+  },
+  {
+    "code": "nn-BV",
+    "lang": "Norwegian Nynorsk",
+    "country": "Bouvet Island",
+    "fmt": "torsdag 14. mai 2026"
+  },
+  {
+    "code": "nn-NO",
+    "lang": "Norwegian Nynorsk",
+    "country": "Norway",
+    "fmt": "torsdag 14. mai 2026"
+  },
+  {
+    "code": "no-BV",
+    "lang": "Norwegian",
+    "country": "Bouvet Island",
+    "fmt": "torsdag 14. mai 2026"
+  },
+  {
+    "code": "no-NO",
+    "lang": "Norwegian",
+    "country": "Norway",
+    "fmt": "torsdag 14. mai 2026"
+  },
+  {
+    "code": "no-SJ",
+    "lang": "Norwegian",
+    "country": "Svalbard",
+    "fmt": "torsdag 14. mai 2026"
+  },
+  {
+    "code": "nr-ZA",
+    "lang": "Southern Ndebele",
+    "country": "South Africa",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "nrb-ER",
+    "lang": "Nara",
+    "country": "Eritrea",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ny-MW",
+    "lang": "Chichewa",
+    "country": "Malawi",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "pa-AW",
+    "lang": "(Eastern) Punjabi",
+    "country": "Aruba",
+    "fmt": "ਵੀਰਵਾਰ, 14 ਮਈ 2026"
+  },
+  {
+    "code": "pa-CW",
+    "lang": "(Eastern) Punjabi",
+    "country": "Curacao",
+    "fmt": "ਵੀਰਵਾਰ, 14 ਮਈ 2026"
+  },
+  {
+    "code": "pl-PL",
+    "lang": "Polish",
+    "country": "Poland",
+    "fmt": "czwartek, 14 maja 2026"
+  },
+  {
+    "code": "ps-AF",
+    "lang": "Pashto",
+    "country": "Afghanistan",
+    "fmt": "AP ۱۴۰۵ غویی ۲۴, پينځنۍ"
+  },
+  {
+    "code": "pt-AO",
+    "lang": "Portuguese",
+    "country": "Angola",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-BR",
+    "lang": "Portuguese",
+    "country": "Brazil",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-CV",
+    "lang": "Portuguese",
+    "country": "Cape Verde",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-GQ",
+    "lang": "Portuguese",
+    "country": "Equatorial Guinea",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-GW",
+    "lang": "Portuguese",
+    "country": "Guinea-Bissau",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-MO",
+    "lang": "Portuguese",
+    "country": "Macao",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-MZ",
+    "lang": "Portuguese",
+    "country": "Mozambique",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-PT",
+    "lang": "Portuguese",
+    "country": "Portugal",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-ST",
+    "lang": "Portuguese",
+    "country": "Sao Tome and Principe",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "pt-TL",
+    "lang": "Portuguese",
+    "country": "East Timor",
+    "fmt": "quinta-feira, 14 de maio de 2026"
+  },
+  {
+    "code": "qu-BO",
+    "lang": "Quechua",
+    "country": "Bolivia",
+    "fmt": "Jueves, 14 Mayo, 2026"
+  },
+  {
+    "code": "rar-CK",
+    "lang": "Cook Islands Māori",
+    "country": "Cook Islands",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "rm-CH",
+    "lang": "Romansh",
+    "country": "Switzerland",
+    "fmt": "gievgia, ils 14 da matg 2026"
+  },
+  {
+    "code": "rn-BI",
+    "lang": "Kirundi",
+    "country": "Burundi",
+    "fmt": "Ku wa kane 14 Rusama 2026"
+  },
+  {
+    "code": "ro-MD",
+    "lang": "Romanian",
+    "country": "Moldova",
+    "fmt": "joi, 14 mai 2026"
+  },
+  {
+    "code": "ro-RO",
+    "lang": "Romanian",
+    "country": "Romania",
+    "fmt": "joi, 14 mai 2026"
+  },
+  {
+    "code": "rtm-FJ",
+    "lang": "Rotuman",
+    "country": "Fiji",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ru-AQ",
+    "lang": "Russian",
+    "country": "Antarctica",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "ru-BY",
+    "lang": "Russian",
+    "country": "Belarus",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "ru-KG",
+    "lang": "Russian",
+    "country": "Kyrgyzstan",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "ru-KZ",
+    "lang": "Russian",
+    "country": "Kazakhstan",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "ru-RU",
+    "lang": "Russian",
+    "country": "Russia",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "ru-TJ",
+    "lang": "Russian",
+    "country": "Tajikistan",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "ru-TM",
+    "lang": "Russian",
+    "country": "Turkmenistan",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "ru-UZ",
+    "lang": "Russian",
+    "country": "Uzbekistan",
+    "fmt": "четверг, 14 мая 2026 г."
+  },
+  {
+    "code": "rw-RW",
+    "lang": "Kinyarwanda",
+    "country": "Rwanda",
+    "fmt": "2026 Gicurasi 14, Kuwa kane"
+  },
+  {
+    "code": "sg-CF",
+    "lang": "Sango",
+    "country": "Central African Republic",
+    "fmt": "Bïkua-okü 14 Bêläwü 2026"
+  },
+  {
+    "code": "si-LK",
+    "lang": "Sinhalese",
+    "country": "Sri Lanka",
+    "fmt": "2026 මැයි 14, බ්‍රහස්පතින්දා"
+  },
+  {
+    "code": "sk-CZ",
+    "lang": "Slovak",
+    "country": "Czechia",
+    "fmt": "štvrtok 14. mája 2026"
+  },
+  {
+    "code": "sk-SK",
+    "lang": "Slovak",
+    "country": "Slovakia",
+    "fmt": "štvrtok 14. mája 2026"
+  },
+  {
+    "code": "sl-SI",
+    "lang": "Slovene",
+    "country": "Slovenia",
+    "fmt": "četrtek, 14. maj 2026"
+  },
+  {
+    "code": "sm-AS",
+    "lang": "Samoan",
+    "country": "American Samoa",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "sm-WS",
+    "lang": "Samoan",
+    "country": "Samoa",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "sn-ZW",
+    "lang": "Shona",
+    "country": "Zimbabwe",
+    "fmt": "2026 Chivabvu 14, China"
+  },
+  {
+    "code": "so-SO",
+    "lang": "Somali",
+    "country": "Somalia",
+    "fmt": "Khamiis, Maayo 14, 2026"
+  },
+  {
+    "code": "sq-AL",
+    "lang": "Albanian",
+    "country": "Albania",
+    "fmt": "e enjte, 14 maj 2026"
+  },
+  {
+    "code": "sq-ME",
+    "lang": "Albanian",
+    "country": "Montenegro",
+    "fmt": "e enjte, 14 maj 2026"
+  },
+  {
+    "code": "sq-XK",
+    "lang": "Albanian",
+    "country": "Kosovo",
+    "fmt": "e enjte, 14 maj 2026"
+  },
+  {
+    "code": "sr-BA",
+    "lang": "Serbian",
+    "country": "Bosnia and Herzegovina",
+    "fmt": "четвртак, 14. мај 2026."
+  },
+  {
+    "code": "sr-ME",
+    "lang": "Serbian",
+    "country": "Montenegro",
+    "fmt": "četvrtak, 14. maj 2026."
+  },
+  {
+    "code": "sr-RS",
+    "lang": "Serbian",
+    "country": "Serbia",
+    "fmt": "четвртак, 14. мај 2026."
+  },
+  {
+    "code": "sr-XK",
+    "lang": "Serbian",
+    "country": "Kosovo",
+    "fmt": "четвртак, 14. мај 2026."
+  },
+  {
+    "code": "ss-SZ",
+    "lang": "Swati",
+    "country": "Eswatini",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ss-ZA",
+    "lang": "Swati",
+    "country": "South Africa",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "ssy-ER",
+    "lang": "Saho",
+    "country": "Eritrea",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "st-LS",
+    "lang": "Southern Sotho",
+    "country": "Lesotho",
+    "fmt": "2026 Motsheanong 14, Labone"
+  },
+  {
+    "code": "st-ZA",
+    "lang": "Southern Sotho",
+    "country": "South Africa",
+    "fmt": "2026 Motsheanong 14, Labone"
+  },
+  {
+    "code": "sv-AX",
+    "lang": "Swedish",
+    "country": "Åland Islands",
+    "fmt": "torsdag 14 maj 2026"
+  },
+  {
+    "code": "sv-FI",
+    "lang": "Swedish",
+    "country": "Finland",
+    "fmt": "torsdag 14 maj 2026"
+  },
+  {
+    "code": "sv-SE",
+    "lang": "Swedish",
+    "country": "Sweden",
+    "fmt": "torsdag 14 maj 2026"
+  },
+  {
+    "code": "sw-CD",
+    "lang": "Swahili",
+    "country": "Democratic Republic of the Congo",
+    "fmt": "Alhamisi, 14 Mei 2026"
+  },
+  {
+    "code": "sw-KE",
+    "lang": "Swahili",
+    "country": "Kenya",
+    "fmt": "Alhamisi, 14 Mei 2026"
+  },
+  {
+    "code": "sw-TZ",
+    "lang": "Swahili",
+    "country": "Tanzania",
+    "fmt": "Alhamisi, 14 Mei 2026"
+  },
+  {
+    "code": "sw-UG",
+    "lang": "Swahili",
+    "country": "Uganda",
+    "fmt": "Alhamisi, 14 Mei 2026"
+  },
+  {
+    "code": "ta-LK",
+    "lang": "Tamil",
+    "country": "Sri Lanka",
+    "fmt": "வியாழன், 14 மே, 2026"
+  },
+  {
+    "code": "ta-SG",
+    "lang": "Tamil",
+    "country": "Singapore",
+    "fmt": "வியாழன், 14 மே, 2026"
+  },
+  {
+    "code": "tg-TJ",
+    "lang": "Tajik",
+    "country": "Tajikistan",
+    "fmt": "Панҷшанбе, 14 Май 2026"
+  },
+  {
+    "code": "th-TH",
+    "lang": "Thai",
+    "country": "Thailand",
+    "fmt": "วันพฤหัสบดีที่ 14 พฤษภาคม 2569"
+  },
+  {
+    "code": "ti-ER",
+    "lang": "Tigrinya",
+    "country": "Eritrea",
+    "fmt": "ሓሙስ፣ 14 ጉንበት 2026"
+  },
+  {
+    "code": "tig-ER",
+    "lang": "Tigre",
+    "country": "Eritrea",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "tk-AF",
+    "lang": "Turkmen",
+    "country": "Afghanistan",
+    "fmt": "14 maý 2026 penşenbe"
+  },
+  {
+    "code": "tk-TM",
+    "lang": "Turkmen",
+    "country": "Turkmenistan",
+    "fmt": "14 maý 2026 penşenbe"
+  },
+  {
+    "code": "tn-BW",
+    "lang": "Tswana",
+    "country": "Botswana",
+    "fmt": "2026 Motsheganang 14, Labone"
+  },
+  {
+    "code": "tn-ZA",
+    "lang": "Tswana",
+    "country": "South Africa",
+    "fmt": "2026 Motsheganang 14, Labone"
+  },
+  {
+    "code": "to-TO",
+    "lang": "Tonga (Tonga Islands)",
+    "country": "Tonga",
+    "fmt": "Tuʻapulelulu 14 Mē 2026"
+  },
+  {
+    "code": "tr-CY",
+    "lang": "Turkish",
+    "country": "Cyprus",
+    "fmt": "14 Mayıs 2026 Perşembe"
+  },
+  {
+    "code": "tr-TR",
+    "lang": "Turkish",
+    "country": "Turkey",
+    "fmt": "14 Mayıs 2026 Perşembe"
+  },
+  {
+    "code": "ts-ZA",
+    "lang": "Tsonga",
+    "country": "South Africa",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "uk-UA",
+    "lang": "Ukrainian",
+    "country": "Ukraine",
+    "fmt": "четвер, 14 травня 2026 р."
+  },
+  {
+    "code": "ur-PK",
+    "lang": "Urdu",
+    "country": "Pakistan",
+    "fmt": "جمعرات، 14 مئی، 2026"
+  },
+  {
+    "code": "uz-AF",
+    "lang": "Uzbek",
+    "country": "Afghanistan",
+    "fmt": "۱۴۰۵ Ordibehesht ۲۴, پنجشنبه"
+  },
+  {
+    "code": "uz-UZ",
+    "lang": "Uzbek",
+    "country": "Uzbekistan",
+    "fmt": "payshanba, 14-may, 2026"
+  },
+  {
+    "code": "ve-ZA",
+    "lang": "Venda",
+    "country": "South Africa",
+    "fmt": "Thursday, May 14, 2026"
+  },
+  {
+    "code": "vi-VN",
+    "lang": "Vietnamese",
+    "country": "Vietnam",
+    "fmt": "Thứ Năm, 14 tháng 5, 2026"
+  },
+  {
+    "code": "xh-ZA",
+    "lang": "Xhosa",
+    "country": "South Africa",
+    "fmt": "Lwesine, Meyi 14, 2026"
+  },
+  {
+    "code": "zh-CN",
+    "lang": "Chinese",
+    "country": "China",
+    "fmt": "2026年5月14日星期四"
+  },
+  {
+    "code": "zh-HK",
+    "lang": "Chinese",
+    "country": "Hong Kong",
+    "fmt": "2026年5月14日星期四"
+  },
+  {
+    "code": "zh-MO",
+    "lang": "Chinese",
+    "country": "Macao",
+    "fmt": "2026年5月14日星期四"
+  },
+  {
+    "code": "zh-SG",
+    "lang": "Chinese",
+    "country": "Singapore",
+    "fmt": "2026年5月14日星期四"
+  },
+  {
+    "code": "zh-TW",
+    "lang": "Chinese",
+    "country": "Taiwan",
+    "fmt": "2026年5月14日 星期四"
+  },
+  {
+    "code": "zu-ZA",
+    "lang": "Zulu",
+    "country": "South Africa",
+    "fmt": "ULwesine, Meyi 14, 2026"
+  }
+]

@@ -1,0 +1,31 @@
+<svg id="logo" width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="255.5" cy="255.5" r="200.5" fill="currentColor"/>
+
+  <defs>
+    <clipPath id="circleClip">
+      <circle cx="255.5" cy="255.5" r="200.5"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#circleClip)">
+    <line
+      x1="380.529"
+      y1="98.0623"
+      x2="222.334"
+      y2="256.257"
+      stroke="white"
+      stroke-width="48"
+      stroke-linecap="round"
+    />
+
+    <line
+      x1="388.987"
+      y1="423.362"
+      x2="223.529"
+      y2="257.904"
+      stroke="white"
+      stroke-width="48"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>

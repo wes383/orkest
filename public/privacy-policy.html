@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy | Orkest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #ffffff;
+      color: #3c3841;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #ffffff;
+    }
+
+    .content-wrap {
+      width: 100%;
+      max-width: 48rem;
+      padding: 4rem 1.5rem;
+    }
+
+    /* Top nav */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      font-size: 0.875rem;
+      flex-wrap: wrap;
+    }
+
+    .top-nav a {
+      text-decoration: none;
+      color: #6b6b6b;
+      transition: color 0.15s;
+    }
+
+    .top-nav a:hover { color: #000; }
+    .top-nav a.active { color: #111; }
+    .top-nav .sep { color: #ccc; }
+
+    /* Article */
+    article h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 1.5rem;
+      line-height: 1.3;
+    }
+
+    article h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #111;
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    article h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    article h1-skip {
+      display: none; /* hide duplicate h1 from markdown */
+    }
+
+    article p {
+      margin-bottom: 0.875rem;
+      color: #3c3841;
+      font-size: 0.9375rem;
+    }
+
+    article ul, article ol {
+      margin: 0 0 0.875rem 1.5rem;
+      color: #3c3841;
+      font-size: 0.9375rem;
+    }
+
+    article li { margin-bottom: 0.375rem; }
+
+    article a {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    article a:hover { color: #000; }
+
+    article code {
+      font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85em;
+      background: rgba(0,0,0,0.05);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }
+
+    article blockquote {
+      border-left: 3px solid #e5e5e5;
+      margin: 0.875rem 0;
+      padding-left: 1rem;
+      color: #6b6b6b;
+      font-style: italic;
+    }
+
+    article hr {
+      border: none;
+      border-top: 1px solid #e5e5e5;
+      margin: 1.5rem 0;
+    }
+
+    article strong { font-weight: 600; color: #111; }
+
+    /* Tables Styling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+      color: #3c3841;
+    }
+
+    th {
+      background-color: #f9f9fb;
+      color: #111;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e5e5e5;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fcfcfd;
+    }
+
+
+    /* Footer */
+    .page-footer {
+      margin-top: 4rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e5e5e5;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #888;
+    }
+
+    @media (max-width: 640px) {
+      .content-wrap { padding: 2rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="content-wrap">
+
+      <nav class="top-nav">
+        <a href="/">Back to Orkest</a>
+        <span class="sep">|</span>
+        <a href="/privacy-policy.html" class="active">Privacy</a>
+        <span class="sep">|</span>
+        <a href="/terms-of-service.html" class="">Terms</a>
+        <span class="sep">|</span>
+        <a href="/refund-policy.html" class="">Refund Policy</a>
+      </nav>
+
+      <article>
+        <h1>Privacy Policy</h1>
+        <div>
+          <p><strong>Last Updated: May 29, 2026</strong></p>
+<h2>1. Introduction</h2>
+<p>Orkest ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our web application at <a href="https://orkest.wesluma.com" target="_blank" rel="noopener noreferrer">https://orkest.wesluma.com</a> ("the Service").</p>
+<p>Please read this Privacy Policy carefully. By using the Service, you acknowledge the practices described in this policy.</p>
+<h2>2. Information We Collect</h2>
+<h3>2.1 Information You Provide Directly</h3>
+<div class="table-container">
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Specific Data</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Account Information</strong></td>
+      <td>Email address, password (hashed), username (optional), avatar image</td>
+      <td>Account creation, authentication, user identification</td>
+    </tr>
+    <tr>
+      <td><strong>Profile Information</strong></td>
+      <td>Username, avatar, language/locale preferences, time zone</td>
+      <td>Personalizing your experience</td>
+    </tr>
+    <tr>
+      <td><strong>Task Data</strong></td>
+      <td>Task titles, descriptions, priorities, labels, tags, due dates, time zone, schedules, recurrence rules, subtasks, project assignments, status</td>
+      <td>Core Service functionality</td>
+    </tr>
+    <tr>
+      <td><strong>AI Chat Data</strong></td>
+      <td>Chat messages sent to the AI assistant (including structured JSON content and conversation history)</td>
+      <td>AI assistant feature</td>
+    </tr>
+    <tr>
+      <td><strong>AI Memory Data</strong></td>
+      <td>User preferences, habits, and patterns inferred by the AI assistant (stored as key-value pairs with category and confidence score)</td>
+      <td>Cross-session personalization of AI assistant</td>
+    </tr>
+    <tr>
+      <td><strong>AI Usage Data</strong></td>
+      <td>Daily conversation count, usage date</td>
+      <td>Enforcing daily usage limits</td>
+    </tr>
+    <tr>
+      <td><strong>Voice Input</strong></td>
+      <td>Audio recordings uploaded for transcription</td>
+      <td>Voice-to-text feature for AI assistant</td>
+    </tr>
+    <tr>
+      <td><strong>Focus Sessions</strong></td>
+      <td>Session start/end times, duration, associated task, completion status</td>
+      <td>Focus timer feature and statistics</td>
+    </tr>
+    <tr>
+      <td><strong>Settings &amp; Preferences</strong></td>
+      <td>Theme (light/dark), time format, week start day, sleep hours, task buffer minutes, default view, digest preferences</td>
+      <td>Personalizing your experience</td>
+    </tr>
+    <tr>
+      <td><strong>Google Calendar Data</strong></td>
+      <td>Calendar IDs, calendar names, OAuth tokens (access/refresh), sync tokens, event IDs, notification channel IDs</td>
+      <td>Google Calendar synchronization feature</td>
+    </tr>
+    <tr>
+      <td><strong>Notification Data</strong></td>
+      <td>Push notification subscription (OneSignal player ID), notification preferences (push/email), scheduled reminder metadata</td>
+      <td>Task reminder notifications</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3>2.2 Information Collected Automatically</h3>
+<div class="table-container">
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Specific Data</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Usage Data</strong></td>
+      <td>Pages visited, features used, interactions, timestamps</td>
+      <td>Service improvement, analytics</td>
+    </tr>
+    <tr>
+      <td><strong>Device &amp; Browser Data</strong></td>
+      <td>Browser type and version, operating system, device type</td>
+      <td>Technical optimization, security</td>
+    </tr>
+    <tr>
+      <td><strong>Log Data</strong></td>
+      <td>IP address, request timestamps, HTTP headers, error logs</td>
+      <td>Security, debugging, rate limiting</td>
+    </tr>
+    <tr>
+      <td><strong>Authentication Data</strong></td>
+      <td>Session tokens, OAuth provider identifiers</td>
+      <td>Maintaining authenticated sessions</td>
+    </tr>
+    <tr>
+      <td><strong>Location Preferences</strong></td>
+      <td>Selected time zone, locale settings (not precise GPS location)</td>
+      <td>Scheduling features, localization</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3>2.3 Information from Third-Party Providers</h3>
+<p>When you sign in via <strong>Google OAuth</strong>, we receive:</p>
+<ul>
+  <li>Your name (as registered with Google)</li>
+  <li>Your email address (verified by Google)</li>
+  <li>Your Google profile picture URL</li>
+</ul>
+<p>When you connect <strong>Google Calendar</strong>, we additionally access:</p>
+<ul>
+  <li>Your Google Calendar list (calendar IDs and names)</li>
+  <li>Calendar events (for synchronization purposes only)</li>
+  <li>We store OAuth tokens to maintain the sync connection</li>
+</ul>
+<h3>2.4 Information We Do NOT Collect</h3>
+<ul>
+  <li>Precise geolocation data;</li>
+  <li>Contacts;</li>
+  <li>Payment card information (all subscription payment transactions and billing are securely handled by Paddle, our Merchant of Record; Orkest does not collect, receive, or store your payment card numbers or credit card details);</li>
+  <li>Biometric data (other than voice recordings you voluntarily upload);</li>
+  <li>Sensitive personal data (health, religion, political affiliation, etc.);</li>
+  <li>Browsing history outside the Service;</li>
+  <li>Content from third-party apps or services (except Google OAuth profile data and Google Calendar data when you enable sync).</li>
+</ul>
+<h2>3. How We Use Your Information</h2>
+<p>We use your personal information for the following purposes:</p>
+<h3>3.1 Service Provision</h3>
+<ul>
+  <li>To create and manage your account;</li>
+  <li>To provide task management, scheduling, and synchronization features;</li>
+  <li>To enable Google Calendar synchronization (when you connect your Google account);</li>
+  <li>To enable AI assistant functionality (including natural language processing);</li>
+  <li>To store and apply user preferences and patterns learned by the AI assistant for cross-session personalization;</li>
+  <li>To provide the Daily Digest feature, including AI-generated task summaries and motivational messages;</li>
+  <li>To provide the Daily Quote feature, including fetching quotes and translating them into your preferred language;</li>
+  <li>To provide the "Today in History" feature, including fetching historical events from Wikipedia and translating them into your preferred language;</li>
+  <li>To provide the Daily Book Recommendation feature, including fetching book data and generating AI recommendations in your preferred language;</li>
+  <li>To process voice recordings for transcription;</li>
+  <li>To enable cross-device synchronization and real-time updates;</li>
+  <li>To send push notifications and email reminders for scheduled tasks (via OneSignal and Inngest/Resend, only when you configure reminders);</li>
+  <li>To generate export files (ICS, CSV, JSON) as requested.</li>
+</ul>
+<h3>3.2 Service Improvement</h3>
+<ul>
+  <li>To analyze usage patterns and improve the Service;</li>
+  <li>To develop new features and optimize existing ones;</li>
+  <li>To train and improve AI models (only with anonymized/non-personal data; see Section 3.5).</li>
+</ul>
+<h3>3.3 Security and Compliance</h3>
+<ul>
+  <li>To detect, prevent, and address fraud, abuse, security incidents, and technical issues;</li>
+  <li>To enforce our Terms of Service;</li>
+  <li>To comply with legal obligations and respond to lawful requests;</li>
+  <li>To implement rate limiting and bot protection.</li>
+</ul>
+<h3>3.4 Communication</h3>
+<ul>
+  <li>To send service-related emails (verification OTP, password reset, account notifications);</li>
+  <li>To send daily digest emails (task summary and curated content, only when you opt in);</li>
+  <li>To send announcements about material changes to the Service or policies;</li>
+  <li><strong>We do not send marketing or promotional emails</strong> unless you explicitly opt in.</li>
+</ul>
+<h3>3.5 AI Training</h3>
+<p>We do <strong>not</strong> use your personal data, task content, or AI chat messages to train or improve third-party AI models. We may use aggregated, fully anonymized data for service improvement, which cannot reasonably be used to identify you. If our practice changes in the future, we will:</p>
+<ul>
+  <li>Obtain your explicit consent;</li>
+  <li>Provide an opt-out mechanism;</li>
+  <li>Anonymize data before use.</li>
+</ul>
+<h2>4. Legal Bases for Processing (GDPR/UK Users)</h2>
+<p>If you are located in the EU/EEA or UK, we process your personal information based on the following legal bases:</p>
+<div class="table-container">
+<table>
+  <thead>
+    <tr>
+      <th>Processing Activity</th>
+      <th>Legal Basis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Account creation and management</td>
+      <td>Performance of a contract (Art. 6(1)(b) GDPR)</td>
+    </tr>
+    <tr>
+      <td>Service feature delivery</td>
+      <td>Performance of a contract (Art. 6(1)(b) GDPR)</td>
+    </tr>
+    <tr>
+      <td>Email verification and password reset</td>
+      <td>Performance of a contract / Legal obligation</td>
+    </tr>
+    <tr>
+      <td>AI chat and voice processing</td>
+      <td>Performance of a contract (Art. 6(1)(b) GDPR)</td>
+    </tr>
+    <tr>
+      <td>Usage analytics</td>
+      <td>Legitimate interests (Art. 6(1)(f) GDPR) — improving the Service</td>
+    </tr>
+    <tr>
+      <td>Security monitoring and fraud prevention</td>
+      <td>Legitimate interests (Art. 6(1)(f) GDPR) — protecting the Service and users</td>
+    </tr>
+    <tr>
+      <td>Compliance with legal obligations</td>
+      <td>Legal obligation (Art. 6(1)(c) GDPR)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h2>5. Data Sharing and Disclosure</h2>
+<h3>5.1 Third-Party Service Providers</h3>
+<p>We share your data with the following essential service providers, who process data on our behalf under strict data processing agreements:</p>
+<div class="table-container">
+<table>
+  <thead>
+    <tr>
+      <th>Provider</th>
+      <th>Purpose</th>
+      <th>Data Shared</th>
+      <th>Location</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Supabase Inc.</strong></td>
+      <td>Database hosting, authentication, real-time sync, file storage</td>
+      <td>Account data, task data, settings, session tokens</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <td><strong>Vercel Inc.</strong></td>
+      <td>Application hosting and deployment</td>
+      <td>Usage data, server logs, IP addresses</td>
+      <td>Global (edge network)</td>
+    </tr>
+    <tr>
+      <td><strong>Google LLC</strong></td>
+      <td>Google Calendar synchronization, OAuth authentication</td>
+      <td>OAuth tokens, calendar IDs, calendar events (only when sync is enabled)</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <td><strong>Alibaba Cloud (DashScope)</strong></td>
+      <td>AI chat completions, Daily Digest generation, Daily Quote translation, Today in History translation, Daily Book and Daily Movie translation and recommendation</td>
+      <td>AI chat messages, task summaries for Daily Digest, quote text for translation, historical event text for translation, book/movie metadata for translation and recommendation</td>
+      <td>China / Global</td>
+    </tr>
+    <tr>
+      <td><strong>Wikimedia Foundation</strong></td>
+      <td>Historical event data for "Today in History" feature</td>
+      <td>Date (month and day only)</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <td><strong>quote.wesluma.com</strong></td>
+      <td>Quote data for Daily Quote feature</td>
+      <td>Date (used as seed)</td>
+      <td>Global</td>
+    </tr>
+    <tr>
+      <td><strong>book.wesluma.com</strong></td>
+      <td>Book data for Daily Book Recommendation feature</td>
+      <td>Date (used as seed)</td>
+      <td>Global</td>
+    </tr>
+    <tr>
+      <td><strong>movie.wesluma.com</strong></td>
+      <td>Movie data for Daily Movie Recommendation feature</td>
+      <td>Date (used as seed)</td>
+      <td>Global</td>
+    </tr>
+    <tr>
+      <td><strong>Deepgram, Inc.</strong></td>
+      <td>Voice-to-text transcription</td>
+      <td>Audio recordings you upload</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <td><strong>Resend Inc.</strong></td>
+      <td>Transactional and reminder email delivery</td>
+      <td>Email address, reminder content</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <td><strong>OneSignal, Inc.</strong></td>
+      <td>Push notification delivery</td>
+      <td>OneSignal player ID, notification content, device info</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <td><strong>Inngest, Inc.</strong></td>
+      <td>Scheduled email reminder delivery (background job processing)</td>
+      <td>Event data (task title, trigger time, email address)</td>
+      <td>USA</td>
+    </tr>
+    <tr>
+      <td><strong>Cloudflare, Inc.</strong></td>
+      <td>Bot protection (Turnstile)</td>
+      <td>Browser fingerprint data, IP address</td>
+      <td>Global (edge network)</td>
+    </tr>
+    <tr>
+      <td><strong>Upstash Inc.</strong></td>
+      <td>Rate limiting (Redis)</td>
+      <td>IP address (transient, not stored)</td>
+      <td>USA / Global</td>
+    </tr>
+    <tr>
+      <td><strong>Paddle</strong> (Paddle.com Market Limited / Paddle Payments)</td>
+      <td>Subscription payment processing, tax compliance, invoicing, and billing</td>
+      <td>Email address, billing address, country, transaction history, and tokenized payment identifiers (card details are processed directly by Paddle)</td>
+      <td>United Kingdom / Ireland</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3>5.2 Legal Disclosures</h3>
+<p>We may disclose your information if required to do so by law or in the good-faith belief that such action is necessary to:</p>
+<ul>
+  <li>Comply with a legal obligation (subpoena, court order, or other legal process);</li>
+  <li>Protect and defend our rights or property;</li>
+  <li>Prevent or investigate possible wrongdoing in connection with the Service;</li>
+  <li>Protect the personal safety of users or the public;</li>
+  <li>Protect against legal liability.</li>
+</ul>
+<h3>5.3 Business Transfers</h3>
+<p>If Orkest is involved in a merger, acquisition, reorganization, or sale of assets, your information may be transferred as part of that transaction. We will notify you via email and/or a prominent notice on the Service before any such transfer takes effect.</p>
+<h3>5.4 We Do NOT Sell Your Personal Information</h3>
+<p>We do <strong>not</strong> sell, rent, or trade your personal information to third parties for their marketing or commercial purposes. This includes, for the purposes of the <strong>California Consumer Privacy Act (CCPA)</strong>, no "sale" or "sharing" of personal information for cross-context behavioral advertising.</p>
+<h2>6. International Data Transfers</h2>
+<p>Your personal information may be transferred to and processed in countries other than your country of residence, including the United States, where our service providers are located.</p>
+<p>When we transfer personal information from the <strong>EU/EEA/UK</strong> to countries not deemed adequate by the European Commission, we rely on:</p>
+<ul>
+  <li><strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission; and/or</li>
+  <li><strong>UK International Data Transfer Agreement (IDTA)</strong> and Addendum.</li>
+</ul>
+<p>When we transfer personal information from <strong>China (PIPL)</strong> to other countries, we:</p>
+<ul>
+  <li>Conduct a <strong>Personal Information Protection Impact Assessment (PIPIA)</strong> as required by PIPL;</li>
+  <li>Implement necessary contractual and technical safeguards;</li>
+  <li>Obtain your separate consent where required by law;</li>
+  <li>Inform you of the recipient's name, contact information, processing purpose, and method.</li>
+</ul>
+<h2>7. Data Retention</h2>
+<p>We retain your personal information only for as long as necessary to fulfill the purposes described in this Privacy Policy:</p>
+<div class="table-container">
+<table>
+  <thead>
+    <tr>
+      <th>Data Type</th>
+      <th>Retention Period</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Account information</td>
+      <td>Until account deletion</td>
+    </tr>
+    <tr>
+      <td>Task data</td>
+      <td>Until account deletion</td>
+    </tr>
+    <tr>
+      <td>Google Calendar connections</td>
+      <td>Until account deletion or disconnection</td>
+    </tr>
+    <tr>
+      <td>Reminder settings</td>
+      <td>Until account deletion or item deletion</td>
+    </tr>
+    <tr>
+      <td>Push notification subscription</td>
+      <td>Until you revoke notification permission or account deletion</td>
+    </tr>
+    <tr>
+      <td>AI chat messages</td>
+      <td>Until account deletion</td>
+    </tr>
+    <tr>
+      <td>AI memory data</td>
+      <td>Until account deletion (max 20 entries; stale entries auto-pruned)</td>
+    </tr>
+    <tr>
+      <td>Email digest preferences</td>
+      <td>Until account deletion (opt-in only)</td>
+    </tr>
+    <tr>
+      <td>Daily digest messages</td>
+      <td>7 days (older records automatically purged)</td>
+    </tr>
+    <tr>
+      <td>Daily quote translations</td>
+      <td>7 days (older records automatically purged)</td>
+    </tr>
+    <tr>
+      <td>Today in History translations</td>
+      <td>7 days (older records automatically purged)</td>
+    </tr>
+    <tr>
+      <td>Daily book translations</td>
+      <td>7 days (older records automatically purged)</td>
+    </tr>
+    <tr>
+      <td>Daily movie translations</td>
+      <td>7 days (older records automatically purged)</td>
+    </tr>
+    <tr>
+      <td>AI usage limits and counts</td>
+      <td>30 days (older records automatically purged)</td>
+    </tr>
+    <tr>
+      <td>Voice recordings</td>
+      <td>Until transcription is complete; deleted after processing</td>
+    </tr>
+    <tr>
+      <td>Focus sessions</td>
+      <td>Until account deletion</td>
+    </tr>
+    <tr>
+      <td>Usage logs</td>
+      <td>90 days (aggregated/anonymized data may be retained longer)</td>
+    </tr>
+    <tr>
+      <td>Email verification OTPs</td>
+      <td>24 hours</td>
+    </tr>
+    <tr>
+      <td>Session tokens</td>
+      <td>Until session expiry or account deletion</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p><strong>Account Deletion:</strong> You may delete your account at any time through the Settings page. Upon deletion, all your personal data across all database tables (projects, items, AI conversations, AI messages, AI user memories, AI usage data, user settings, user subscriptions, focus sessions, daily digests, daily digest email preferences, Google Calendar connections) and your Supabase Auth account will be permanently deleted within <strong>30 days</strong>. Your external notification subscriptions — including OneSignal push subscriptions, OneSignal email channel, Google Calendar notification channels, and any pending scheduled email reminders — will also be cancelled at the time of deletion. Residual copies may remain in backups for up to <strong>30 additional days</strong>.</p>
+<h2>8. Data Security</h2>
+<p>We implement appropriate technical and organizational measures to protect your personal information, including:</p>
+<ul>
+  <li><strong>Encryption in transit:</strong> All data transmitted between your browser and our servers is encrypted using TLS 1.3;</li>
+  <li><strong>Encryption at rest:</strong> Database storage is encrypted at rest via Supabase;</li>
+  <li><strong>Authentication security:</strong> Passwords are hashed and salted by Supabase Auth; session tokens are secure HTTP-only cookies;</li>
+  <li><strong>Rate limiting:</strong> Protection against brute force and abuse via Upstash Redis;</li>
+  <li><strong>Bot protection:</strong> Cloudflare Turnstile on auth endpoints;</li>
+  <li><strong>Access controls:</strong> Strict least-privilege access to production databases; no direct database access from client-side code;</li>
+  <li><strong>Regular updates:</strong> Dependencies are regularly updated to patch security vulnerabilities.</li>
+</ul>
+<p><strong>No security measure is 100% effective.</strong> We cannot guarantee the absolute security of your information. We encourage you to use strong, unique passwords and enable all available security features.</p>
+<h2>9. Your Rights and Choices</h2>
+<h3>9.1 General Rights (All Users)</h3>
+<ul>
+  <li><strong>Access and Portability:</strong> You can access and export your data via the Service's export features (ICS, CSV, JSON for AI conversations and memories). You may also request a copy of your personal data by contacting us.</li>
+  <li><strong>Correction:</strong> You can update your profile information, settings, and task data directly through the Service interface.</li>
+  <li><strong>Deletion:</strong> You can delete your account and all associated data through the Settings page at any time.</li>
+</ul>
+<h3>9.2 GDPR Rights (EU/EEA/UK Users)</h3>
+<p>In addition to the above, if you are located in the EU/EEA or UK, you have the right to:</p>
+<ul>
+  <li><strong>Withdraw Consent:</strong> Where processing is based on consent, you may withdraw at any time without affecting the lawfulness of processing based on consent before its withdrawal;</li>
+  <li><strong>Restrict Processing:</strong> Request restriction of processing of your personal data where applicable;</li>
+  <li><strong>Object to Processing:</strong> Object to processing based on legitimate interests, including profiling;</li>
+  <li><strong>Data Portability:</strong> Receive your personal data in a structured, commonly used, and machine-readable format (JSON);</li>
+  <li><strong>Lodge a Complaint:</strong> File a complaint with your local data protection authority (e.g., the ICO in the UK, or your national DP Authority in the EU).</li>
+</ul>
+<p>To exercise these rights, contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>. We will respond within <strong>30 days</strong>.</p>
+<h3>9.3 CCPA Rights (California Users)</h3>
+<p>If you are a California resident, you have the following rights under the CCPA:</p>
+<ul>
+  <li><strong>Right to Know:</strong> Request disclosure of the categories and specific pieces of personal information we have collected about you;</li>
+  <li><strong>Right to Delete:</strong> Request deletion of personal information we have collected (subject to certain exceptions);</li>
+  <li><strong>Right to Opt-Out:</strong> We do not sell or share your personal information, so no opt-out is necessary;</li>
+  <li><strong>Right to Non-Discrimination:</strong> We will not discriminate against you for exercising any of your CCPA rights;</li>
+  <li><strong>Right to Correct:</strong> Request correction of inaccurate personal information.</li>
+</ul>
+<p>To exercise your CCPA rights, contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>. We will verify your identity using the information associated with your account before processing your request.</p>
+<h3>9.4 PIPL Rights (China Users)</h3>
+<p>If you are located in mainland China, you have the following rights under the <strong>Personal Information Protection Law (PIPL)</strong>:</p>
+<ul>
+  <li><strong>Right to Know and Decide:</strong> Be informed of and decide on the processing of your personal information;</li>
+  <li><strong>Right to Access:</strong> Request access to your personal information processed by us;</li>
+  <li><strong>Right to Copy/Portability:</strong> Request a copy of your personal information;</li>
+  <li><strong>Right to Correct:</strong> Request correction of inaccurate or incomplete personal information;</li>
+  <li><strong>Right to Delete:</strong> Request deletion of your personal information under circumstances prescribed by law (including when processing purposes have been achieved, cannot be achieved, or are no longer necessary; or when we cease providing the Service);</li>
+  <li><strong>Right to Withdraw Consent:</strong> Withdraw your consent for processing, where processing is based on consent;</li>
+  <li><strong>Right to Explain:</strong> Request an explanation of our personal information processing rules;</li>
+  <li><strong>Right to Diexi (Post-mortem):</strong> Designate the handler of your personal information after your death (where permitted by law);</li>
+  <li><strong>Right to Lodge a Complaint:</strong> File a complaint with relevant Chinese authorities.</li>
+</ul>
+<p>To exercise these rights, contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>. We will respond within <strong>15 working days</strong>.</p>
+<h2>10. Cookies and Local Storage</h2>
+<h3>10.1 What We Use</h3>
+<p>We use minimal cookies and local storage necessary for the Service to function:</p>
+<div class="table-container">
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Purpose</th>
+      <th>Duration</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Authentication Cookies</strong> (HTTP-only)</td>
+      <td>Session management via Supabase SSR</td>
+      <td>Session / configurable</td>
+    </tr>
+    <tr>
+      <td><strong>Local Storage</strong></td>
+      <td>Offline sync queue (<code>orkest-sync-queue</code>)</td>
+      <td>Until cleared</td>
+    </tr>
+    <tr>
+      <td><strong>Local Storage</strong></td>
+      <td>Zustand persisted state (settings, focus store)</td>
+      <td>Until cleared</td>
+    </tr>
+    <tr>
+      <td><strong>Local Storage</strong></td>
+      <td>User preferences (language, theme, etc.)</td>
+      <td>Until cleared</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3>10.2 What We Do NOT Use</h3>
+<ul>
+  <li>We do <strong>not</strong> use third-party tracking cookies;</li>
+  <li>We do <strong>not</strong> use advertising cookies;</li>
+  <li>We do <strong>not</strong> use analytics cookies (Google Analytics, etc.);</li>
+  <li>We do <strong>not</strong> use social media pixels;</li>
+  <li>We do <strong>not</strong> engage in cross-site tracking;</li>
+</ul>
+<h3>10.3 Your Choices</h3>
+<p>Most browsers allow you to control cookies and local storage through their settings. However, disabling essential cookies/local storage may prevent the Service from functioning properly.</p>
+<h2>11. Third-Party Links</h2>
+<p>The Service may contain links to third-party websites or services (e.g., GitHub for support, Vercel for status). We are not responsible for the privacy practices of these third parties. We encourage you to review their privacy policies before providing them with any personal information.</p>
+<h2>12. Children's Privacy</h2>
+<p>The Service is not directed to individuals under the age of <strong>16</strong> (or the age of digital consent in your country). We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal information, we will take steps to delete such information promptly. If you believe a child has provided us with personal data, please contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>.</p>
+<h2>13. Changes to This Privacy Policy</h2>
+<p>We may update this Privacy Policy from time to time. Material changes will be communicated as follows:</p>
+<ul>
+  <li><strong>Email notification</strong> to the email address associated with your account (at least <strong>30 days</strong> before the effective date for material changes);</li>
+  <li><strong>In-app notification</strong> upon your next visit to the Service;</li>
+  <li><strong>Notice on the Service website</strong>.</li>
+</ul>
+<p>Your continued use of the Service after the effective date of the revised Privacy Policy constitutes your acceptance of the changes.</p>
+<h2>14. Data Protection Officer and Contact</h2>
+<p>Orkest has not appointed a statutory Data Protection Officer as we are not currently required to do so under applicable law. However, all privacy-related inquiries should be directed to:</p>
+<p><strong>Privacy Contact:</strong></p>
+<ul>
+  <li><strong>Email:</strong> <a href="mailto:support@wesluma.com">support@wesluma.com</a></li>
+  <li><strong>Response Time:</strong> We aim to respond within <strong>48 hours</strong> for general inquiries and within <strong>30 days</strong> for rights requests (or shorter periods as required by applicable law).</li>
+</ul>
+<h2>15. Governing Language</h2>
+<p>This Privacy Policy is drafted in English. While we may provide translations for convenience, the English version shall prevail in case of any conflict or inconsistency.</p>
+<h2>16. Specific Provisions for China Users (PIPL)</h2>
+<h3>16.1 Controller Information</h3>
+<p>The controller of your personal information is:</p>
+<ul>
+  <li><strong>Operator:</strong> Orkest (contact via <a href="mailto:support@wesluma.com">support@wesluma.com</a>)</li>
+</ul>
+<h3>16.2 Processing Principles</h3>
+<p>We process your personal information in accordance with the principles of <strong>lawfulness, legitimacy, necessity, and good faith</strong>, and with respect for your privacy.</p>
+<h3>16.3 Sensitive Personal Information</h3>
+<p>Under PIPL, certain categories of personal information are classified as "sensitive personal information" and require enhanced protection. We do <strong>not</strong> actively collect sensitive personal information as defined by PIPL (e.g., biometric identification information, religious beliefs, specific identity, medical health, financial accounts, personal location tracking). The only potentially sensitive data we process is:</p>
+<ul>
+  <li><strong>Voice recordings</strong> you voluntarily upload for transcription purposes. We process this data only with your explicit consent, for the specific purpose of transcription, and delete the recordings immediately after processing.</li>
+</ul>
+<p>If we need to process any other sensitive personal information in the future, we will:</p>
+<ul>
+  <li>Obtain your <strong>separate, explicit consent</strong>;</li>
+  <li>Inform you of the processing purpose and method;</li>
+  <li>Implement enhanced security measures;</li>
+  <li>Conduct a Personal Information Protection Impact Assessment (PIPIA) where required.</li>
+</ul>
+<h3>16.4 Processing of Minors' Personal Information</h3>
+<p>If you are under the age of <strong>14</strong>, you must obtain consent from a parent or guardian before using the Service. We do not knowingly collect personal information from children under 14 without such consent. If we become aware that we have collected personal information from a child under 14 without verified parental consent, we will delete that information promptly.</p>
+<h3>16.5 Impact Assessment</h3>
+<p>We conduct a <strong>Personal Information Protection Impact Assessment (PIPIA)</strong> before engaging in activities that have a significant impact on your rights, including automated decision-making and international data transfers.</p>
+<h3>16.6 Cross-Border Transfer Mechanisms</h3>
+<p>For transfers of personal information outside of China, we:</p>
+<ul>
+  <li>Pass a security assessment organized by the Chinese cyberspace administration department (if required by law);</li>
+  <li>Obtain your separate consent;</li>
+  <li>Inform you of the recipient's name, contact information, processing purpose, method, and the types of personal information transferred;</li>
+  <li>Ensure the recipient's processing activities meet the standards of protection required by PIPL through contractual arrangements.</li>
+</ul>
+        </div>
+      </article>
+
+      <footer class="page-footer">
+        <p>© 2026 Orkest. All rights reserved.</p>
+      </footer>
+
+    </div>
+  </div>
+</body>
+</html>
