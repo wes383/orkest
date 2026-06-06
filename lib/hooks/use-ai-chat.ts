@@ -188,6 +188,7 @@ export function useAiChat(config: UseAiChatConfig) {
       focusSessions: focusSessions.map((s) => ({
         itemId: s.itemId,
         taskTitle: s.taskTitle,
+        startedAt: s.startedAt,
         durationSeconds: s.durationSeconds,
         tags: s.tags,
       })),

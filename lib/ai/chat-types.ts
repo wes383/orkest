@@ -79,6 +79,7 @@ export type AiChatContext = {
   focusSessions?: Array<{
     itemId?: string;
     taskTitle?: string;
+    startedAt: Date;
     durationSeconds: number;
     tags?: string[];
   }>;
