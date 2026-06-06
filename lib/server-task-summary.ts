@@ -443,7 +443,11 @@ export function buildServerTaskSummary(
     nextUpTime: nextUp?.startDate
       ? nextUp.startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
       : null,
+    nextUpEndTime: nextUp?.endDate
+      ? nextUp.endDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      : null,
     todayTaskTitles,
+    inProgressTasks: [],
   };
 
   // --- Build taskContext string (mirrors frontend /api/daily-digest) ---
