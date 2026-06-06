@@ -2,7 +2,7 @@ This document lists the open-source software packages used by Orkest and their r
 
 Orkest is built on top of many excellent open-source projects. We are grateful to the maintainers and contributors of these projects.
 
-**Last Updated:** 2026-06-05
+**Last Updated:** 2026-06-06
 
 ## License Summary
 
