@@ -296,6 +296,55 @@ function itemOccursInRange(item: AiChatItemContext, range: { start: string; end:
   return candidateDoesOccurInRange(candidate, range);
 }
 
+/**
+ * Expand a list of items into one entry per actual occurrence within [range.start, range.end].
+ * For recurring items each occurrence carries the date's effective status (resolved via
+ * `completedOccurrences` / `reopenedOccurrences` / `exdates` overrides). For non-recurring
+ * items the template `status` is used directly and a single entry is produced.
+ *
+ * This is what the weekly review needs to count tasks / time per-occurrence rather than
+ * per-template.
+ */
+function expandItemsToOccurrences(
+  items: AiChatItemContext[],
+  range: { start: string; end: string },
+  timezone: string,
+): AiChatItemContext[] {
+  const out: AiChatItemContext[] = [];
+
+  const itemInRange = (item: AiChatItemContext): boolean => {
+    if (isRecurring(item)) {
+      return itemOccursInRange(item, range, timezone);
+    }
+    const itemStart = item.startDate;
+    const itemEnd = item.endDate || itemStart;
+    const itemDue = item.dueDate;
+    if (itemStart && itemStart >= range.start && itemStart <= range.end) return true;
+    if (itemEnd && itemEnd >= range.start && itemEnd <= range.end) return true;
+    if (itemDue && itemDue >= range.start && itemDue <= range.end) return true;
+    return false;
+  };
+
+  for (const item of items) {
+    if (!itemInRange(item)) continue;
+
+    if (isRecurring(item)) {
+      const dates = getOccurrencesInRange(item, range);
+      if (dates.length === 0) {
+        // Defensive: rrule said it occurs but we got no dates — skip rather than silently double-count.
+        continue;
+      }
+      for (const date of dates) {
+        out.push(withItemStatusOnDate(item, date, timezone));
+      }
+    } else {
+      out.push(item);
+    }
+  }
+
+  return out;
+}
+
 // ─── Date/Time normalization ───
 
 function getNowDateTime(tz?: string) {
@@ -817,7 +866,7 @@ ${"`"}${"`"}${"`"}weekly-review
 {"weekStart":"2025-06-09","weekEnd":"2025-06-15","taskStats":{"total":20,"completed":15,"completionRate":75},"timeStats":{"totalMinutes":480,"byCategory":[{"category":"Work","minutes":300,"percentage":63},{"category":"Learning","minutes":120,"percentage":25}]},"focusStats":{"totalMinutes":360,"sessionCount":8,"averageMinutes":45,"longestMinutes":120},"comparison":{"currentWeek":15,"previousWeek":12,"change":3,"trend":"up"},"suggestions":["Great progress! You completed more tasks than last week."]}
 ${"`"}${"`"}${"`"}
 
-Required fields: \`weekStart\`, \`weekEnd\`. All other fields are optional: \`taskStats\` (object with total, completed, completionRate — all-day events are included in these counts), \`timeStats\` (object with totalMinutes and byCategory array), \`focusStats\` (object with totalMinutes, sessionCount, averageMinutes, longestMinutes), \`comparison\` (object with currentWeek, previousWeek, change, trend), \`suggestions\` (array of strings).
+Required fields: \`weekStart\`, \`weekEnd\`. All other fields are optional: \`taskStats\` (object with total, completed, completionRate — all-day events are included; recurring tasks are counted per-occurrence), \`timeStats\` (object with totalMinutes and byCategory array — counts only completed items; recurring tasks contribute their per-occurrence duration), \`focusStats\` (object with totalMinutes, sessionCount, averageMinutes, longestMinutes), \`comparison\` (object with currentWeek, previousWeek, change, trend — currentWeek and previousWeek are per-occurrence counts), \`suggestions\` (array of strings).
 
 ### When to use:
 - **schedule-card**: When discussing a single task, showing a newly created task, or highlighting a specific item.
@@ -2219,22 +2268,15 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         const weekStartStr = weekStart.toISOString().slice(0, 10);
         const weekEndStr = weekEnd.toISOString().slice(0, 10);
 
-        // Get items in this week's range
-        const weekItems = context.items.filter((item) => {
-          if (isRecurring(item)) {
-            return itemOccursInRange(item, { start: weekStartStr, end: weekEndStr }, context.timezone);
-          }
-
-          const itemStart = item.startDate;
-          const itemEnd = item.endDate || itemStart;
-          const itemDue = item.dueDate;
-
-          if (itemStart && itemStart >= weekStartStr && itemStart <= weekEndStr) return true;
-          if (itemEnd && itemEnd >= weekStartStr && itemEnd <= weekEndStr) return true;
-          if (itemDue && itemDue >= weekStartStr && itemDue <= weekEndStr) return true;
-
-          return false;
-        });
+        // Get items in this week's range, expanded to one entry per actual occurrence.
+        // For recurring items, each occurrence carries the date's effective status
+        // (resolved via completedOccurrences / reopenedOccurrences / exdates overrides),
+        // so weekly stats correctly count per-occurrence rather than per-template.
+        const weekItems = expandItemsToOccurrences(
+          context.items,
+          { start: weekStartStr, end: weekEndStr },
+          context.timezone,
+        );
 
         // Calculate task completion stats (all items, including all-day events)
         const completedTasks = weekItems.filter(
@@ -2251,6 +2293,9 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         let totalTimeMinutes = 0;
 
         for (const item of weekItems) {
+          // Only count completed items for time distribution
+          if (item.status !== "completed") continue;
+
           // Skip all-day events
           if (item.allDay) continue;
           
@@ -2316,21 +2361,13 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         const prevWeekStartStr = prevWeekStart.toISOString().slice(0, 10);
         const prevWeekEndStr = prevWeekEnd.toISOString().slice(0, 10);
 
-        const prevWeekItems = context.items.filter((item) => {
-          if (isRecurring(item)) {
-            return itemOccursInRange(item, { start: prevWeekStartStr, end: prevWeekEndStr }, context.timezone);
-          }
-
-          const itemStart = item.startDate;
-          const itemEnd = item.endDate || itemStart;
-          const itemDue = item.dueDate;
-
-          if (itemStart && itemStart >= prevWeekStartStr && itemStart <= prevWeekEndStr) return true;
-          if (itemEnd && itemEnd >= prevWeekStartStr && itemEnd <= prevWeekEndStr) return true;
-          if (itemDue && itemDue >= prevWeekStartStr && itemDue <= prevWeekEndStr) return true;
-
-          return false;
-        });
+        // Expand previous-week items the same way so the per-occurrence comparison
+        // is apples-to-apples with the current week.
+        const prevWeekItems = expandItemsToOccurrences(
+          context.items,
+          { start: prevWeekStartStr, end: prevWeekEndStr },
+          context.timezone,
+        );
 
         const prevWeekCompleted = prevWeekItems.filter(
           (item) => item.status === "completed" || item.status === "cancelled" || item.status === "skipped",
@@ -2421,7 +2458,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         const summaryParts = [
           `Week of ${weekStartStr} to ${weekEndStr}:`,
           `${completedTasks.length}/${weekItems.length} tasks completed (${taskCompletionRate}%).`,
-          totalTimeMinutes > 0 ? `Total estimated time: ${Math.floor(totalTimeMinutes / 60)}h ${totalTimeMinutes % 60}min.` : "",
+          totalTimeMinutes > 0 ? `Total completed time: ${Math.floor(totalTimeMinutes / 60)}h ${totalTimeMinutes % 60}min.` : "",
           weekFocusSessions.length > 0 ? `Focus time: ${Math.floor(totalFocusMinutes / 60)}h ${totalFocusMinutes % 60}min across ${weekFocusSessions.length} sessions.` : "",
           trend === "up" ? `+${weekChange} tasks vs last week.` : trend === "down" ? `${weekChange} tasks vs last week.` : "Same as last week.",
         ].filter(Boolean).join(" ");
