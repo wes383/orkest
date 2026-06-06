@@ -2363,7 +2363,28 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           suggestions.push("Your average focus session is short. Try the Pomodoro technique (25min focus + 5min break) for better productivity.");
         }
 
-        if (conflicts.length > 0) {
+        // Check for scheduling conflicts
+        const weekConflicts = weekItems.filter((item) => {
+          if (item.status === "completed" || item.status === "cancelled" || item.status === "skipped") return false;
+          if (!item.hasTime || !item.startTime || !item.endTime) return false;
+          return true;
+        }).filter((item, index, arr) => {
+          for (let i = 0; i < index; i++) {
+            const a = arr[i];
+            if (!a.startTime || !a.endTime) continue;
+            if (!item.startTime || !item.endTime) continue;
+            const aStart = minutesFromTime(a.startTime)!;
+            const aEnd = minutesFromTime(a.endTime)!;
+            const bStart = minutesFromTime(item.startTime)!;
+            const bEnd = minutesFromTime(item.endTime)!;
+            if (aStart !== null && aEnd !== null && bStart !== null && bEnd !== null) {
+              if (aStart < bEnd && bStart < aEnd) return true;
+            }
+          }
+          return false;
+        });
+
+        if (weekConflicts.length > 0) {
           suggestions.push("You have scheduling conflicts. Consider rescheduling overlapping tasks.");
         }
 
