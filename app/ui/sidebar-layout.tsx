@@ -27,6 +27,7 @@ import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 import { useAiChatContext } from "@/lib/contexts/ai-chat-context";
 import { useFocusStore } from "@/lib/stores/use-focus-store";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
+import { formatCountdown, formatStopwatch } from "@/lib/focus-page-utils";
 import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts-help";
 import { addLocaleToPathname, stripLocaleFromPathname, useI18n } from "@/lib/i18n";
 import {
@@ -183,7 +184,34 @@ export function SidebarLayout({
   const sections = useAllPageStore((s) => s.sections);
   const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
   const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
-  const { timerMode, timerState, timeRemainingSeconds, startTimer, pauseTimer, resumeTimer, resetTimer } = useFocusStore();
+  const { timerMode, timerState, timeRemainingSeconds, startedAtTimestamp, pausedElapsedSeconds, settings, startTimer, pauseTimer, resumeTimer, resetTimer } = useFocusStore();
+
+  // Tick every 1s while the timer is running so the sidebar indicator stays live
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (timerState !== "running") return;
+    const id = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [timerState]);
+
+  // Live sidebar timer text: shown when a focus session is in progress and the user is not on the Focus page
+  const sidebarTimerText =
+    timerState === "idle"
+      ? null
+      : (() => {
+          const liveElapsed =
+            timerState === "running" && startedAtTimestamp
+              ? pausedElapsedSeconds + Math.floor((Date.now() - startedAtTimestamp) / 1000)
+              : pausedElapsedSeconds;
+          const seconds =
+            timerMode === "stopwatch"
+              ? liveElapsed
+              : Math.max(settings.countdownMinutes * 60 - liveElapsed, 0);
+          // Countdown mirrors the focus page's minimalist display (minutes only / ":SS" for < 60s)
+          return timerMode === "stopwatch" ? formatStopwatch(seconds) : formatCountdown(seconds);
+        })();
+  const showSidebarTimer = sidebarTimerText !== null && localPathname !== "/focus";
+
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [tagSortMode, setTagSortMode] = useState<"default" | "alpha" | "frequency">("default");
@@ -488,6 +516,25 @@ export function SidebarLayout({
                     style={{ shapeRendering: "geometricPrecision" }}
                   />
                   <span>{t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus")}</span>
+                  {item.href === "/focus" && showSidebarTimer && (
+                    <span
+                      className={`ml-auto flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-normal tabular-nums ${
+                        isActive
+                          ? "bg-black/[0.06] text-black/70 dark:bg-white/15 dark:text-[#f5f5f5]/75"
+                          : "bg-black/[0.04] text-black/60 dark:bg-white/[0.06] dark:text-[#d4d4d4]/60"
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                          timerState === "running"
+                            ? "animate-pulse bg-emerald-500"
+                            : "bg-black/40 dark:bg-white/40"
+                        }`}
+                      />
+                      {sidebarTimerText}
+                    </span>
+                  )}
                 </button>
               );
             })}
