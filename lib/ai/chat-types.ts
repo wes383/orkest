@@ -176,6 +176,8 @@ export type AiToolResult = {
   items?: AiChatItemContext[];
   conflicts?: AiActionConflict[];
   suggestions?: AiActionScheduleSuggestion[];
+  briefing?: Record<string, unknown>;
+  review?: Record<string, unknown>;
 };
 
 export type OrkestAIMessage = UIMessage<
