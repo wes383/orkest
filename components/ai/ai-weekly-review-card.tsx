@@ -33,7 +33,6 @@ export type AiWeeklyReviewData = {
   weekStart: string;
   weekEnd: string;
   taskStats: AiWeeklyReviewTaskStats;
-  allDayEventStats: { total: number; completed: number };
   timeStats: AiWeeklyReviewTimeStats;
   focusStats: AiWeeklyReviewFocusStats;
   comparison: AiWeeklyReviewComparison;
@@ -77,7 +76,7 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
       </div>
 
       {/* Task Stats */}
-      <div className="mb-3 grid grid-cols-2 gap-2">
+      <div className="mb-3 grid grid-cols-3 gap-2">
         {/* Total Tasks */}
         <div className="rounded-lg bg-black/[0.03] p-2 dark:bg-white/[0.06]">
           <p className="text-[10px] font-medium text-[#8c8691] dark:text-[#737373]">{t("review.totalTasks")}</p>
@@ -97,14 +96,6 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
         <div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-900/20">
           <p className="text-[10px] font-medium text-blue-600 dark:text-blue-400">{t("review.rate")}</p>
           <p className="text-lg font-semibold text-blue-700 dark:text-blue-300">{data.taskStats.completionRate}%</p>
-        </div>
-
-        {/* All-Day Events */}
-        <div className="rounded-lg bg-orange-50 p-2 dark:bg-orange-900/20">
-          <p className="text-[10px] font-medium text-orange-600 dark:text-orange-400">{t("review.allDay")}</p>
-          <p className="text-lg font-semibold text-orange-700 dark:text-orange-300">
-            {data.allDayEventStats.completed}/{data.allDayEventStats.total}
-          </p>
         </div>
       </div>
 

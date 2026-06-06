@@ -814,10 +814,10 @@ Required fields: \`date\`, \`totalTasks\`. All other fields are optional: \`comp
 Use a \`\`\`weekly-review code block to render a weekly review card. The code block body must be a single-line JSON object. Example:
 
 ${"`"}${"`"}${"`"}weekly-review
-{"weekStart":"2025-06-09","weekEnd":"2025-06-15","taskStats":{"total":20,"completed":15,"completionRate":75},"allDayEventStats":{"total":3,"completed":2},"timeStats":{"totalMinutes":480,"byCategory":[{"category":"Work","minutes":300,"percentage":63},{"category":"Learning","minutes":120,"percentage":25}]},"focusStats":{"totalMinutes":360,"sessionCount":8,"averageMinutes":45,"longestMinutes":120},"comparison":{"currentWeek":15,"previousWeek":12,"change":3,"trend":"up"},"suggestions":["Great progress! You completed more tasks than last week."]}
+{"weekStart":"2025-06-09","weekEnd":"2025-06-15","taskStats":{"total":20,"completed":15,"completionRate":75},"timeStats":{"totalMinutes":480,"byCategory":[{"category":"Work","minutes":300,"percentage":63},{"category":"Learning","minutes":120,"percentage":25}]},"focusStats":{"totalMinutes":360,"sessionCount":8,"averageMinutes":45,"longestMinutes":120},"comparison":{"currentWeek":15,"previousWeek":12,"change":3,"trend":"up"},"suggestions":["Great progress! You completed more tasks than last week."]}
 ${"`"}${"`"}${"`"}
 
-Required fields: \`weekStart\`, \`weekEnd\`. All other fields are optional: \`taskStats\` (object with total, completed, completionRate), \`allDayEventStats\` (object with total, completed), \`timeStats\` (object with totalMinutes and byCategory array), \`focusStats\` (object with totalMinutes, sessionCount, averageMinutes, longestMinutes), \`comparison\` (object with currentWeek, previousWeek, change, trend), \`suggestions\` (array of strings).
+Required fields: \`weekStart\`, \`weekEnd\`. All other fields are optional: \`taskStats\` (object with total, completed, completionRate — all-day events are included in these counts), \`timeStats\` (object with totalMinutes and byCategory array), \`focusStats\` (object with totalMinutes, sessionCount, averageMinutes, longestMinutes), \`comparison\` (object with currentWeek, previousWeek, change, trend), \`suggestions\` (array of strings).
 
 ### When to use:
 - **schedule-card**: When discussing a single task, showing a newly created task, or highlighting a specific item.
@@ -2236,22 +2236,13 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           return false;
         });
 
-        // Separate timed tasks and all-day events
-        const timedWeekItems = weekItems.filter((item) => !item.allDay);
-        const allDayWeekItems = weekItems.filter((item) => item.allDay);
-
-        // Calculate task completion stats
-        const completedTimedTasks = timedWeekItems.filter(
+        // Calculate task completion stats (all items, including all-day events)
+        const completedTasks = weekItems.filter(
           (item) => item.status === "completed" || item.status === "cancelled" || item.status === "skipped",
         );
-        const taskCompletionRate = timedWeekItems.length > 0
-          ? Math.round((completedTimedTasks.length / timedWeekItems.length) * 100)
+        const taskCompletionRate = weekItems.length > 0
+          ? Math.round((completedTasks.length / weekItems.length) * 100)
           : 0;
-
-        // All-day event stats
-        const completedAllDayEvents = allDayWeekItems.filter(
-          (item) => item.status === "completed" || item.status === "cancelled" || item.status === "skipped",
-        );
 
         // Calculate time allocation by project/tag
         // Priority: endTime - startTime > estimateMinutes > skip
@@ -2259,7 +2250,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         const timeByCategory = new Map<string, number>();
         let totalTimeMinutes = 0;
 
-        for (const item of timedWeekItems) {
+        for (const item of weekItems) {
           // Skip all-day events
           if (item.allDay) continue;
           
@@ -2345,7 +2336,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           (item) => item.status === "completed" || item.status === "cancelled" || item.status === "skipped",
         );
 
-        const weekChange = completedTimedTasks.length - prevWeekCompleted.length;
+        const weekChange = completedTasks.length - prevWeekCompleted.length;
         const trend: "up" | "down" | "same" = weekChange > 0 ? "up" : weekChange < 0 ? "down" : "same";
 
         // Generate AI suggestions
@@ -2403,13 +2394,9 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           weekStart: weekStartStr,
           weekEnd: weekEndStr,
           taskStats: {
-            total: timedWeekItems.length,
-            completed: completedTimedTasks.length,
+            total: weekItems.length,
+            completed: completedTasks.length,
             completionRate: taskCompletionRate,
-          },
-          allDayEventStats: {
-            total: allDayWeekItems.length,
-            completed: completedAllDayEvents.length,
           },
           timeStats: {
             totalMinutes: totalTimeMinutes,
@@ -2422,7 +2409,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
             longestMinutes: longestFocusMinutes,
           },
           comparison: {
-            currentWeek: completedTimedTasks.length,
+            currentWeek: completedTasks.length,
             previousWeek: prevWeekCompleted.length,
             change: weekChange,
             trend,
@@ -2433,8 +2420,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         // Generate summary message
         const summaryParts = [
           `Week of ${weekStartStr} to ${weekEndStr}:`,
-          `${completedTimedTasks.length}/${timedWeekItems.length} tasks completed (${taskCompletionRate}%).`,
-          allDayWeekItems.length > 0 ? `${completedAllDayEvents.length}/${allDayWeekItems.length} all-day events completed.` : "",
+          `${completedTasks.length}/${weekItems.length} tasks completed (${taskCompletionRate}%).`,
           totalTimeMinutes > 0 ? `Total estimated time: ${Math.floor(totalTimeMinutes / 60)}h ${totalTimeMinutes % 60}min.` : "",
           weekFocusSessions.length > 0 ? `Focus time: ${Math.floor(totalFocusMinutes / 60)}h ${totalFocusMinutes % 60}min across ${weekFocusSessions.length} sessions.` : "",
           trend === "up" ? `+${weekChange} tasks vs last week.` : trend === "down" ? `${weekChange} tasks vs last week.` : "Same as last week.",

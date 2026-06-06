@@ -97,6 +97,8 @@ export default function TodayPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  const effectiveViewMode = dailyDigestEnabled ? viewMode : "timeline";
+
   function handleEditBatchPreview(index: number) {
     if (ai.aiLoading) return;
 
@@ -160,6 +162,7 @@ export default function TodayPage() {
           dateLabel={todayView.dateLabel}
         />
 
+        {dailyDigestEnabled && (
         <div className="flex justify-center lg:justify-start px-2 lg:px-3">
           <div className="relative grid grid-cols-2 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5">
             {/* Sliding background */}
@@ -194,6 +197,7 @@ export default function TodayPage() {
             </button>
           </div>
         </div>
+        )}
 
         {!welcomeDismissed && manualItems.filter((r) => !r.deletedAt && !r.parentId).length === 0 && (
           <div className="rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
@@ -240,7 +244,7 @@ export default function TodayPage() {
           </div>
         )}
 
-        {viewMode === "digest" ? (
+        {effectiveViewMode === "digest" ? (
           <div className="flex flex-col gap-6">
             {dailyDigestEnabled && dailyDigestTopics.includes("task_summary") && (
               <DailyDigestCard viewModel={todayView} />

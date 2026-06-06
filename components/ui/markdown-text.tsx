@@ -89,7 +89,6 @@ function parseWeeklyReview(content: string): AiWeeklyReviewData | null {
       weekStart: data.weekStart,
       weekEnd: data.weekEnd,
       taskStats: data.taskStats ?? { total: 0, completed: 0, completionRate: 0 },
-      allDayEventStats: data.allDayEventStats ?? { total: 0, completed: 0 },
       timeStats: data.timeStats ?? { totalMinutes: 0, byCategory: [] },
       focusStats: data.focusStats ?? { totalMinutes: 0, sessionCount: 0, averageMinutes: 0, longestMinutes: 0 },
       comparison: data.comparison ?? { currentWeek: 0, previousWeek: 0, change: 0, trend: "same" },

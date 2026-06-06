@@ -865,48 +865,52 @@ export default function SettingsPage() {
           {t("digest.enabledHint")}
         </p>
         {dailyDigestEnabled && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-5">
             {([
               { value: "task_summary" as const, label: t("digest.topic.task_summary"), icon: List },
               { value: "daily_quote" as const, label: t("digest.topic.daily_quote"), icon: Quote },
               { value: "today_in_history" as const, label: t("digest.topic.today_in_history"), icon: CalendarDays },
               { value: "daily_book" as const, label: t("digest.topic.daily_book"), icon: BookOpen },
               { value: "daily_movie" as const, label: t("digest.topic.daily_movie"), icon: Film },
-            ]).map((topic) => (
-              <button
-                key={topic.value}
-                type="button"
-                onClick={() => {
-                  if (dailyDigestTopics.includes(topic.value)) {
-                    setDailyDigestTopics(dailyDigestTopics.filter((t) => t !== topic.value));
-                  } else {
-                    setDailyDigestTopics([...dailyDigestTopics, topic.value]);
-                  }
-                }}
-                className={`flex w-full cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition-colors ${
-                  dailyDigestTopics.includes(topic.value)
-                    ? "border-[#25242a] bg-[#25242a]/5 text-[#25242a] dark:border-[#f5f5f5] dark:bg-[#f5f5f5]/5 dark:text-[#f5f5f5]"
-                    : "border-black/8 bg-white text-[#25242a]/50 hover:border-black/15 hover:text-[#25242a]/70 dark:border-white/10 dark:bg-[#202020] dark:text-[#d4d4d4]/50 dark:hover:border-white/15 dark:hover:text-[#d4d4d4]/70"
-                }`}
-              >
-                <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
-                    dailyDigestTopics.includes(topic.value)
-                      ? "border-[#25242a] bg-[#25242a] text-white dark:border-[#f5f5f5] dark:bg-[#f5f5f5] dark:text-[#111111]"
-                      : "border-black/15 dark:border-white/15"
+            ]).map((topic) => {
+              const selected = dailyDigestTopics.includes(topic.value);
+              return (
+                <button
+                  key={topic.value}
+                  type="button"
+                  onClick={() => {
+                    if (selected) {
+                      setDailyDigestTopics(dailyDigestTopics.filter((v) => v !== topic.value));
+                    } else {
+                      setDailyDigestTopics([...dailyDigestTopics, topic.value]);
+                    }
+                  }}
+                  className={`group relative flex cursor-pointer flex-col items-center gap-2 rounded-2xl border px-3 py-4 text-center transition-all ${
+                    selected
+                      ? "border-black/8 bg-[#25242a]/5 text-[#25242a] dark:border-white/10 dark:bg-[#f5f5f5]/5 dark:text-[#f5f5f5]"
+                      : "border-black/8 bg-white text-[#25242a]/55 hover:border-black/15 hover:bg-black/[0.02] hover:text-[#25242a]/75 dark:border-white/10 dark:bg-[#202020] dark:text-[#d4d4d4]/55 dark:hover:border-white/15 dark:hover:bg-white/[0.04] dark:hover:text-[#d4d4d4]/75"
                   }`}
                 >
-                  {dailyDigestTopics.includes(topic.value) ? (
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <topic.icon className="h-3 w-3" />
+                  <span
+                    className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
+                      selected
+                        ? "bg-black/[0.04] text-[#25242a] dark:bg-white/[0.06] dark:text-[#f5f5f5]"
+                        : "bg-black/[0.04] text-[#25242a]/60 group-hover:bg-black/[0.06] dark:bg-white/[0.06] dark:text-[#d4d4d4]/60 dark:group-hover:bg-white/[0.10]"
+                    }`}
+                  >
+                    <topic.icon className="h-4.5 w-4.5" strokeWidth={2} />
+                  </span>
+                  <span className="text-[12px] font-medium leading-tight">{topic.label}</span>
+                  {selected && (
+                    <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#25242a] text-white dark:bg-[#f5f5f5] dark:text-[#111111]">
+                      <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
                   )}
-                </span>
-                {topic.label}
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
