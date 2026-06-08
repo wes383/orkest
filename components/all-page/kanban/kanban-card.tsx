@@ -129,6 +129,7 @@ export function KanbanCard({ item, isOverdue = false, sourceColumn }: KanbanCard
 
   return (
     <div
+      data-item-id={item.id}
       draggable
       onDragStart={handleDragStart}
       className={`group relative cursor-grab rounded-xl border border-black/6 bg-white/70 ${isCompact ? "p-0.5" : "p-1"} transition-colors active:cursor-grabbing hover:bg-white dark:border-white/8 dark:bg-white/[0.04] dark:hover:bg-white/[0.06]`}

@@ -28,6 +28,7 @@ import type { AiBatchPreviewItem } from "@/lib/ai/chat-types";
 import { toItemFromManualRecord, validateItemForm } from "@/lib/all-page-utils";
 import { useI18n } from "@/lib/i18n";
 import { AllPageSkeleton } from "@/components/ui/page-skeletons";
+import { AllPageSearch } from "@/components/all-page/all-page-search";
 
 
 function subscribe() {
@@ -85,6 +86,64 @@ export default function AllPage() {
     setTranslator(((key: string, values?: Record<string, string | number>) => t(key as Parameters<typeof t>[0], values)) as (key: string, values?: Record<string, string | number>) => string);
   }, [t, setTranslator]);
 
+  // Scroll-to-item from Command Palette
+  const [hiddenItemId, setHiddenItemId] = useState<string | null>(null);
+
+  const highlightAndScroll = useCallback((el: Element) => {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("ring-2", "ring-[#6d6770]", "dark:ring-[#a3a3a3]", "rounded-2xl");
+    setTimeout(() => {
+      el.classList.remove("ring-2", "ring-[#6d6770]", "dark:ring-[#a3a3a3]", "rounded-2xl");
+    }, 2000);
+  }, []);
+
+  const clearFiltersAndScrollTo = useCallback((itemId: string) => {
+    setListFilterConfig({
+      status: "all",
+      selectedTags: [],
+      selectedPriorities: [],
+      searchQuery: "",
+      timePreset: "none",
+    });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (el) highlightAndScroll(el);
+      });
+    });
+  }, [setListFilterConfig, highlightAndScroll]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const itemId = (e as CustomEvent<{ itemId: string }>).detail?.itemId;
+      if (!itemId) return;
+
+      // Always switch to List view first
+      setViewModeState("list");
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const el = document.querySelector(`[data-item-id="${itemId}"]`);
+          if (el) {
+            highlightAndScroll(el);
+          } else {
+            // Item hidden by filters — show toast
+            setHiddenItemId(itemId);
+          }
+        });
+      });
+    };
+    window.addEventListener("orkest:scroll-to-item", handler);
+    return () => window.removeEventListener("orkest:scroll-to-item", handler);
+  }, [highlightAndScroll, setListFilterConfig]);
+
+  // Auto-dismiss the toast after 6 seconds
+  useEffect(() => {
+    if (!hiddenItemId) return;
+    const timer = setTimeout(() => setHiddenItemId(null), 10000);
+    return () => clearTimeout(timer);
+  }, [hiddenItemId]);
+
   const allDefaultView = useSettingsStore((s) => s.allDefaultView);
   // Subscribe to dateFormatRegion to trigger re-render when it changes
   const dateFormatRegion = useSettingsStore((s) => s.dateFormatRegion);
@@ -140,6 +199,7 @@ export default function AllPage() {
     selectedTags: [],
     tagMatchMode: "or",
     selectedPriorities: [],
+    searchQuery: "",
   });
 
   const handleTimelineFilterChange = useCallback((update: Partial<ListFilterConfig>) => {
@@ -158,6 +218,7 @@ export default function AllPage() {
     selectedTags: [],
     tagMatchMode: "or",
     selectedPriorities: [],
+    searchQuery: "",
   });
   const [kanbanSortConfig, setKanbanSortConfig] = useState<ListSortConfig>({
     mode: "time",
@@ -201,8 +262,9 @@ export default function AllPage() {
       tagMatchMode: listFilterConfig.tagMatchMode,
       selectedPriorities: listFilterConfig.selectedPriorities,
       status: listFilterConfig.status,
+      searchQuery: listFilterConfig.searchQuery,
     }),
-    [timelineFilterConfig, listFilterConfig.selectedTags, listFilterConfig.tagMatchMode, listFilterConfig.selectedPriorities, listFilterConfig.status],
+    [timelineFilterConfig, listFilterConfig.selectedTags, listFilterConfig.tagMatchMode, listFilterConfig.selectedPriorities, listFilterConfig.status, listFilterConfig.searchQuery],
   );
   const effectiveKanbanFilter = useMemo(
     () => ({
@@ -210,8 +272,9 @@ export default function AllPage() {
       selectedTags: listFilterConfig.selectedTags,
       tagMatchMode: listFilterConfig.tagMatchMode,
       selectedPriorities: listFilterConfig.selectedPriorities,
+      searchQuery: listFilterConfig.searchQuery,
     }),
-    [kanbanFilterConfig, listFilterConfig.selectedTags, listFilterConfig.tagMatchMode, listFilterConfig.selectedPriorities],
+    [kanbanFilterConfig, listFilterConfig.selectedTags, listFilterConfig.tagMatchMode, listFilterConfig.selectedPriorities, listFilterConfig.searchQuery],
   );
   const filteredTimelineSections = useMemo(
     () => filterSections(sections, effectiveTimelineFilter),
@@ -367,7 +430,14 @@ export default function AllPage() {
               {t("nav.all")}
             </h1>
           </div>
+          <div className="hidden lg:flex lg:justify-end">
+            <AllPageSearch />
+          </div>
         </header>
+
+        <div className="-mt-4 lg:hidden">
+          <AllPageSearch />
+        </div>
 
         <div className={`-mt-8 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:items-center lg:justify-between lg:gap-3 px-2 lg:px-3 ${
           showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" ? "sticky top-3 z-30 mx-auto -mb-3 w-fit max-w-[calc(100%-1.5rem)] rounded-2xl px-2 py-1.5 gap-3 lg:rounded-full lg:mx-0 lg:w-auto lg:max-w-none lg:-mb-4 lg:px-3 lg:py-2 lg:gap-3" : ""
@@ -583,6 +653,30 @@ export default function AllPage() {
         renderAiBatchPreviewItem={renderAiBatchPreviewItem}
         quickPrompts={[t("ai.prompt.addTask"), t("ai.prompt.updateSelected"), t("ai.prompt.planWeek"), t("ai.prompt.review"), t("ai.prompt.search"), t("ai.prompt.overdue")]}
       />
+
+      {/* Toast: task hidden by filters */}
+      {hiddenItemId && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+          <div className="flex items-center gap-3 rounded-2xl border border-black/8 bg-white px-4 py-3 text-sm shadow-lg dark:border-white/10 dark:bg-[#1e1e1e]">
+            <span className="text-[#6d6770] dark:text-[#a3a3a3]">{t("all.hiddenByFilter")}</span>
+            <button
+              onClick={() => {
+                clearFiltersAndScrollTo(hiddenItemId);
+                setHiddenItemId(null);
+              }}
+              className="shrink-0 cursor-pointer rounded-full bg-[#25242a] px-3 py-1 text-xs font-medium text-white hover:bg-[#3a3940] dark:bg-[#f5f5f5] dark:text-[#101010] dark:hover:bg-[#e0e0e0]"
+            >
+              {t("common.clearFilters")}
+            </button>
+            <button
+              onClick={() => setHiddenItemId(null)}
+              className="shrink-0 cursor-pointer rounded-full px-2 py-1 text-xs text-[#9b95a0] hover:bg-black/5 hover:text-[#6d6770] dark:hover:bg-white/10 dark:hover:text-[#a3a3a3]"
+            >
+              {t("common.close")}
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -602,6 +602,7 @@ export function ItemCard({
 
   return (
     <article
+      data-item-id={item.id}
       className={`group/item cursor-pointer ${isSelected ? "is-selected" : ""}`}
       onClick={(e) => {
         if (compactActions) return;

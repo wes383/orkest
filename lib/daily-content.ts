@@ -22,8 +22,8 @@ const bookTranslationSchema = z.object({
 
 const movieTranslationSchema = z.object({
   title: z.string(),
-  genres: z.union([z.string(), z.array(z.string())]),
-  directors: z.union([z.string(), z.array(z.string())]),
+  genres: z.union([z.string(), z.array(z.string())]).nullable().optional(),
+  directors: z.union([z.string(), z.array(z.string())]).nullable().optional(),
   recommendation: z.string(),
 });
 
@@ -458,8 +458,8 @@ export async function ensureMovie(admin: Admin, dateKey: string, locale: string,
     const api = await fetchMovieFromApi(dateKey);
     sourceTitle = api.title;
     sourceYear = api.year;
-    sourceGenres = api.genres;
-    sourceDirectors = api.directors;
+    sourceGenres = api.genres || "Unknown";
+    sourceDirectors = api.directors || "Unknown";
     sourceImdbId = api.imdb_id;
     sourceId = api.id;
 
@@ -485,11 +485,15 @@ Return a JSON object with:
 
     enRecommendation = enResult.data.recommendation || "";
 
-    await admin.from("daily_movie_translations").upsert({
+    const { error: enUpsertError } = await admin.from("daily_movie_translations").upsert({
       movie_date: dateKey, locale: "en", title: sourceTitle, year: sourceYear,
       genres: sourceGenres, directors: sourceDirectors, recommendation: enRecommendation,
       imdb_id: sourceImdbId, source_id: sourceId, fetched_at: new Date().toISOString(),
     }, { onConflict: "movie_date, locale" });
+    if (enUpsertError) {
+      console.error("[ensureMovie] Failed to save English movie:", enUpsertError);
+      throw new Error(`Failed to save English movie: ${enUpsertError.message}`);
+    }
   }
 
   if (locale === "en") {
@@ -519,24 +523,31 @@ Return a JSON object with:
     userId,
   });
 
-  const toArray = (v: string | string[]): string =>
-    Array.isArray(v) ? v.join("; ") : v;
+  const toArray = (v: string | string[] | null | undefined, fallback: string): string => {
+    if (v == null) return fallback;
+    if (Array.isArray(v)) return v.length > 0 ? v.join("; ") : fallback;
+    return v || fallback;
+  };
 
   const result = {
     title: translated.data.title || sourceTitle,
     year: sourceYear,
-    genres: translated.data.genres ? toArray(translated.data.genres) : sourceGenres,
-    directors: translated.data.directors ? toArray(translated.data.directors) : sourceDirectors,
+    genres: toArray(translated.data.genres, sourceGenres),
+    directors: toArray(translated.data.directors, sourceDirectors),
     recommendation: translated.data.recommendation || "",
     imdbId: sourceImdbId,
     sourceId,
   };
 
-  await admin.from("daily_movie_translations").upsert({
+  const { error: translatedUpsertError } = await admin.from("daily_movie_translations").upsert({
     movie_date: dateKey, locale, title: result.title, year: result.year,
     genres: result.genres, directors: result.directors, recommendation: result.recommendation,
     imdb_id: result.imdbId, source_id: sourceId, fetched_at: new Date().toISOString(),
   }, { onConflict: "movie_date, locale" });
+  if (translatedUpsertError) {
+    console.error("[ensureMovie] Failed to save translated movie:", translatedUpsertError);
+    throw new Error(`Failed to save translated movie: ${translatedUpsertError.message}`);
+  }
 
   return result;
 }

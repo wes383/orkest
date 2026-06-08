@@ -76,7 +76,8 @@ export function KanbanView({
       filterConfig.timePreset !== "none" ||
       filterConfig.status !== "all" ||
       filterConfig.selectedTags.length > 0 ||
-      filterConfig.selectedPriorities.length > 0,
+      filterConfig.selectedPriorities.length > 0 ||
+      !!filterConfig.searchQuery?.trim(),
     [filterConfig],
   );
 

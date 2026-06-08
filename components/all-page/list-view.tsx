@@ -100,6 +100,14 @@ function rangeOverlaps(
 }
 
 function matchesFilters(item: DisplayItem, config: ListFilterConfig) {
+  // Text search filter (cheapest check, runs first)
+  if (config.searchQuery?.trim()) {
+    const q = config.searchQuery.trim().toLowerCase();
+    const title = item.title?.toLowerCase() ?? "";
+    const desc = item.description?.toLowerCase() ?? "";
+    if (!title.includes(q) && !desc.includes(q)) return false;
+  }
+
   const timeRange = getPresetRange(config);
   if (timeRange) {
     const scheduleRanges = getScheduleRanges(item);
@@ -158,7 +166,8 @@ function hasActiveFilters(config: ListFilterConfig) {
     config.timePreset !== "none" ||
     config.status !== "all" ||
     config.selectedTags.length > 0 ||
-    config.selectedPriorities.length > 0
+    config.selectedPriorities.length > 0 ||
+    !!config.searchQuery?.trim()
   );
 }
 

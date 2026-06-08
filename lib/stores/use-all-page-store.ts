@@ -179,6 +179,7 @@ const defaultListFilterConfig: ListFilterConfig = {
   selectedTags: [],
   tagMatchMode: "or",
   selectedPriorities: [],
+  searchQuery: "",
 };
 
 const initialState = {

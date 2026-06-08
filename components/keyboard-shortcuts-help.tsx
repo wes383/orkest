@@ -19,6 +19,7 @@ const SHORTCUTS: ShortcutEntry[] = [
   { keys: ["Alt", "B"], actionKey: "shortcuts.toggleSidebar" },
   { keys: ["Alt", "N"], actionKey: "shortcuts.newItem" },
   { keys: ["Alt", "I"], actionKey: "shortcuts.toggleAi" },
+  { keys: ["Ctrl", "K"], actionKey: "shortcuts.commandPalette" },
   { keys: ["V"], actionKey: "shortcuts.cycleViews" },
   { keys: ["Left", "Right"], actionKey: "shortcuts.calendarPrevNext" },
   { keys: ["Space"], actionKey: "shortcuts.timer" },
@@ -33,6 +34,7 @@ function isMac() {
 
 function formatKey(key: string) {
   if (key === "Alt") return isMac() ? "Option" : "Alt";
+  if (key === "Ctrl") return isMac() ? "⌘" : "Ctrl";
   return key;
 }
 

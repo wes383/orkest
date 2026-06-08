@@ -29,6 +29,7 @@ import { useFocusStore } from "@/lib/stores/use-focus-store";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { formatCountdown, formatStopwatch } from "@/lib/focus-page-utils";
 import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts-help";
+import { CommandPalette } from "@/components/command-palette";
 import { addLocaleToPathname, stripLocaleFromPathname, useI18n } from "@/lib/i18n";
 import {
   parseSidebarCollapsedPreference,
@@ -213,6 +214,7 @@ export function SidebarLayout({
   const showSidebarTimer = sidebarTimerText !== null && localPathname !== "/focus";
 
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [tagSortMode, setTagSortMode] = useState<"default" | "alpha" | "frequency">("default");
   const [showTagSortMenu, setShowTagSortMenu] = useState(false);
@@ -321,6 +323,12 @@ export function SidebarLayout({
     { key: "4", alt: true, handler: () => switchTab("/trash") },
     { key: ",", alt: true, handler: () => router.push(addLocaleToPathname("/settings", locale)) },
     { key: "b", alt: true, handler: () => setIsCollapsed((c) => !c), allowInput: true },
+    {
+      key: "k",
+      ctrl: true,
+      handler: () => setShowCommandPalette((current) => !current),
+      allowInput: true,
+    },
     {
       key: "n",
       alt: true,
@@ -883,6 +891,14 @@ export function SidebarLayout({
         <ItemForm />
       </main>
       <KeyboardShortcutsHelp open={showShortcutsHelp} onClose={() => setShowShortcutsHelp(false)} />
+      <CommandPalette
+        open={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        onOpenComposer={openComposer}
+        onNavigate={switchTab}
+        onNavigateSettings={() => router.push(addLocaleToPathname("/settings", locale))}
+        onToggleAi={() => ai.setExpandedState(!ai.isExpanded)}
+      />
     </div>
   );
 }

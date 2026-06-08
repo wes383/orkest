@@ -209,6 +209,7 @@ export type ListFilterConfig = {
   selectedTags: string[];
   tagMatchMode: TagMatchMode;
   selectedPriorities: PriorityFilterValue[];
+  searchQuery: string;
 };
 
 export type CalendarRescheduleTarget = {
