@@ -30,6 +30,7 @@ import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { formatCountdown, formatStopwatch } from "@/lib/focus-page-utils";
 import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts-help";
 import { CommandPalette } from "@/components/command-palette";
+import { QuickAddBar } from "@/components/quick-add-bar";
 import { addLocaleToPathname, stripLocaleFromPathname, useI18n } from "@/lib/i18n";
 import {
   parseSidebarCollapsedPreference,
@@ -215,6 +216,7 @@ export function SidebarLayout({
 
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [tagSortMode, setTagSortMode] = useState<"default" | "alpha" | "frequency">("default");
   const [showTagSortMenu, setShowTagSortMenu] = useState(false);
@@ -327,6 +329,12 @@ export function SidebarLayout({
       key: "k",
       ctrl: true,
       handler: () => setShowCommandPalette((current) => !current),
+      allowInput: true,
+    },
+    {
+      key: "Enter",
+      alt: true,
+      handler: () => setShowQuickAdd((current) => !current),
       allowInput: true,
     },
     {
@@ -898,6 +906,10 @@ export function SidebarLayout({
         onNavigate={switchTab}
         onNavigateSettings={() => router.push(addLocaleToPathname("/settings", locale))}
         onToggleAi={() => ai.setExpandedState(!ai.isExpanded)}
+      />
+      <QuickAddBar
+        open={showQuickAdd}
+        onClose={() => setShowQuickAdd(false)}
       />
     </div>
   );

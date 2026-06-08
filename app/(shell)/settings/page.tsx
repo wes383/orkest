@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { BookOpen, Brain, Camera, Calendar, CalendarDays, Clock, CreditCard, Download, Eye, EyeOff, Film, Languages, LayoutGrid, LayoutList, List, LogOut, Monitor, Moon, Sun, Timer, User, Trash2, BarChart3, Sparkles, Quote, Bug, LifeBuoy, MessageSquare, CheckCircle, RefreshCw } from "lucide-react";
+import { BookOpen, Brain, Camera, Calendar, CalendarDays, ChevronDown, Clock, CreditCard, Download, Eye, EyeOff, Film, Languages, LayoutGrid, LayoutList, List, LogOut, Monitor, Moon, Sun, Timer, User, Trash2, BarChart3, Sparkles, Quote, Bug, LifeBuoy, MessageSquare, CheckCircle, RefreshCw, Keyboard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -24,6 +24,7 @@ import { useSettingsStore, type Appearance, type TimeFormat, type AllDefaultView
 import { useFocusStore } from "@/lib/stores/use-focus-store";
 import { LOCALE_LABELS, LOCALES, useI18n, addLocaleToPathname } from "@/lib/i18n";
 import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts-help";
+import { SHORTCUTS } from "@/lib/keyboard-shortcuts";
 import { DateFormatSelector } from "@/components/settings/date-format-selector";
 import { SettingsPageSkeleton } from "@/components/ui/page-skeletons";
 import { GoogleCalendarSettings } from "@/components/settings/google-calendar-settings";
@@ -195,6 +196,7 @@ export default function SettingsPage() {
   const emailTimeButtonRef = useRef<HTMLButtonElement>(null);
 
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [showShortcutsSection, setShowShortcutsSection] = useState(false);
 
   // Feedback States
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
@@ -1308,6 +1310,51 @@ export default function SettingsPage() {
             />
           </button>
         </div>
+      </div>
+
+      {/* Keyboard Shortcuts */}
+      <div className="mt-4 rounded-2xl border border-black/8 bg-white dark:border-white/10 dark:bg-[#181818]">
+        <button
+          type="button"
+          onClick={() => setShowShortcutsSection((c) => !c)}
+          className="flex w-full cursor-pointer items-center justify-between p-6"
+        >
+          <div className="flex items-center gap-3">
+            <Keyboard className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
+            <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.shortcuts")}</h2>
+          </div>
+          <ChevronDown className={`h-4 w-4 text-[#9b95a0] transition-transform ${showShortcutsSection ? "rotate-180" : ""}`} />
+        </button>
+        {showShortcutsSection && (
+          <div className="grid gap-2 px-6 pb-6 sm:grid-cols-2">
+            {SHORTCUTS.map((shortcut) => {
+              const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+              const formatKey = (key: string) => {
+                if (key === "Alt") return isMac ? "⌥" : "Alt";
+                if (key === "Ctrl") return isMac ? "⌘" : "Ctrl";
+                return key;
+              };
+              return (
+                <div key={shortcut.actionKey} className="flex items-center justify-between rounded-xl px-3 py-2 text-sm">
+                  <span className="text-[#2b2a30] dark:text-[#d4d4d4]">{t(shortcut.actionKey)}</span>
+                  <span className="flex items-center gap-1">
+                    {shortcut.keys.map((key, index) => {
+                      const separator = shortcut.actionKey === "shortcuts.calendarPrevNext" ? "/" : "+";
+                      return (
+                        <span key={`${shortcut.actionKey}-${key}`} className="flex items-center gap-1">
+                          <kbd className="inline-flex min-w-[1.5rem] items-center justify-center rounded-md border border-black/10 bg-[#f4f0ec]/60 px-1.5 py-0.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-[#2a2a2a] dark:text-[#a3a3a3]">
+                            {formatKey(key)}
+                          </kbd>
+                          {index < shortcut.keys.length - 1 ? <span className="text-[#9f99a3]">{separator}</span> : null}
+                        </span>
+                      );
+                    })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
