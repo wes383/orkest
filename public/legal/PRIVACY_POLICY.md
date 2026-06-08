@@ -348,8 +348,8 @@ All storage is in Supabase's managed Postgres database. Tokens are encrypted in 
 
 You have three independent ways to remove your Google Calendar data from Orkest:
 
-1. **Disconnect from Orkest Settings** — Settings → Integrations → Google Calendar → Disconnect. We will: (a) call Google's `oauth2/revoke` endpoint to invalidate the tokens on Google's side; (b) stop all push notification channels; (c) delete the rows in `google_calendar_connections`; (d) clear `google_event_id` and `google_calendar_id` from your tasks. Your tasks themselves are not deleted; only the Google link is removed.
-2. **Delete your Orkest account** — Settings → Account → Delete Account. We will delete all your data, including Google connection rows, within 30 days.
+1. **Disconnect from Orkest Settings** — Settings → Google Calendar → Disconnect. We will: (a) call Google's `oauth2/revoke` endpoint to invalidate the tokens on Google's side; (b) stop all push notification channels; (c) delete the rows in `google_calendar_connections`; (d) clear `google_event_id` and `google_calendar_id` from your tasks. Your tasks themselves are not deleted; only the Google link is removed.
+2. **Delete your Orkest account** — Settings → Delete Account. We will delete all your data, including Google connection rows, within 30 days.
 3. **Revoke Orkest's access from Google** — Visit [https://myaccount.google.com/permissions](https://myaccount.google.com/permissions) and remove "Orkest". This invalidates the tokens on Google's side. Orkest will discover the revocation on the next API call and clean up the local state.
 
 ### 12.6 Limited Use Disclosure
