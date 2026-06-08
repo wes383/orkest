@@ -197,6 +197,15 @@ export default function SettingsPage() {
 
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showShortcutsSection, setShowShortcutsSection] = useState(false);
+  const [showGoogleCalendar, setShowGoogleCalendar] = useState(false);
+
+  // Auto-show Google Calendar section if user has connected
+  useEffect(() => {
+    fetch("/api/google-calendar/calendars")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => { if (data?.connected) setShowGoogleCalendar(true); })
+      .catch(() => {});
+  }, []);
 
   // Feedback States
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
@@ -915,10 +924,9 @@ export default function SettingsPage() {
             })}
           </div>
         )}
-      </div>
 
-      {/* Email Digest */}
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
+        {/* Email Digest */}
+        <div className="mt-6 border-t border-black/6 pt-6 dark:border-white/8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <MessageSquare className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
@@ -1049,11 +1057,7 @@ export default function SettingsPage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Google Calendar Section */}
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
-        <GoogleCalendarSettings />
+        </div>
       </div>
 
       <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
@@ -1097,9 +1101,9 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
-      </div>
 
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
+        {/* All page default view */}
+        <div className="mt-6 border-t border-black/6 pt-6 dark:border-white/8">
         <div className="flex items-center gap-3 mb-4">
           <LayoutList className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
           <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.allDefaultView")}</h2>
@@ -1131,9 +1135,10 @@ export default function SettingsPage() {
             );
           })}
         </div>
-      </div>
+        </div>
 
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
+        {/* Appearance */}
+        <div className="mt-6 border-t border-black/6 pt-6 dark:border-white/8">
         <div className="flex items-center gap-3 mb-4">
           <Monitor className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
           <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.appearance")}</h2>
@@ -1159,6 +1164,35 @@ export default function SettingsPage() {
               </button>
             );
           })}
+        </div>
+        </div>
+
+        {/* Show completed on Today */}
+        <div className="mt-6 border-t border-black/6 pt-6 dark:border-white/8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {showCompletedOnToday ? <Eye className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" /> : <EyeOff className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />}
+            <div>
+              <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.showCompleted")}</h2>
+              <p className="text-xs text-[#25242a]/50 dark:text-[#d4d4d4]/60 mt-0.5">
+                {showCompletedOnToday ? t("settings.completedVisible") : t("settings.completedHidden")}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowCompletedOnToday(!showCompletedOnToday)}
+            className={`relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors ${
+              showCompletedOnToday ? "bg-[#25242a] dark:bg-[#f5f5f5]" : "bg-gray-200 dark:bg-white/20"
+            }`}
+          >
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                showCompletedOnToday ? "translate-x-[22px]" : "translate-x-[2px]"
+              }`}
+            />
+          </button>
+        </div>
         </div>
       </div>
 
@@ -1190,9 +1224,34 @@ export default function SettingsPage() {
             />
           </label>
         </div>
+
+        {/* Task buffer */}
+        <div className="mt-6 border-t border-black/6 pt-6 dark:border-white/8">
+        <div className="flex items-center gap-3 mb-4">
+          <Timer className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
+          <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.taskBuffer")}</h2>
+        </div>
+        <p className="text-xs text-[#25242a]/50 mb-4 dark:text-[#d4d4d4]/60">
+          {t("settings.taskBufferHint")}
+        </p>
+        <div className="flex items-center gap-4">
+          <input
+            type="range"
+            min={0}
+            max={60}
+            step={5}
+            value={bufferMinutes}
+            onChange={(e) => setBufferMinutes(Number(e.target.value))}
+            className="flex-1 h-2 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#25242a] dark:bg-white/10 dark:accent-[#f5f5f5]"
+          />
+          <span className="text-sm font-medium text-[#25242a] w-16 text-right dark:text-[#f5f5f5]">
+            {t("settings.minutes", { count: bufferMinutes })}
+          </span>
+        </div>
+        </div>
       </div>
 
-
+      {/* Time format + Date format + Week starts on */}
       <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
         <div className="flex items-center gap-3 mb-4">
           <Clock className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
@@ -1222,9 +1281,9 @@ export default function SettingsPage() {
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
+        {/* Date format */}
+        <div className="mt-6 border-t border-black/6 pt-6 dark:border-white/8">
         <div className="flex items-center gap-3 mb-4">
           <Calendar className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
           <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.dateFormat")}</h2>
@@ -1236,9 +1295,10 @@ export default function SettingsPage() {
           value={dateFormatRegion || (typeof navigator !== "undefined" ? (navigator.language || (navigator as Navigator & { userLanguage?: string }).userLanguage) : "") || "en-US"}
           onChange={setDateFormatRegion}
         />
-      </div>
+        </div>
 
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
+        {/* Week starts on */}
+        <div className="mt-6 border-t border-black/6 pt-6 dark:border-white/8">
         <div className="flex items-center gap-3 mb-4">
           <Calendar className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
           <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.weekStartsOn")}</h2>
@@ -1259,56 +1319,6 @@ export default function SettingsPage() {
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
-        <div className="flex items-center gap-3 mb-4">
-          <Timer className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
-          <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.taskBuffer")}</h2>
-        </div>
-        <p className="text-xs text-[#25242a]/50 mb-4 dark:text-[#d4d4d4]/60">
-          {t("settings.taskBufferHint")}
-        </p>
-        <div className="flex items-center gap-4">
-          <input
-            type="range"
-            min={0}
-            max={60}
-            step={5}
-            value={bufferMinutes}
-            onChange={(e) => setBufferMinutes(Number(e.target.value))}
-            className="flex-1 h-2 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#25242a] dark:bg-white/10 dark:accent-[#f5f5f5]"
-          />
-          <span className="text-sm font-medium text-[#25242a] w-16 text-right dark:text-[#f5f5f5]">
-            {t("settings.minutes", { count: bufferMinutes })}
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {showCompletedOnToday ? <Eye className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" /> : <EyeOff className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />}
-            <div>
-              <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.showCompleted")}</h2>
-              <p className="text-xs text-[#25242a]/50 dark:text-[#d4d4d4]/60 mt-0.5">
-                {showCompletedOnToday ? t("settings.completedVisible") : t("settings.completedHidden")}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowCompletedOnToday(!showCompletedOnToday)}
-            className={`relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full transition-colors ${
-              showCompletedOnToday ? "bg-[#25242a] dark:bg-[#f5f5f5]" : "bg-gray-200 dark:bg-white/20"
-            }`}
-          >
-            <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                showCompletedOnToday ? "translate-x-[22px]" : "translate-x-[2px]"
-              }`}
-            />
-          </button>
         </div>
       </div>
 
@@ -1404,6 +1414,24 @@ export default function SettingsPage() {
           </button>
         </div>
       </div>
+
+      {/* Google Calendar (hidden behind "More options" button) */}
+      {!showGoogleCalendar && (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setShowGoogleCalendar(true)}
+            className="cursor-pointer rounded-full px-4 py-2 text-xs text-[#9b95a0] transition-colors hover:text-[#6d6770] dark:hover:text-[#a3a3a3]"
+          >
+            {t("common.comingSoon")}
+          </button>
+        </div>
+      )}
+      {showGoogleCalendar && (
+        <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
+          <GoogleCalendarSettings />
+        </div>
+      )}
 
       <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
         <div className="flex items-center gap-3 mb-2">
@@ -1728,11 +1756,6 @@ export default function SettingsPage() {
       <div className="mt-8 border-t border-black/6 pt-6 dark:border-white/10">
         <div className="flex justify-center items-center gap-4 mb-3">
           <a href={`/${locale}/chat`} className="text-xs text-[#8c8691] dark:text-[#a09ba5] hover:text-[#25242a] dark:hover:text-[#f5f5f5] transition-colors">/chat</a>
-          <button
-            type="button"
-            onClick={() => setShowShortcutsHelp(true)}
-            className="text-xs text-[#a09ba5] dark:text-[#6a6570] hover:text-[#25242a] dark:hover:text-[#f5f5f5] transition-colors cursor-pointer"
-          >?</button>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-[#8c8691] dark:text-[#a09ba5]">
           <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="hover:text-[#25242a] dark:hover:text-[#f5f5f5] transition-colors">{t("settings.privacyPolicy")}</a>
