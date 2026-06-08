@@ -40,6 +40,7 @@ export function dbRowToManualItemRecord(row: TablesRow<"items">): ManualItemReco
     plannedTodayDates: row.planned_today_dates ?? undefined,
     nowOverrideDate: row.now_override_date ?? undefined,
     projectId: row.project_id ?? undefined,
+    googleEventId: row.google_event_id ?? undefined,
     status: row.status ?? undefined,
     deletedAt: row.deleted_at ?? undefined,
     reminders: (row.reminders as Array<{ id: string; minutesBefore: number; method: string; onesignalNotificationId?: string; triggerTime?: string; dayOffset?: number; occurrenceNotifications?: Array<{ date: string; notificationId: string }> }> | null)?.map((r) => ({

@@ -57,6 +57,7 @@ export type ManualItemRecord = {
   parentId?: string;
   projectId?: string;
   completedOccurrenceKeys?: string[];
+  googleEventId?: string;
   reminders?: Reminder[];
   createdAt: string;
   updatedAt: string;

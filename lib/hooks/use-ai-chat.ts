@@ -76,6 +76,8 @@ export function useAiChat(config: UseAiChatConfig) {
     [projects],
   );
 
+  const aiCalendarProcessingEnabled = useSettingsStore((s) => s.aiCalendarProcessingEnabled);
+
   const candidateItems = useMemo<CandidateItem[]>(() => {
     const subtasksMap = new Map<string, string[]>();
     for (const item of manualItems) {
@@ -88,6 +90,7 @@ export function useAiChat(config: UseAiChatConfig) {
 
     return manualItems
       .filter((item) => !item.deletedAt && !item.parentId)
+      .filter((item) => aiCalendarProcessingEnabled || !item.googleEventId)
       .map((item) => {
         const daysOfWeek = item.daysOfWeek ?? [];
 
@@ -126,7 +129,7 @@ export function useAiChat(config: UseAiChatConfig) {
           updatedAt: item.updatedAt,
         };
       });
-  }, [manualItems, projectNameById]);
+  }, [manualItems, projectNameById, aiCalendarProcessingEnabled]);
 
   useEffect(() => {
     if (userId && projects.length === 0) {

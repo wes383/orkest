@@ -1,9 +1,11 @@
 "use client";
 
-import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown } from "lucide-react";
+import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown, Brain } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
+import { useSettingsStore } from "@/lib/stores/use-settings-store";
 
 type CalendarInfo = {
   id: string;
@@ -25,6 +27,10 @@ export function GoogleCalendarSettings() {
   const [error, setError] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [dataUsageOpen, setDataUsageOpen] = useState(false);
+  const [consentOpen, setConsentOpen] = useState(false);
+
+  const aiCalendarProcessingEnabled = useSettingsStore((s) => s.aiCalendarProcessingEnabled);
+  const setAiCalendarProcessingEnabled = useSettingsStore((s) => s.setAiCalendarProcessingEnabled);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -40,7 +46,6 @@ export function GoogleCalendarSettings() {
   }, []);
 
   useEffect(() => {
-    // Refresh calendar list from Google, then fetch status
     const refreshAndFetch = async () => {
       try {
         await fetch("/api/google-calendar/calendars/refresh", { method: "POST" });
@@ -60,7 +65,28 @@ export function GoogleCalendarSettings() {
     }
   }, [fetchStatus]);
 
-  const handleConnect = async () => {
+  const handleConnectClick = () => {
+    setConsentOpen(true);
+  };
+
+  const handleConsentAllow = async () => {
+    setConsentOpen(false);
+    setAiCalendarProcessingEnabled(true);
+    try {
+      setError(null);
+      const res = await fetch("/api/google-calendar/auth");
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      setError(t("settings.googleCalendar.connectError"));
+    }
+  };
+
+  const handleConsentSkip = async () => {
+    setConsentOpen(false);
+    setAiCalendarProcessingEnabled(false);
     try {
       setError(null);
       const res = await fetch("/api/google-calendar/auth");
@@ -155,7 +181,7 @@ export function GoogleCalendarSettings() {
             {t("settings.googleCalendar.disconnect")}
           </Button>
         ) : (
-          <Button onClick={handleConnect} size="sm" className="gap-1.5">
+          <Button onClick={handleConnectClick} size="sm" className="gap-1.5">
             <Calendar className="h-3.5 w-3.5" />
             {t("settings.googleCalendar.connect")}
           </Button>
@@ -189,6 +215,36 @@ export function GoogleCalendarSettings() {
               </label>
             </div>
           ))}
+        </div>
+      )}
+
+      {status?.connected && (
+        <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50">
+              <Brain className="h-4 w-4 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-[#25242a] dark:text-[#f5f5f5]">
+                {t("settings.googleCalendar.aiProcessing")}
+              </p>
+              <p className="text-xs text-[#9f99a3]">
+                {t("settings.googleCalendar.aiProcessingDesc")}
+              </p>
+            </div>
+          </div>
+          <label className="flex cursor-pointer items-center">
+            <div className="relative shrink-0">
+              <input
+                type="checkbox"
+                checked={aiCalendarProcessingEnabled}
+                onChange={() => setAiCalendarProcessingEnabled(!aiCalendarProcessingEnabled)}
+                className="peer sr-only"
+              />
+              <div className="h-5 w-9 rounded-full bg-gray-200 transition-colors peer-checked:bg-purple-500 peer-focus:ring-2 peer-focus:ring-purple-500/20 dark:bg-gray-600"></div>
+              <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4"></div>
+            </div>
+          </label>
         </div>
       )}
 
@@ -238,6 +294,26 @@ export function GoogleCalendarSettings() {
           </ul>
         )}
       </div>
+
+      <Dialog open={consentOpen} onOpenChange={setConsentOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("settings.googleCalendar.aiProcessingConsentTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("settings.googleCalendar.aiProcessingConsentDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 pt-2">
+            <Button onClick={handleConsentAllow} className="gap-1.5 bg-purple-600 hover:bg-purple-700">
+              <Brain className="h-4 w-4" />
+              {t("settings.googleCalendar.aiProcessingConsentAllow")}
+            </Button>
+            <Button variant="outline" onClick={handleConsentSkip}>
+              {t("settings.googleCalendar.aiProcessingConsentSkip")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

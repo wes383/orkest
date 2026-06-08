@@ -42,6 +42,7 @@ type SettingsPayload = {
   dateFormatRegion: string;
   dailyDigestEnabled: boolean;
   dailyDigestTopics: DigestTopic[];
+  aiCalendarProcessingEnabled: boolean;
   welcomeDismissed: boolean;
 };
 
@@ -61,6 +62,7 @@ type SettingsState = SettingsPayload & {
   setDateFormatRegion: (region: string) => void;
   setDailyDigestEnabled: (enabled: boolean) => void;
   setDailyDigestTopics: (topics: DigestTopic[]) => void;
+  setAiCalendarProcessingEnabled: (enabled: boolean) => void;
   setWelcomeDismissed: (dismissed: boolean) => void;
   loadFromCloud: (userId: string) => Promise<void>;
 };
@@ -80,6 +82,7 @@ function getSettingsPayload(state: SettingsPayload): SettingsPayload {
     dateFormatRegion: state.dateFormatRegion,
     dailyDigestEnabled: state.dailyDigestEnabled,
     dailyDigestTopics: state.dailyDigestTopics,
+    aiCalendarProcessingEnabled: state.aiCalendarProcessingEnabled,
     welcomeDismissed: state.welcomeDismissed,
   };
 }
@@ -148,6 +151,7 @@ function settingsFromCloud(settings: Record<string, unknown>): Omit<SettingsPayl
     ...(typeof settings.dateFormatRegion === "string" ? { dateFormatRegion: settings.dateFormatRegion } : {}),
     ...(typeof settings.dailyDigestEnabled === "boolean" ? { dailyDigestEnabled: settings.dailyDigestEnabled } : {}),
     ...(dailyDigestTopics.length > 0 ? { dailyDigestTopics } : {}),
+    ...(typeof settings.aiCalendarProcessingEnabled === "boolean" ? { aiCalendarProcessingEnabled: settings.aiCalendarProcessingEnabled } : {}),
   };
 }
 
@@ -214,6 +218,7 @@ const DEFAULT_SETTINGS: SettingsPayload = {
   dateFormatRegion: "",
   dailyDigestEnabled: true,
   dailyDigestTopics: ["task_summary"],
+  aiCalendarProcessingEnabled: true,
   welcomeDismissed: false,
 };
 
@@ -230,6 +235,7 @@ const LOCAL_SEED_KEYS: Exclude<keyof SettingsPayload, "locale">[] = [
   "dateFormatRegion",
   "dailyDigestEnabled",
   "dailyDigestTopics",
+  "aiCalendarProcessingEnabled",
 ];
 
 function areSettingValuesEqual(left: SettingsPayload[keyof SettingsPayload], right: SettingsPayload[keyof SettingsPayload]) {
@@ -307,6 +313,10 @@ export const useSettingsStore = create<SettingsState>()(
       },
       setDailyDigestTopics: (topics) => {
         set({ dailyDigestTopics: topics });
+        debouncedSyncToCloud();
+      },
+      setAiCalendarProcessingEnabled: (enabled) => {
+        set({ aiCalendarProcessingEnabled: enabled });
         debouncedSyncToCloud();
       },
       setWelcomeDismissed: (dismissed) => {

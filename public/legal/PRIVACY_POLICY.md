@@ -1,4 +1,4 @@
-**Last Updated: June 8, 2026**
+**Last Updated: June 9, 2026**
 
 ## 1. Introduction
 
@@ -116,6 +116,7 @@ If you are located in the EU/EEA or UK, we process your personal information bas
 | Service feature delivery                 | Performance of a contract (Art. 6(1)(b) GDPR)                               |
 | Email verification and password reset    | Performance of a contract / Legal obligation                                |
 | AI chat and voice processing             | Performance of a contract (Art. 6(1)(b) GDPR)                               |
+| AI-powered calendar processing (opt-in)  | Consent (Art. 6(1)(a) GDPR)                                                |
 | Usage analytics                          | Legitimate interests (Art. 6(1)(f) GDPR) — improving the Service            |
 | Security monitoring and fraud prevention | Legitimate interests (Art. 6(1)(f) GDPR) — protecting the Service and users |
 | Compliance with legal obligations        | Legal obligation (Art. 6(1)(c) GDPR)                                        |
@@ -131,7 +132,7 @@ We share your data with the following essential service providers, who process d
 | **Supabase Inc.**             | Database hosting, authentication, real-time sync, file storage                                                                                 | Account data, task data, settings, session tokens                                                                                                                      | USA                   |
 | **Vercel Inc.**               | Application hosting and deployment                                                                                                             | Usage data, server logs, IP addresses                                                                                                                                  | Global (edge network) |
 | **Google LLC**                | Google Calendar synchronization, OAuth authentication                                                                                          | OAuth tokens, calendar IDs, calendar events (only when sync is enabled)                                                                                                | USA                   |
-| **Alibaba Cloud (DashScope)** | AI chat completions, Daily Digest generation, Daily Quote translation, Today in History translation, Daily Book and Daily Movie translation and recommendation | AI chat messages, task summaries for Daily Digest, quote text for translation, historical event text for translation, book/movie metadata for translation and recommendation | China / Global        |
+| **Alibaba Cloud (DashScope)** | AI chat completions, Daily Digest generation, Daily Quote translation, Today in History translation, Daily Book and Daily Movie translation and recommendation, and (when you opt in) AI-powered calendar analysis and intelligent scheduling suggestions | AI chat messages, task summaries for Daily Digest, quote text for translation, historical event text for translation, book/movie metadata for translation and recommendation, and (when enabled) Google Calendar event data for AI calendar features | China / Global        |
 | **Wikimedia Foundation**      | Historical event data for "Today in History" feature                                                                                           | Date (month and day only)                                                                                                                                              | USA                   |
 | **quote.wesluma.com**         | Quote data for Daily Quote feature                                                                                                             | Date (used as seed)                                                                                                                                                    | Global                |
 | **book.wesluma.com**          | Book data for Daily Book Recommendation feature                                                                                                | Date (used as seed)                                                                                                                                                    | Global                |
@@ -321,7 +322,7 @@ The integration provides **bidirectional two-way synchronization** of tasks betw
 - **Pull (Google → Orkest):** When you create, edit, or delete an event in a connected Google Calendar, the change is reflected in Orkest as a task.
 - **Webhooks (push notifications):** We register a Google push notification channel so Google notifies Orkest within seconds of a change in a connected calendar, keeping the two systems in sync in near real-time.
 
-We use Google Calendar data **only** to provide this synchronization feature. We do **not** use it for advertising, profiling, sale to third parties, or for training or improving any general-purpose machine-learning or AI model.
+We use Google Calendar data **only** to provide the synchronization feature described above and, when you explicitly opt in, to provide AI-powered features such as intelligent scheduling assistance and calendar analysis. We do **not** use it for advertising, profiling, sale to third parties, or for training or improving any general-purpose machine-learning or AI model. When AI processing is enabled, calendar event data is transmitted to our AI service provider (Alibaba Cloud DashScope) solely for the purpose of generating personalized suggestions for you. This data is not retained by the AI provider after processing is complete.
 
 ### 12.3 Where We Store It
 
@@ -359,14 +360,27 @@ The use and transfer of raw or derived user data received from Google Workspace 
 
 In particular:
 
-- We do not transfer Google user data to third parties except as necessary to provide the synchronization feature (e.g., to Google's own servers via their published APIs).
+- We do not transfer Google user data to third parties except as necessary to provide the synchronization feature (e.g., to Google's own servers via their published APIs) and, when you have given explicit prior consent, to our AI service provider (Alibaba Cloud DashScope) for AI-powered calendar features that are visible and prominent in the application's user interface.
 - We do not use Google user data for advertising.
 - We do not use Google user data to develop, improve, or train generalized AI / machine-learning models.
-- We use Google user data only to provide the user-facing calendar sync feature that you explicitly requested.
+- We use Google user data only to provide the user-facing calendar sync and AI-powered calendar features that you explicitly requested.
 - We store the minimum data required to provide the feature, encrypted at rest.
 - We do not use Google user data to determine creditworthiness or for any lending decision.
+- Humans will not read your Google Calendar data except with your affirmative agreement for specific AI processing purposes, or as necessary for security or compliance.
 
-### 12.7 Questions About Google Calendar Integration
+### 12.7 Consent for AI Processing of Calendar Data
+
+When you enable AI-powered calendar features, you provide explicit consent for Orkest to transmit your Google Calendar event data to our AI service provider (Alibaba Cloud DashScope) for the sole purpose of generating personalized scheduling suggestions and calendar analysis. This consent is:
+
+- **Specific:** Limited to calendar event data for AI-powered scheduling features;
+- **Informed:** You will be clearly notified before any AI processing occurs;
+- **Revocable:** You may disable AI calendar features at any time in Settings;
+- **Data-minimized:** Only the minimum data necessary for the AI feature is transmitted;
+- **Not retained:** The AI provider does not retain your calendar data after processing is complete.
+
+This processing is conducted in compliance with the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy) Limited Use requirements.
+
+### 12.8 Questions About Google Calendar Integration
 
 If you have questions about this section or the Google Calendar integration, please contact us at **support@wesluma.com**.
 

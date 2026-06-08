@@ -226,7 +226,7 @@
       <article>
         <h1>Privacy Policy</h1>
         <div>
-          <p><strong>Last Updated: June 8, 2026</strong></p>
+          <p><strong>Last Updated: June 9, 2026</strong></p>
 <h2 id="1-introduction">1. Introduction</h2>
 <p>Orkest ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our web application at <a href="https://orkest.wesluma.com" target="_blank" rel="noopener noreferrer">https://orkest.wesluma.com</a> ("the Service").</p>
 <p>Please read this Privacy Policy carefully. By using the Service, you acknowledge the practices described in this policy.</p>
@@ -449,6 +449,10 @@
       <td class="col-last">Performance of a contract (Art. 6(1)(b) GDPR)</td>
     </tr>
     <tr>
+      <td class="col-scope">AI-powered calendar processing (opt-in)</td>
+      <td class="col-last">Consent (Art. 6(1)(a) GDPR)</td>
+    </tr>
+    <tr>
       <td class="col-scope">Usage analytics</td>
       <td class="col-last">Legitimate interests (Art. 6(1)(f) GDPR) — improving the Service</td>
     </tr>
@@ -503,8 +507,8 @@
     </tr>
     <tr>
       <td class="col-scope"><strong>Alibaba Cloud (DashScope)</strong></td>
-      <td>AI chat completions, Daily Digest generation, Daily Quote translation, Today in History translation, Daily Book and Daily Movie translation and recommendation</td>
-      <td>AI chat messages, task summaries for Daily Digest, quote text for translation, historical event text for translation, book/movie metadata for translation and recommendation</td>
+      <td>AI chat completions, Daily Digest generation, Daily Quote translation, Today in History translation, Daily Book and Daily Movie translation and recommendation, and (when you opt in) AI-powered calendar analysis and intelligent scheduling suggestions</td>
+      <td>AI chat messages, task summaries for Daily Digest, quote text for translation, historical event text for translation, book/movie metadata for translation and recommendation, and (when enabled) Google Calendar event data for AI calendar features</td>
       <td class="col-last">China / Global</td>
     </tr>
     <tr>
@@ -844,7 +848,7 @@
   <li><strong>Pull (Google → Orkest):</strong> When you create, edit, or delete an event in a connected Google Calendar, the change is reflected in Orkest as a task.</li>
   <li><strong>Webhooks (push notifications):</strong> We register a Google push notification channel so Google notifies Orkest within seconds of a change in a connected calendar, keeping the two systems in sync in near real-time.</li>
 </ul>
-<p>We use Google Calendar data <strong>only</strong> to provide this synchronization feature. We do <strong>not</strong> use it for advertising, profiling, sale to third parties, or for training or improving any general-purpose machine-learning or AI model.</p>
+<p>We use Google Calendar data <strong>only</strong> to provide the synchronization feature described above and, when you explicitly opt in, to provide AI-powered features such as intelligent scheduling assistance and calendar analysis. We do <strong>not</strong> use it for advertising, profiling, sale to third parties, or for training or improving any general-purpose machine-learning or AI model. When AI processing is enabled, calendar event data is transmitted to our AI service provider (Alibaba Cloud DashScope) solely for the purpose of generating personalized suggestions for you. This data is not retained by the AI provider after processing is complete.</p>
 <h3 id="123-where-we-store-it">12.3 Where We Store It</h3>
 <div class="table-container">
 <table>
@@ -910,14 +914,25 @@
 <p>Our application uses Google Workspace APIs. The use and transfer of raw or derived user data received from Google Workspace APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
 <p>In particular:</p>
 <ul>
-  <li>We do not transfer Google user data to third parties except as necessary to provide the synchronization feature (e.g., to Google's own servers via their published APIs).</li>
+  <li>We do not transfer Google user data to third parties except as necessary to provide the synchronization feature (e.g., to Google's own servers via their published APIs) and, when you have given explicit prior consent, to our AI service provider (Alibaba Cloud DashScope) for AI-powered calendar features that are visible and prominent in the application's user interface.</li>
   <li>We do not use Google user data for advertising.</li>
   <li>We do not use Google user data to develop, improve, or train generalized AI / machine-learning models.</li>
-  <li>We use Google user data only to provide the user-facing calendar sync feature that you explicitly requested.</li>
+  <li>We use Google user data only to provide the user-facing calendar sync and AI-powered calendar features that you explicitly requested.</li>
   <li>We store the minimum data required to provide the feature, encrypted at rest.</li>
   <li>We do not use Google user data to determine creditworthiness or for any lending decision.</li>
+  <li>Humans will not read your Google Calendar data except with your affirmative agreement for specific AI processing purposes, or as necessary for security or compliance.</li>
 </ul>
-<h3 id="127-questions-about-google-calendar-integration">12.7 Questions About Google Calendar Integration</h3>
+<h3 id="127-consent-for-ai-processing-of-calendar-data">12.7 Consent for AI Processing of Calendar Data</h3>
+<p>When you enable AI-powered calendar features, you provide explicit consent for Orkest to transmit your Google Calendar event data to our AI service provider (Alibaba Cloud DashScope) for the sole purpose of generating personalized scheduling suggestions and calendar analysis. This consent is:</p>
+<ul>
+  <li><strong>Specific:</strong> Limited to calendar event data for AI-powered scheduling features;</li>
+  <li><strong>Informed:</strong> You will be clearly notified before any AI processing occurs;</li>
+  <li><strong>Revocable:</strong> You may disable AI calendar features at any time in Settings;</li>
+  <li><strong>Data-minimized:</strong> Only the minimum data necessary for the AI feature is transmitted;</li>
+  <li><strong>Not retained:</strong> The AI provider does not retain your calendar data after processing is complete.</li>
+</ul>
+<p>This processing is conducted in compliance with the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a> Limited Use requirements.</p>
+<h3 id="128-questions-about-google-calendar-integration">12.8 Questions About Google Calendar Integration</h3>
 <p>If you have questions about this section or the Google Calendar integration, please contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>.</p>
 <h2 id="13-childrens-privacy">13. Children's Privacy</h2>
 <p>The Service is not directed to individuals under the age of <strong>16</strong> (or the age of digital consent in your country). We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal information, we will take steps to delete such information promptly. If you believe a child has provided us with personal data, please contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>.</p>
