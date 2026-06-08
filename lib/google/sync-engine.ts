@@ -69,16 +69,19 @@ export async function runSync(connection: GoogleConnection, supabaseClient?: Sup
   const result: SyncResult = { pushed: 0, pulled: 0, conflicts: 0, errors: [] };
 
   try {
-    // 1. Push local changes to Google
-    const pushResult = await pushLocalChanges(supabase, connection);
-    result.pushed = pushResult.pushed;
-    result.errors.push(...pushResult.errors);
-
-    // 2. Pull Google changes to local
+    // 1. Pull Google changes to local FIRST.
+    // This ensures Google-side deletions are applied locally before we
+    // try to push local changes, preventing deleted events from being
+    // "resurrected" by a push that recreates them.
     const pullResult = await pullGoogleChanges(supabase, connection);
     result.pulled = pullResult.pulled;
     result.conflicts = pullResult.conflicts;
     result.errors.push(...pullResult.errors);
+
+    // 2. Push local changes to Google
+    const pushResult = await pushLocalChanges(supabase, connection);
+    result.pushed = pushResult.pushed;
+    result.errors.push(...pushResult.errors);
 
     console.log("Google sync result:", { pushed: result.pushed, pulled: result.pulled, conflicts: result.conflicts, errors: result.errors });
 
@@ -265,22 +268,17 @@ async function updateOrRecreateGoogleEvent(
       throw error;
     }
 
-    console.warn("[GoogleSync] Google event was missing during update; recreating.", {
+    // The Google event is gone (404/410). This typically means the user
+    // deleted it from Google Calendar. Clear the local mapping so we stop
+    // trying to sync this item to a non-existent event. Do NOT recreate —
+    // that would "resurrect" intentionally deleted events.
+    console.warn("[GoogleSync] Google event was missing/deleted during update; clearing local mapping.", {
       itemId: item.id,
       eventId,
       calendarId: connection.calendar_id,
     });
+    await clearGoogleMapping(supabase, item.id);
   }
-
-  const created = await createGoogleEvent(connection, googleEvent, supabase);
-  await supabase
-    .from("items")
-    .update({
-      google_event_id: created.id,
-      google_calendar_id: connection.calendar_id,
-      last_google_sync_at: new Date().toISOString(),
-    })
-    .eq("id", item.id);
 }
 
 async function markItemSyncedToGoogle(

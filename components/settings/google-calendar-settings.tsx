@@ -221,8 +221,8 @@ export function GoogleCalendarSettings() {
       {status?.connected && (
         <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50">
-              <Brain className="h-4 w-4 text-purple-500" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#25242a]/8 dark:bg-white/10">
+              <Brain className="h-4 w-4 text-[#25242a] dark:text-[#f5f5f5]" />
             </div>
             <div>
               <p className="text-sm font-medium text-[#25242a] dark:text-[#f5f5f5]">
@@ -241,7 +241,7 @@ export function GoogleCalendarSettings() {
                 onChange={() => setAiCalendarProcessingEnabled(!aiCalendarProcessingEnabled)}
                 className="peer sr-only"
               />
-              <div className="h-5 w-9 rounded-full bg-gray-200 transition-colors peer-checked:bg-purple-500 peer-focus:ring-2 peer-focus:ring-purple-500/20 dark:bg-gray-600"></div>
+              <div className="h-5 w-9 rounded-full bg-gray-200 transition-colors peer-checked:bg-[#25242a] peer-focus:ring-2 peer-focus:ring-[#25242a]/20 dark:bg-gray-600 dark:peer-checked:bg-[#f5f5f5]"></div>
               <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-4"></div>
             </div>
           </label>

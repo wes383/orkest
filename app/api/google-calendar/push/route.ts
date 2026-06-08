@@ -201,22 +201,23 @@ export async function POST(request: NextRequest) {
           throw error;
         }
 
-        console.warn("[Push] Google event was missing during update; recreating.", {
+        // The Google event is gone (404/410). Clear the local mapping
+        // instead of recreating — the user likely deleted it from Google.
+        console.warn("[Push] Google event was missing/deleted during update; clearing local mapping.", {
           itemId: item.id,
           eventId: item.google_event_id,
           calendarId: connection.calendar_id,
         });
-        const created = await createGoogleEvent(connection, googleEvent, supabase);
         await supabase
           .from("items")
           .update({
-            google_event_id: created.id,
-            google_calendar_id: connection.calendar_id,
+            google_event_id: null,
+            google_calendar_id: null,
             last_google_sync_at: new Date().toISOString(),
           })
           .eq("id", item.id);
 
-        return NextResponse.json({ success: true, googleEventId: created.id, recreated: true });
+        return NextResponse.json({ success: true, cleared: true });
       }
     } else {
       // Create new Google event

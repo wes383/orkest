@@ -29,7 +29,9 @@ export function isGoogleNotFoundError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
   const maybeCode = (error as { code?: unknown; status?: unknown }).code
     ?? (error as { code?: unknown; status?: unknown }).status;
-  return maybeCode === 404 || error.message === "Not Found";
+  // 404 = Not Found, 410 = Gone (resource was deleted)
+  return maybeCode === 404 || maybeCode === 410
+    || error.message === "Not Found" || error.message === "Resource has been deleted";
 }
 
 /**
