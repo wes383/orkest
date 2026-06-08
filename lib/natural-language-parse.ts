@@ -31,9 +31,9 @@ const WEEKDAY_MAP: Record<string, number> = {
   montag: 1, dienstag: 2, mittwoch: 3, donnerstag: 4, freitag: 5, samstag: 6, sonntag: 0,
   mo: 1, di: 2, mi: 3, do: 4, fr: 5, sa: 6, so: 0,
   // Japanese
-  月: 1, 火: 2, 水: 3, 木: 4, 金: 5, 土: 6, 日: 0,
+  月: 1, 火: 2, 水: 3, 木: 4, 金: 5, 土: 6,
   // Portuguese
-  segunda: 1, terça: 2, terca: 2, quarta: 3, quinta: 4, sexta: 5, sábado: 6, sabado: 6, domingo: 0,
+  segunda: 1, terça: 2, terca: 2, quarta: 3, quinta: 4, sexta: 5,
   seg: 1, ter: 2, qua: 3, qui: 4, sex: 5,
 };
 
@@ -53,7 +53,7 @@ const PRIORITY_MAP: Record<string, Priority> = {
   // Japanese
   "緊急": "urgent",
   // Portuguese
-  alta: "high", média: "medium", media: "medium", baixa: "low",
+  média: "medium", baixa: "low",
   // Universal shorthand
   p1: "urgent", p2: "high", p3: "medium", p4: "low",
 };
@@ -496,7 +496,7 @@ export function parseNaturalLanguage(input: string): ParsedQuickAdd {
     const deTimePattern = /(\d{1,2})(?::(\d{2}))?\s*Uhr/gi;
     const h24Pattern = /\b(\d{1,2}):(\d{2})\b/g;
 
-    const findTimeRange = <T>(pattern: RegExp, parseFn: (m: string) => T | null): boolean => {
+    const findTimeRange = <T extends { hours: number; minutes: number }>(pattern: RegExp, parseFn: (m: string) => T | null): boolean => {
       const matches: Array<{ match: string; index: number; parsed: T | null }> = [];
       let m: RegExpExecArray | null;
       while ((m = pattern.exec(remaining)) !== null) {
@@ -505,8 +505,8 @@ export function parseNaturalLanguage(input: string): ParsedQuickAdd {
       if (matches.length >= 2) {
         const between = remaining.slice(matches[0].index + matches[0].match.length, matches[1].index);
         if (TIME_RANGE_SEP.test(between) && matches[0].parsed && matches[1].parsed) {
-          const t1 = matches[0].parsed as { hours: number; minutes: number };
-          const t2 = matches[1].parsed as { hours: number; minutes: number };
+          const t1 = matches[0].parsed;
+          const t2 = matches[1].parsed;
           startTime = formatTime(t1.hours, t1.minutes);
           endTime = formatTime(t2.hours, t2.minutes);
           hasTime = true;
@@ -515,7 +515,7 @@ export function parseNaturalLanguage(input: string): ParsedQuickAdd {
         }
       }
       if (matches.length >= 1 && matches[0].parsed) {
-        const t = matches[0].parsed as { hours: number; minutes: number };
+        const t = matches[0].parsed;
         startTime = formatTime(t.hours, t.minutes);
         hasTime = true;
         remaining = remaining.slice(0, matches[0].index) + remaining.slice(matches[0].index + matches[0].match.length);
@@ -595,8 +595,8 @@ export function parseNaturalLanguage(input: string): ParsedQuickAdd {
     januar: 1, februar: 2, märz: 3, marz: 3, april: 4, juni: 6,
     juli: 7, august: 8, september: 9, oktober: 10, november: 11, dezember: 12,
     // Portuguese
-    janeiro: 1, fevereiro: 2, março: 3, marco: 3, abril: 4, maio: 5, junho: 6,
-    julho: 7, agosto: 8, setembro: 9, outubro: 10, novembro: 11, dezembro: 12,
+    janeiro: 1, fevereiro: 2, março: 3, marco: 3, maio: 5, junho: 6,
+    julho: 7, setembro: 9, outubro: 10, novembro: 11, dezembro: 12,
     // Short forms
     jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
     jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
