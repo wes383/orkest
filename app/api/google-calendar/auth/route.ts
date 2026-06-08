@@ -3,12 +3,12 @@
  * Returns the Google consent URL for the user to authorize.
  */
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server-client";
 import { getGoogleAuthUrl } from "@/lib/google/calendar-service";
 import crypto from "crypto";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -23,6 +23,9 @@ export async function GET() {
 
   const authUrl = getGoogleAuthUrl(state);
 
+  // Read returnTo from query params (e.g. /settings or /all)
+  const returnTo = request.nextUrl.searchParams.get("returnTo") || "/all";
+
   // Store state in a short-lived, httpOnly cookie for verification in callback
   const response = NextResponse.json({ url: authUrl });
   response.cookies.set("oauth_state", state, {
@@ -30,6 +33,13 @@ export async function GET() {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 600, // 10 minutes
+    path: "/",
+  });
+  response.cookies.set("oauth_return_to", returnTo, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600,
     path: "/",
   });
 

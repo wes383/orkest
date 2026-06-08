@@ -21,7 +21,10 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(new URL("/all?google=error", request.url));
+    const errorResponse = NextResponse.redirect(new URL("/all?google=error", request.url));
+    errorResponse.cookies.delete("oauth_state");
+    errorResponse.cookies.delete("oauth_return_to");
+    return errorResponse;
   }
 
   const code = request.nextUrl.searchParams.get("code");
@@ -29,9 +32,11 @@ export async function GET(request: NextRequest) {
 
   // Verify OAuth state parameter from cookie (CSRF protection)
   const storedState = request.cookies.get("oauth_state")?.value;
+  const returnTo = request.cookies.get("oauth_return_to")?.value || "/all";
   if (!code || !state || !storedState || state !== storedState) {
     const errorResponse = NextResponse.redirect(new URL("/all?google=error", request.url));
     errorResponse.cookies.delete("oauth_state");
+    errorResponse.cookies.delete("oauth_return_to");
     return errorResponse;
   }
 
@@ -145,13 +150,15 @@ export async function GET(request: NextRequest) {
       console.warn("Failed to register Google notification channels:", channelError);
     }
 
-    const successResponse = NextResponse.redirect(new URL("/all?google=connected", request.url));
+    const successResponse = NextResponse.redirect(new URL(`${returnTo}?google=connected`, request.url));
     successResponse.cookies.delete("oauth_state");
+    successResponse.cookies.delete("oauth_return_to");
     return successResponse;
   } catch (error) {
     console.error("Google Calendar OAuth callback error:", error);
     const errorResponse = NextResponse.redirect(new URL("/all?google=error", request.url));
     errorResponse.cookies.delete("oauth_state");
+    errorResponse.cookies.delete("oauth_return_to");
     return errorResponse;
   }
 }

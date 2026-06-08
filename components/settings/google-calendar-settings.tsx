@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown, Brain } from "lucide-react";
+import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -74,7 +74,7 @@ export function GoogleCalendarSettings() {
     setAiCalendarProcessingEnabled(true);
     try {
       setError(null);
-      const res = await fetch("/api/google-calendar/auth");
+      const res = await fetch("/api/google-calendar/auth?returnTo=/settings");
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
@@ -89,7 +89,7 @@ export function GoogleCalendarSettings() {
     setAiCalendarProcessingEnabled(false);
     try {
       setError(null);
-      const res = await fetch("/api/google-calendar/auth");
+      const res = await fetch("/api/google-calendar/auth?returnTo=/settings");
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
@@ -296,21 +296,32 @@ export function GoogleCalendarSettings() {
       </div>
 
       <Dialog open={consentOpen} onOpenChange={setConsentOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("settings.googleCalendar.aiProcessingConsentTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("settings.googleCalendar.aiProcessingConsentDescription")}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2 pt-2">
-            <Button onClick={handleConsentAllow} className="gap-1.5 bg-purple-600 hover:bg-purple-700">
-              <Brain className="h-4 w-4" />
-              {t("settings.googleCalendar.aiProcessingConsentAllow")}
-            </Button>
-            <Button variant="outline" onClick={handleConsentSkip}>
-              {t("settings.googleCalendar.aiProcessingConsentSkip")}
-            </Button>
+        <DialogContent className="mx-auto max-w-[min(92vw,28rem)] rounded-3xl">
+          <div className="p-5 sm:p-6">
+            <DialogHeader className="mb-5">
+              <DialogTitle className="text-xl tracking-normal text-[#25242a] dark:text-[#f5f5f5]">
+                {t("settings.googleCalendar.aiProcessingConsentTitle")}
+              </DialogTitle>
+              <DialogDescription className="text-sm text-[#25242a]/60 dark:text-[#d4d4d4]/70">
+                {t("settings.googleCalendar.aiProcessingConsentDescription")}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={handleConsentSkip}
+                className="flex-1 cursor-pointer rounded-full border border-black/10 bg-[#fafafa] px-4 py-2.5 text-sm font-medium text-[#25242a]/70 transition-colors hover:border-[#25242a]/30 hover:text-[#25242a] dark:border-white/10 dark:bg-white/5 dark:text-[#d4d4d4]/75 dark:hover:border-white/20 dark:hover:text-[#f5f5f5]"
+              >
+                {t("settings.googleCalendar.aiProcessingConsentSkip")}
+              </button>
+              <button
+                type="button"
+                onClick={handleConsentAllow}
+                className="flex-1 cursor-pointer rounded-full bg-[#25242a] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-black dark:bg-[#f5f5f5] dark:text-[#111111] dark:hover:bg-white"
+              >
+                {t("settings.googleCalendar.aiProcessingConsentAllow")}
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
