@@ -139,6 +139,7 @@ function settingsFromCloud(settings: Record<string, unknown>): Omit<SettingsPayl
     dateFormatRegion: DEFAULT_SETTINGS.dateFormatRegion,
     dailyDigestEnabled: DEFAULT_SETTINGS.dailyDigestEnabled,
     dailyDigestTopics: DEFAULT_SETTINGS.dailyDigestTopics,
+    aiCalendarProcessingEnabled: DEFAULT_SETTINGS.aiCalendarProcessingEnabled,
     ...(typeof settings.sleepStart === "string" ? { sleepStart: settings.sleepStart } : {}),
     ...(typeof settings.sleepEnd === "string" ? { sleepEnd: settings.sleepEnd } : {}),
     ...(isTimeFormat(settings.timeFormat) ? { timeFormat: settings.timeFormat } : {}),
