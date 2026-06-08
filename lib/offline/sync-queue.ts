@@ -20,7 +20,24 @@ function saveQueue(queue: SyncOperation[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
   } catch {
-    // localStorage may be full
+    // localStorage may be full — prune non-essential operations and retry
+    const prunable = queue.filter((op) => op.status === "resolved" || op.status === "failed");
+    if (prunable.length > 0) {
+      const pruned = queue.filter((op) => op.status !== "resolved" && op.status !== "failed");
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(pruned));
+        inMemoryQueue = pruned;
+        console.warn("[SyncQueue] Pruned", prunable.length, "resolved/failed ops due to localStorage quota");
+        return;
+      } catch {
+        // Still full after pruning
+      }
+    }
+    console.error(
+      "[SyncQueue] Failed to persist queue — localStorage quota exceeded. " +
+      "Operations will be lost on page refresh.",
+    );
+    window.dispatchEvent(new CustomEvent("orkest:sync-storage-error"));
   }
 }
 

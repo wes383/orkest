@@ -98,6 +98,7 @@ export function SyncStatusIndicator() {
   const isOnline = navigatorOnline && realOnline;
 
   const [stats, setStats] = useState({ pending: 0, syncing: 0, failed: 0 });
+  const [storageError, setStorageError] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -105,8 +106,22 @@ export function SyncStatusIndicator() {
     };
     update();
     const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
+    const handleStorageError = () => setStorageError(true);
+    window.addEventListener("orkest:sync-storage-error", handleStorageError);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("orkest:sync-storage-error", handleStorageError);
+    };
   }, []);
+
+  if (storageError) {
+    return (
+      <div className="flex items-center gap-1.5 pl-0.5 text-[11px] font-medium text-amber-600" title="Local storage is full. Some changes may not persist across page refreshes.">
+        <AlertCircle className="h-3 w-3" />
+        <span>Storage full</span>
+      </div>
+    );
+  }
 
   if (!isOnline) {
     return (

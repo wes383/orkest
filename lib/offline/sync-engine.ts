@@ -22,11 +22,17 @@ let retryTimer: ReturnType<typeof setTimeout> | null = null;
 // Google Calendar push debounce state
 const googlePushTimers = new Map<string, ReturnType<typeof setTimeout>>();
 let hasGoogleConnection: boolean | null = null; // null = not checked yet
+let googleConnectionLastCheck = 0;
+const GOOGLE_CONNECTION_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const GOOGLE_PUSH_MAX_RETRIES = 5;
 
 async function checkGoogleConnection(): Promise<boolean> {
-  if (hasGoogleConnection !== null) return hasGoogleConnection;
+  const now = Date.now();
+  if (hasGoogleConnection !== null && now - googleConnectionLastCheck < GOOGLE_CONNECTION_CACHE_TTL) {
+    return hasGoogleConnection;
+  }
   try {
+    googleConnectionLastCheck = now;
     const res = await fetch("/api/google-calendar/connection");
     if (!res.ok) { hasGoogleConnection = false; return false; }
     const data = await res.json();
@@ -219,7 +225,8 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
   }
 
   if (op.table === "projects") {
-    const payload = op.payload as Record<string, unknown>;
+    // Shallow copy to avoid mutating the queued object (payload.id would be lost on retry)
+    const payload = { ...(op.payload as Record<string, unknown>) };
     delete payload.id;
 
     if (op.type === "delete") {
@@ -254,6 +261,31 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
         (updatePayload as Record<string, unknown>)[key] = value;
       }
     }
+
+    // Conflict detection: check if remote was updated after this operation was queued
+    const { data: remoteProject, error: fetchError } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("id", op.recordId)
+      .single();
+
+    if (!fetchError && remoteProject) {
+      const remoteUpdatedAt = new Date(remoteProject.updated_at).getTime();
+      if (remoteUpdatedAt > op.timestamp) {
+        // Merge: prefer local for fields in updatePayload, keep remote for fields not touched locally
+        const mergedPayload: Database["public"]["Tables"]["projects"]["Update"] = {
+          ...updatePayload,
+          updated_at: new Date().toISOString(),
+        };
+        const { error } = await supabase.from("projects").update(mergedPayload).eq("id", op.recordId);
+        if (error) {
+          console.error("[SyncEngine] conflict resolve project update failed:", error);
+          return false;
+        }
+        return true;
+      }
+    }
+
     const { error } = await supabase.from("projects").update(updatePayload).eq("id", op.recordId);
     if (error) {
       console.error("[SyncEngine] update project failed:", error);
@@ -315,6 +347,12 @@ export async function processQueue(): Promise<void> {
 
       if (success) {
         removeOperation(op.id);
+        // Notify realtime hooks to suppress echo for this record
+        window.dispatchEvent(
+          new CustomEvent("orkest:local-sync", {
+            detail: { recordId: op.recordId },
+          }),
+        );
         // Trigger Google Calendar push for items
         if (op.table === "items") {
           scheduleGooglePush(op.recordId, op.type);
