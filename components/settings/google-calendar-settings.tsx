@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown } from "lucide-react";
+import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown, Brain } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
