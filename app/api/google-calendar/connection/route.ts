@@ -7,6 +7,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server-client";
 import { stopNotificationChannel } from "@/lib/google/channel-manager";
+import { revokeGoogleToken } from "@/lib/google/token-revoke";
+import { decryptToken } from "@/lib/google/token-encryption";
 
 export async function GET() {
   const supabase = await createClient();
@@ -60,6 +62,21 @@ export async function DELETE() {
   if (connections) {
     for (const conn of connections) {
       await stopNotificationChannel(conn);
+      // Revoke OAuth tokens at Google so the connection cannot be silently reused.
+      // We revoke the refresh_token so that any cached access_token is invalidated as well.
+      // We never block disconnect on revoke failure — best-effort.
+      try {
+        // Tokens are encrypted at rest; decrypt before sending to Google.
+        const refreshToken = decryptToken(conn.refresh_token);
+        const accessToken = decryptToken(conn.access_token);
+        if (refreshToken) {
+          await revokeGoogleToken(refreshToken);
+        } else if (accessToken) {
+          await revokeGoogleToken(accessToken);
+        }
+      } catch (err) {
+        console.error("Failed to revoke Google token (best-effort):", err);
+      }
     }
   }
 

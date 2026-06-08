@@ -67,6 +67,7 @@
       color: #111;
       margin-top: 1.75rem;
       margin-bottom: 0.75rem;
+      scroll-margin-top: 5rem;
     }
 
     article h3 {
@@ -75,6 +76,7 @@
       color: #111;
       margin-top: 1.25rem;
       margin-bottom: 0.5rem;
+      scroll-margin-top: 5rem;
     }
 
     article h1-skip {
@@ -142,6 +144,7 @@
       text-align: left;
       font-size: 0.875rem;
       color: #3c3841;
+      table-layout: fixed;
     }
 
     th {
@@ -150,6 +153,8 @@
       font-weight: 600;
       padding: 0.75rem 1rem;
       border-bottom: 1px solid #e5e5e5;
+      vertical-align: top;
+      word-wrap: break-word;
     }
 
     td {
@@ -157,6 +162,27 @@
       border-bottom: 1px solid #e5e5e5;
       vertical-align: top;
       line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    td.col-scope {
+      font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    td.col-scope code,
+    td.col-scope a {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    td.col-last {
+      word-wrap: break-word;
     }
 
     tr:last-child td {
@@ -200,14 +226,19 @@
       <article>
         <h1>Privacy Policy</h1>
         <div>
-          <p><strong>Last Updated: May 29, 2026</strong></p>
-<h2>1. Introduction</h2>
+          <p><strong>Last Updated: June 8, 2026</strong></p>
+<h2 id="1-introduction">1. Introduction</h2>
 <p>Orkest ("we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our web application at <a href="https://orkest.wesluma.com" target="_blank" rel="noopener noreferrer">https://orkest.wesluma.com</a> ("the Service").</p>
 <p>Please read this Privacy Policy carefully. By using the Service, you acknowledge the practices described in this policy.</p>
-<h2>2. Information We Collect</h2>
-<h3>2.1 Information You Provide Directly</h3>
+<h2 id="2-information-we-collect">2. Information We Collect</h2>
+<h3 id="21-information-you-provide-directly">2.1 Information You Provide Directly</h3>
 <div class="table-container">
 <table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:50%">
+    <col style="width:25%">
+  </colgroup>
   <thead>
     <tr>
       <th>Category</th>
@@ -217,66 +248,71 @@
   </thead>
   <tbody>
     <tr>
-      <td><strong>Account Information</strong></td>
+      <td class="col-scope"><strong>Account Information</strong></td>
       <td>Email address, password (hashed), username (optional), avatar image</td>
-      <td>Account creation, authentication, user identification</td>
+      <td class="col-last">Account creation, authentication, user identification</td>
     </tr>
     <tr>
-      <td><strong>Profile Information</strong></td>
+      <td class="col-scope"><strong>Profile Information</strong></td>
       <td>Username, avatar, language/locale preferences, time zone</td>
-      <td>Personalizing your experience</td>
+      <td class="col-last">Personalizing your experience</td>
     </tr>
     <tr>
-      <td><strong>Task Data</strong></td>
+      <td class="col-scope"><strong>Task Data</strong></td>
       <td>Task titles, descriptions, priorities, labels, tags, due dates, time zone, schedules, recurrence rules, subtasks, project assignments, status</td>
-      <td>Core Service functionality</td>
+      <td class="col-last">Core Service functionality</td>
     </tr>
     <tr>
-      <td><strong>AI Chat Data</strong></td>
+      <td class="col-scope"><strong>AI Chat Data</strong></td>
       <td>Chat messages sent to the AI assistant (including structured JSON content and conversation history)</td>
-      <td>AI assistant feature</td>
+      <td class="col-last">AI assistant feature</td>
     </tr>
     <tr>
-      <td><strong>AI Memory Data</strong></td>
+      <td class="col-scope"><strong>AI Memory Data</strong></td>
       <td>User preferences, habits, and patterns inferred by the AI assistant (stored as key-value pairs with category and confidence score)</td>
-      <td>Cross-session personalization of AI assistant</td>
+      <td class="col-last">Cross-session personalization of AI assistant</td>
     </tr>
     <tr>
-      <td><strong>AI Usage Data</strong></td>
+      <td class="col-scope"><strong>AI Usage Data</strong></td>
       <td>Daily conversation count, usage date</td>
-      <td>Enforcing daily usage limits</td>
+      <td class="col-last">Enforcing daily usage limits</td>
     </tr>
     <tr>
-      <td><strong>Voice Input</strong></td>
+      <td class="col-scope"><strong>Voice Input</strong></td>
       <td>Audio recordings uploaded for transcription</td>
-      <td>Voice-to-text feature for AI assistant</td>
+      <td class="col-last">Voice-to-text feature for AI assistant</td>
     </tr>
     <tr>
-      <td><strong>Focus Sessions</strong></td>
+      <td class="col-scope"><strong>Focus Sessions</strong></td>
       <td>Session start/end times, duration, associated task, completion status</td>
-      <td>Focus timer feature and statistics</td>
+      <td class="col-last">Focus timer feature and statistics</td>
     </tr>
     <tr>
-      <td><strong>Settings &amp; Preferences</strong></td>
+      <td class="col-scope"><strong>Settings &amp; Preferences</strong></td>
       <td>Theme (light/dark), time format, week start day, sleep hours, task buffer minutes, default view, digest preferences</td>
-      <td>Personalizing your experience</td>
+      <td class="col-last">Personalizing your experience</td>
     </tr>
     <tr>
-      <td><strong>Google Calendar Data</strong></td>
+      <td class="col-scope"><strong>Google Calendar Data</strong></td>
       <td>Calendar IDs, calendar names, OAuth tokens (access/refresh), sync tokens, event IDs, notification channel IDs</td>
-      <td>Google Calendar synchronization feature</td>
+      <td class="col-last">Google Calendar synchronization feature</td>
     </tr>
     <tr>
-      <td><strong>Notification Data</strong></td>
+      <td class="col-scope"><strong>Notification Data</strong></td>
       <td>Push notification subscription (OneSignal player ID), notification preferences (push/email), scheduled reminder metadata</td>
-      <td>Task reminder notifications</td>
+      <td class="col-last">Task reminder notifications</td>
     </tr>
   </tbody>
 </table>
 </div>
-<h3>2.2 Information Collected Automatically</h3>
+<h3 id="22-information-collected-automatically">2.2 Information Collected Automatically</h3>
 <div class="table-container">
 <table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:50%">
+    <col style="width:25%">
+  </colgroup>
   <thead>
     <tr>
       <th>Category</th>
@@ -286,34 +322,34 @@
   </thead>
   <tbody>
     <tr>
-      <td><strong>Usage Data</strong></td>
+      <td class="col-scope"><strong>Usage Data</strong></td>
       <td>Pages visited, features used, interactions, timestamps</td>
-      <td>Service improvement, analytics</td>
+      <td class="col-last">Service improvement, analytics</td>
     </tr>
     <tr>
-      <td><strong>Device &amp; Browser Data</strong></td>
+      <td class="col-scope"><strong>Device &amp; Browser Data</strong></td>
       <td>Browser type and version, operating system, device type</td>
-      <td>Technical optimization, security</td>
+      <td class="col-last">Technical optimization, security</td>
     </tr>
     <tr>
-      <td><strong>Log Data</strong></td>
+      <td class="col-scope"><strong>Log Data</strong></td>
       <td>IP address, request timestamps, HTTP headers, error logs</td>
-      <td>Security, debugging, rate limiting</td>
+      <td class="col-last">Security, debugging, rate limiting</td>
     </tr>
     <tr>
-      <td><strong>Authentication Data</strong></td>
+      <td class="col-scope"><strong>Authentication Data</strong></td>
       <td>Session tokens, OAuth provider identifiers</td>
-      <td>Maintaining authenticated sessions</td>
+      <td class="col-last">Maintaining authenticated sessions</td>
     </tr>
     <tr>
-      <td><strong>Location Preferences</strong></td>
+      <td class="col-scope"><strong>Location Preferences</strong></td>
       <td>Selected time zone, locale settings (not precise GPS location)</td>
-      <td>Scheduling features, localization</td>
+      <td class="col-last">Scheduling features, localization</td>
     </tr>
   </tbody>
 </table>
 </div>
-<h3>2.3 Information from Third-Party Providers</h3>
+<h3 id="23-information-from-third-party-providers">2.3 Information from Third-Party Providers</h3>
 <p>When you sign in via <strong>Google OAuth</strong>, we receive:</p>
 <ul>
   <li>Your name (as registered with Google)</li>
@@ -326,7 +362,7 @@
   <li>Calendar events (for synchronization purposes only)</li>
   <li>We store OAuth tokens to maintain the sync connection</li>
 </ul>
-<h3>2.4 Information We Do NOT Collect</h3>
+<h3 id="24-information-we-do-not-collect">2.4 Information We Do NOT Collect</h3>
 <ul>
   <li>Precise geolocation data;</li>
   <li>Contacts;</li>
@@ -336,9 +372,9 @@
   <li>Browsing history outside the Service;</li>
   <li>Content from third-party apps or services (except Google OAuth profile data and Google Calendar data when you enable sync).</li>
 </ul>
-<h2>3. How We Use Your Information</h2>
+<h2 id="3-how-we-use-your-information">3. How We Use Your Information</h2>
 <p>We use your personal information for the following purposes:</p>
-<h3>3.1 Service Provision</h3>
+<h3 id="31-service-provision">3.1 Service Provision</h3>
 <ul>
   <li>To create and manage your account;</li>
   <li>To provide task management, scheduling, and synchronization features;</li>
@@ -354,37 +390,41 @@
   <li>To send push notifications and email reminders for scheduled tasks (via OneSignal and Inngest/Resend, only when you configure reminders);</li>
   <li>To generate export files (ICS, CSV, JSON) as requested.</li>
 </ul>
-<h3>3.2 Service Improvement</h3>
+<h3 id="32-service-improvement">3.2 Service Improvement</h3>
 <ul>
   <li>To analyze usage patterns and improve the Service;</li>
   <li>To develop new features and optimize existing ones;</li>
   <li>To train and improve AI models (only with anonymized/non-personal data; see Section 3.5).</li>
 </ul>
-<h3>3.3 Security and Compliance</h3>
+<h3 id="33-security-and-compliance">3.3 Security and Compliance</h3>
 <ul>
   <li>To detect, prevent, and address fraud, abuse, security incidents, and technical issues;</li>
   <li>To enforce our Terms of Service;</li>
   <li>To comply with legal obligations and respond to lawful requests;</li>
   <li>To implement rate limiting and bot protection.</li>
 </ul>
-<h3>3.4 Communication</h3>
+<h3 id="34-communication">3.4 Communication</h3>
 <ul>
   <li>To send service-related emails (verification OTP, password reset, account notifications);</li>
   <li>To send daily digest emails (task summary and curated content, only when you opt in);</li>
   <li>To send announcements about material changes to the Service or policies;</li>
   <li><strong>We do not send marketing or promotional emails</strong> unless you explicitly opt in.</li>
 </ul>
-<h3>3.5 AI Training</h3>
+<h3 id="35-ai-training">3.5 AI Training</h3>
 <p>We do <strong>not</strong> use your personal data, task content, or AI chat messages to train or improve third-party AI models. We may use aggregated, fully anonymized data for service improvement, which cannot reasonably be used to identify you. If our practice changes in the future, we will:</p>
 <ul>
   <li>Obtain your explicit consent;</li>
   <li>Provide an opt-out mechanism;</li>
   <li>Anonymize data before use.</li>
 </ul>
-<h2>4. Legal Bases for Processing (GDPR/UK Users)</h2>
+<h2 id="4-legal-bases-for-processing-gdpruk-users">4. Legal Bases for Processing (GDPR/UK Users)</h2>
 <p>If you are located in the EU/EEA or UK, we process your personal information based on the following legal bases:</p>
 <div class="table-container">
 <table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:70%">
+  </colgroup>
   <thead>
     <tr>
       <th>Processing Activity</th>
@@ -393,41 +433,47 @@
   </thead>
   <tbody>
     <tr>
-      <td>Account creation and management</td>
-      <td>Performance of a contract (Art. 6(1)(b) GDPR)</td>
+      <td class="col-scope">Account creation and management</td>
+      <td class="col-last">Performance of a contract (Art. 6(1)(b) GDPR)</td>
     </tr>
     <tr>
-      <td>Service feature delivery</td>
-      <td>Performance of a contract (Art. 6(1)(b) GDPR)</td>
+      <td class="col-scope">Service feature delivery</td>
+      <td class="col-last">Performance of a contract (Art. 6(1)(b) GDPR)</td>
     </tr>
     <tr>
-      <td>Email verification and password reset</td>
-      <td>Performance of a contract / Legal obligation</td>
+      <td class="col-scope">Email verification and password reset</td>
+      <td class="col-last">Performance of a contract / Legal obligation</td>
     </tr>
     <tr>
-      <td>AI chat and voice processing</td>
-      <td>Performance of a contract (Art. 6(1)(b) GDPR)</td>
+      <td class="col-scope">AI chat and voice processing</td>
+      <td class="col-last">Performance of a contract (Art. 6(1)(b) GDPR)</td>
     </tr>
     <tr>
-      <td>Usage analytics</td>
-      <td>Legitimate interests (Art. 6(1)(f) GDPR) — improving the Service</td>
+      <td class="col-scope">Usage analytics</td>
+      <td class="col-last">Legitimate interests (Art. 6(1)(f) GDPR) — improving the Service</td>
     </tr>
     <tr>
-      <td>Security monitoring and fraud prevention</td>
-      <td>Legitimate interests (Art. 6(1)(f) GDPR) — protecting the Service and users</td>
+      <td class="col-scope">Security monitoring and fraud prevention</td>
+      <td class="col-last">Legitimate interests (Art. 6(1)(f) GDPR) — protecting the Service and users</td>
     </tr>
     <tr>
-      <td>Compliance with legal obligations</td>
-      <td>Legal obligation (Art. 6(1)(c) GDPR)</td>
+      <td class="col-scope">Compliance with legal obligations</td>
+      <td class="col-last">Legal obligation (Art. 6(1)(c) GDPR)</td>
     </tr>
   </tbody>
 </table>
 </div>
-<h2>5. Data Sharing and Disclosure</h2>
-<h3>5.1 Third-Party Service Providers</h3>
+<h2 id="5-data-sharing-and-disclosure">5. Data Sharing and Disclosure</h2>
+<h3 id="51-third-party-service-providers">5.1 Third-Party Service Providers</h3>
 <p>We share your data with the following essential service providers, who process data on our behalf under strict data processing agreements:</p>
 <div class="table-container">
 <table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:30%">
+    <col style="width:30%">
+    <col style="width:15%">
+  </colgroup>
   <thead>
     <tr>
       <th>Provider</th>
@@ -438,99 +484,99 @@
   </thead>
   <tbody>
     <tr>
-      <td><strong>Supabase Inc.</strong></td>
+      <td class="col-scope"><strong>Supabase Inc.</strong></td>
       <td>Database hosting, authentication, real-time sync, file storage</td>
       <td>Account data, task data, settings, session tokens</td>
-      <td>USA</td>
+      <td class="col-last">USA</td>
     </tr>
     <tr>
-      <td><strong>Vercel Inc.</strong></td>
+      <td class="col-scope"><strong>Vercel Inc.</strong></td>
       <td>Application hosting and deployment</td>
       <td>Usage data, server logs, IP addresses</td>
-      <td>Global (edge network)</td>
+      <td class="col-last">Global (edge network)</td>
     </tr>
     <tr>
-      <td><strong>Google LLC</strong></td>
+      <td class="col-scope"><strong>Google LLC</strong></td>
       <td>Google Calendar synchronization, OAuth authentication</td>
       <td>OAuth tokens, calendar IDs, calendar events (only when sync is enabled)</td>
-      <td>USA</td>
+      <td class="col-last">USA</td>
     </tr>
     <tr>
-      <td><strong>Alibaba Cloud (DashScope)</strong></td>
+      <td class="col-scope"><strong>Alibaba Cloud (DashScope)</strong></td>
       <td>AI chat completions, Daily Digest generation, Daily Quote translation, Today in History translation, Daily Book and Daily Movie translation and recommendation</td>
       <td>AI chat messages, task summaries for Daily Digest, quote text for translation, historical event text for translation, book/movie metadata for translation and recommendation</td>
-      <td>China / Global</td>
+      <td class="col-last">China / Global</td>
     </tr>
     <tr>
-      <td><strong>Wikimedia Foundation</strong></td>
+      <td class="col-scope"><strong>Wikimedia Foundation</strong></td>
       <td>Historical event data for "Today in History" feature</td>
       <td>Date (month and day only)</td>
-      <td>USA</td>
+      <td class="col-last">USA</td>
     </tr>
     <tr>
-      <td><strong>quote.wesluma.com</strong></td>
+      <td class="col-scope"><strong>quote.wesluma.com</strong></td>
       <td>Quote data for Daily Quote feature</td>
       <td>Date (used as seed)</td>
-      <td>Global</td>
+      <td class="col-last">Global</td>
     </tr>
     <tr>
-      <td><strong>book.wesluma.com</strong></td>
+      <td class="col-scope"><strong>book.wesluma.com</strong></td>
       <td>Book data for Daily Book Recommendation feature</td>
       <td>Date (used as seed)</td>
-      <td>Global</td>
+      <td class="col-last">Global</td>
     </tr>
     <tr>
-      <td><strong>movie.wesluma.com</strong></td>
+      <td class="col-scope"><strong>movie.wesluma.com</strong></td>
       <td>Movie data for Daily Movie Recommendation feature</td>
       <td>Date (used as seed)</td>
-      <td>Global</td>
+      <td class="col-last">Global</td>
     </tr>
     <tr>
-      <td><strong>Deepgram, Inc.</strong></td>
+      <td class="col-scope"><strong>Deepgram, Inc.</strong></td>
       <td>Voice-to-text transcription</td>
       <td>Audio recordings you upload</td>
-      <td>USA</td>
+      <td class="col-last">USA</td>
     </tr>
     <tr>
-      <td><strong>Resend Inc.</strong></td>
+      <td class="col-scope"><strong>Resend Inc.</strong></td>
       <td>Transactional and reminder email delivery</td>
       <td>Email address, reminder content</td>
-      <td>USA</td>
+      <td class="col-last">USA</td>
     </tr>
     <tr>
-      <td><strong>OneSignal, Inc.</strong></td>
+      <td class="col-scope"><strong>OneSignal, Inc.</strong></td>
       <td>Push notification delivery</td>
       <td>OneSignal player ID, notification content, device info</td>
-      <td>USA</td>
+      <td class="col-last">USA</td>
     </tr>
     <tr>
-      <td><strong>Inngest, Inc.</strong></td>
+      <td class="col-scope"><strong>Inngest, Inc.</strong></td>
       <td>Scheduled email reminder delivery (background job processing)</td>
       <td>Event data (task title, trigger time, email address)</td>
-      <td>USA</td>
+      <td class="col-last">USA</td>
     </tr>
     <tr>
-      <td><strong>Cloudflare, Inc.</strong></td>
+      <td class="col-scope"><strong>Cloudflare, Inc.</strong></td>
       <td>Bot protection (Turnstile)</td>
       <td>Browser fingerprint data, IP address</td>
-      <td>Global (edge network)</td>
+      <td class="col-last">Global (edge network)</td>
     </tr>
     <tr>
-      <td><strong>Upstash Inc.</strong></td>
+      <td class="col-scope"><strong>Upstash Inc.</strong></td>
       <td>Rate limiting (Redis)</td>
       <td>IP address (transient, not stored)</td>
-      <td>USA / Global</td>
+      <td class="col-last">USA / Global</td>
     </tr>
     <tr>
-      <td><strong>Paddle</strong> (Paddle.com Market Limited / Paddle Payments)</td>
+      <td class="col-scope"><strong>Paddle</strong> (Paddle.com Market Limited / Paddle Payments)</td>
       <td>Subscription payment processing, tax compliance, invoicing, and billing</td>
       <td>Email address, billing address, country, transaction history, and tokenized payment identifiers (card details are processed directly by Paddle)</td>
-      <td>United Kingdom / Ireland</td>
+      <td class="col-last">United Kingdom / Ireland</td>
     </tr>
   </tbody>
 </table>
 </div>
-<h3>5.2 Legal Disclosures</h3>
+<h3 id="52-legal-disclosures">5.2 Legal Disclosures</h3>
 <p>We may disclose your information if required to do so by law or in the good-faith belief that such action is necessary to:</p>
 <ul>
   <li>Comply with a legal obligation (subpoena, court order, or other legal process);</li>
@@ -539,11 +585,11 @@
   <li>Protect the personal safety of users or the public;</li>
   <li>Protect against legal liability.</li>
 </ul>
-<h3>5.3 Business Transfers</h3>
+<h3 id="53-business-transfers">5.3 Business Transfers</h3>
 <p>If Orkest is involved in a merger, acquisition, reorganization, or sale of assets, your information may be transferred as part of that transaction. We will notify you via email and/or a prominent notice on the Service before any such transfer takes effect.</p>
-<h3>5.4 We Do NOT Sell Your Personal Information</h3>
+<h3 id="54-we-do-not-sell-your-personal-information">5.4 We Do NOT Sell Your Personal Information</h3>
 <p>We do <strong>not</strong> sell, rent, or trade your personal information to third parties for their marketing or commercial purposes. This includes, for the purposes of the <strong>California Consumer Privacy Act (CCPA)</strong>, no "sale" or "sharing" of personal information for cross-context behavioral advertising.</p>
-<h2>6. International Data Transfers</h2>
+<h2 id="6-international-data-transfers">6. International Data Transfers</h2>
 <p>Your personal information may be transferred to and processed in countries other than your country of residence, including the United States, where our service providers are located.</p>
 <p>When we transfer personal information from the <strong>EU/EEA/UK</strong> to countries not deemed adequate by the European Commission, we rely on:</p>
 <ul>
@@ -557,10 +603,14 @@
   <li>Obtain your separate consent where required by law;</li>
   <li>Inform you of the recipient's name, contact information, processing purpose, and method.</li>
 </ul>
-<h2>7. Data Retention</h2>
+<h2 id="7-data-retention">7. Data Retention</h2>
 <p>We retain your personal information only for as long as necessary to fulfill the purposes described in this Privacy Policy:</p>
 <div class="table-container">
 <table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:70%">
+  </colgroup>
   <thead>
     <tr>
       <th>Data Type</th>
@@ -569,86 +619,86 @@
   </thead>
   <tbody>
     <tr>
-      <td>Account information</td>
-      <td>Until account deletion</td>
+      <td class="col-scope">Account information</td>
+      <td class="col-last">Until account deletion</td>
     </tr>
     <tr>
-      <td>Task data</td>
-      <td>Until account deletion</td>
+      <td class="col-scope">Task data</td>
+      <td class="col-last">Until account deletion</td>
     </tr>
     <tr>
-      <td>Google Calendar connections</td>
-      <td>Until account deletion or disconnection</td>
+      <td class="col-scope">Google Calendar connections</td>
+      <td class="col-last">Until account deletion or disconnection</td>
     </tr>
     <tr>
-      <td>Reminder settings</td>
-      <td>Until account deletion or item deletion</td>
+      <td class="col-scope">Reminder settings</td>
+      <td class="col-last">Until account deletion or item deletion</td>
     </tr>
     <tr>
-      <td>Push notification subscription</td>
-      <td>Until you revoke notification permission or account deletion</td>
+      <td class="col-scope">Push notification subscription</td>
+      <td class="col-last">Until you revoke notification permission or account deletion</td>
     </tr>
     <tr>
-      <td>AI chat messages</td>
-      <td>Until account deletion</td>
+      <td class="col-scope">AI chat messages</td>
+      <td class="col-last">Until account deletion</td>
     </tr>
     <tr>
-      <td>AI memory data</td>
-      <td>Until account deletion (max 20 entries; stale entries auto-pruned)</td>
+      <td class="col-scope">AI memory data</td>
+      <td class="col-last">Until account deletion (max 20 entries; stale entries auto-pruned)</td>
     </tr>
     <tr>
-      <td>Email digest preferences</td>
-      <td>Until account deletion (opt-in only)</td>
+      <td class="col-scope">Email digest preferences</td>
+      <td class="col-last">Until account deletion (opt-in only)</td>
     </tr>
     <tr>
-      <td>Daily digest messages</td>
-      <td>7 days (older records automatically purged)</td>
+      <td class="col-scope">Daily digest messages</td>
+      <td class="col-last">7 days (older records automatically purged)</td>
     </tr>
     <tr>
-      <td>Daily quote translations</td>
-      <td>7 days (older records automatically purged)</td>
+      <td class="col-scope">Daily quote translations</td>
+      <td class="col-last">7 days (older records automatically purged)</td>
     </tr>
     <tr>
-      <td>Today in History translations</td>
-      <td>7 days (older records automatically purged)</td>
+      <td class="col-scope">Today in History translations</td>
+      <td class="col-last">7 days (older records automatically purged)</td>
     </tr>
     <tr>
-      <td>Daily book translations</td>
-      <td>7 days (older records automatically purged)</td>
+      <td class="col-scope">Daily book translations</td>
+      <td class="col-last">7 days (older records automatically purged)</td>
     </tr>
     <tr>
-      <td>Daily movie translations</td>
-      <td>7 days (older records automatically purged)</td>
+      <td class="col-scope">Daily movie translations</td>
+      <td class="col-last">7 days (older records automatically purged)</td>
     </tr>
     <tr>
-      <td>AI usage limits and counts</td>
-      <td>30 days (older records automatically purged)</td>
+      <td class="col-scope">AI usage limits and counts</td>
+      <td class="col-last">30 days (older records automatically purged)</td>
     </tr>
     <tr>
-      <td>Voice recordings</td>
-      <td>Until transcription is complete; deleted after processing</td>
+      <td class="col-scope">Voice recordings</td>
+      <td class="col-last">Until transcription is complete; deleted after processing</td>
     </tr>
     <tr>
-      <td>Focus sessions</td>
-      <td>Until account deletion</td>
+      <td class="col-scope">Focus sessions</td>
+      <td class="col-last">Until account deletion</td>
     </tr>
     <tr>
-      <td>Usage logs</td>
-      <td>90 days (aggregated/anonymized data may be retained longer)</td>
+      <td class="col-scope">Usage logs</td>
+      <td class="col-last">90 days (aggregated/anonymized data may be retained longer)</td>
     </tr>
     <tr>
-      <td>Email verification OTPs</td>
-      <td>24 hours</td>
+      <td class="col-scope">Email verification OTPs</td>
+      <td class="col-last">24 hours</td>
     </tr>
     <tr>
-      <td>Session tokens</td>
-      <td>Until session expiry or account deletion</td>
+      <td class="col-scope">Session tokens</td>
+      <td class="col-last">Until session expiry or account deletion</td>
     </tr>
   </tbody>
 </table>
 </div>
 <p><strong>Account Deletion:</strong> You may delete your account at any time through the Settings page. Upon deletion, all your personal data across all database tables (projects, items, AI conversations, AI messages, AI user memories, AI usage data, user settings, user subscriptions, focus sessions, daily digests, daily digest email preferences, Google Calendar connections) and your Supabase Auth account will be permanently deleted within <strong>30 days</strong>. Your external notification subscriptions — including OneSignal push subscriptions, OneSignal email channel, Google Calendar notification channels, and any pending scheduled email reminders — will also be cancelled at the time of deletion. Residual copies may remain in backups for up to <strong>30 additional days</strong>.</p>
-<h2>8. Data Security</h2>
+<h2 id="8-data-security">8. Data Security</h2>
 <p>We implement appropriate technical and organizational measures to protect your personal information, including:</p>
 <ul>
   <li><strong>Encryption in transit:</strong> All data transmitted between your browser and our servers is encrypted using TLS 1.3;</li>
@@ -660,14 +710,14 @@
   <li><strong>Regular updates:</strong> Dependencies are regularly updated to patch security vulnerabilities.</li>
 </ul>
 <p><strong>No security measure is 100% effective.</strong> We cannot guarantee the absolute security of your information. We encourage you to use strong, unique passwords and enable all available security features.</p>
-<h2>9. Your Rights and Choices</h2>
-<h3>9.1 General Rights (All Users)</h3>
+<h2 id="9-your-rights-and-choices">9. Your Rights and Choices</h2>
+<h3 id="91-general-rights-all-users">9.1 General Rights (All Users)</h3>
 <ul>
   <li><strong>Access and Portability:</strong> You can access and export your data via the Service's export features (ICS, CSV, JSON for AI conversations and memories). You may also request a copy of your personal data by contacting us.</li>
   <li><strong>Correction:</strong> You can update your profile information, settings, and task data directly through the Service interface.</li>
   <li><strong>Deletion:</strong> You can delete your account and all associated data through the Settings page at any time.</li>
 </ul>
-<h3>9.2 GDPR Rights (EU/EEA/UK Users)</h3>
+<h3 id="92-gdpr-rights-eueeauk-users">9.2 GDPR Rights (EU/EEA/UK Users)</h3>
 <p>In addition to the above, if you are located in the EU/EEA or UK, you have the right to:</p>
 <ul>
   <li><strong>Withdraw Consent:</strong> Where processing is based on consent, you may withdraw at any time without affecting the lawfulness of processing based on consent before its withdrawal;</li>
@@ -677,7 +727,7 @@
   <li><strong>Lodge a Complaint:</strong> File a complaint with your local data protection authority (e.g., the ICO in the UK, or your national DP Authority in the EU).</li>
 </ul>
 <p>To exercise these rights, contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>. We will respond within <strong>30 days</strong>.</p>
-<h3>9.3 CCPA Rights (California Users)</h3>
+<h3 id="93-ccpa-rights-california-users">9.3 CCPA Rights (California Users)</h3>
 <p>If you are a California resident, you have the following rights under the CCPA:</p>
 <ul>
   <li><strong>Right to Know:</strong> Request disclosure of the categories and specific pieces of personal information we have collected about you;</li>
@@ -687,7 +737,7 @@
   <li><strong>Right to Correct:</strong> Request correction of inaccurate personal information.</li>
 </ul>
 <p>To exercise your CCPA rights, contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>. We will verify your identity using the information associated with your account before processing your request.</p>
-<h3>9.4 PIPL Rights (China Users)</h3>
+<h3 id="94-pipl-rights-china-users">9.4 PIPL Rights (China Users)</h3>
 <p>If you are located in mainland China, you have the following rights under the <strong>Personal Information Protection Law (PIPL)</strong>:</p>
 <ul>
   <li><strong>Right to Know and Decide:</strong> Be informed of and decide on the processing of your personal information;</li>
@@ -701,11 +751,16 @@
   <li><strong>Right to Lodge a Complaint:</strong> File a complaint with relevant Chinese authorities.</li>
 </ul>
 <p>To exercise these rights, contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>. We will respond within <strong>15 working days</strong>.</p>
-<h2>10. Cookies and Local Storage</h2>
-<h3>10.1 What We Use</h3>
+<h2 id="10-cookies-and-local-storage">10. Cookies and Local Storage</h2>
+<h3 id="101-what-we-use">10.1 What We Use</h3>
 <p>We use minimal cookies and local storage necessary for the Service to function:</p>
 <div class="table-container">
 <table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:50%">
+    <col style="width:25%">
+  </colgroup>
   <thead>
     <tr>
       <th>Type</th>
@@ -715,29 +770,29 @@
   </thead>
   <tbody>
     <tr>
-      <td><strong>Authentication Cookies</strong> (HTTP-only)</td>
+      <td class="col-scope"><strong>Authentication Cookies</strong> (HTTP-only)</td>
       <td>Session management via Supabase SSR</td>
-      <td>Session / configurable</td>
+      <td class="col-last">Session / configurable</td>
     </tr>
     <tr>
-      <td><strong>Local Storage</strong></td>
+      <td class="col-scope"><strong>Local Storage</strong></td>
       <td>Offline sync queue (<code>orkest-sync-queue</code>)</td>
-      <td>Until cleared</td>
+      <td class="col-last">Until cleared</td>
     </tr>
     <tr>
-      <td><strong>Local Storage</strong></td>
+      <td class="col-scope"><strong>Local Storage</strong></td>
       <td>Zustand persisted state (settings, focus store)</td>
-      <td>Until cleared</td>
+      <td class="col-last">Until cleared</td>
     </tr>
     <tr>
-      <td><strong>Local Storage</strong></td>
+      <td class="col-scope"><strong>Local Storage</strong></td>
       <td>User preferences (language, theme, etc.)</td>
-      <td>Until cleared</td>
+      <td class="col-last">Until cleared</td>
     </tr>
   </tbody>
 </table>
 </div>
-<h3>10.2 What We Do NOT Use</h3>
+<h3 id="102-what-we-do-not-use">10.2 What We Do NOT Use</h3>
 <ul>
   <li>We do <strong>not</strong> use third-party tracking cookies;</li>
   <li>We do <strong>not</strong> use advertising cookies;</li>
@@ -745,13 +800,128 @@
   <li>We do <strong>not</strong> use social media pixels;</li>
   <li>We do <strong>not</strong> engage in cross-site tracking;</li>
 </ul>
-<h3>10.3 Your Choices</h3>
+<h3 id="103-your-choices">10.3 Your Choices</h3>
 <p>Most browsers allow you to control cookies and local storage through their settings. However, disabling essential cookies/local storage may prevent the Service from functioning properly.</p>
-<h2>11. Third-Party Links</h2>
+<h2 id="11-third-party-links">11. Third-Party Links</h2>
 <p>The Service may contain links to third-party websites or services (e.g., GitHub for support, Vercel for status). We are not responsible for the privacy practices of these third parties. We encourage you to review their privacy policies before providing them with any personal information.</p>
-<h2>12. Children's Privacy</h2>
+<h2 id="12-google-calendar-integration">12. Google Calendar Integration</h2>
+<p>Orkest offers an optional, user-initiated integration with Google Calendar. This section describes, in detail, what data we access, why we need it, where it is stored, how long we keep it, and how to delete it. This section supplements the rest of this Privacy Policy and is required to comply with <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the <strong>Limited Use Requirements</strong>.</p>
+<h3 id="121-data-we-access-scope">12.1 Data We Access (Scope)</h3>
+<p>When you choose to connect your Google account, Orkest requests the following OAuth scopes:</p>
+<div class="table-container">
+<table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:70%">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Scope</th>
+      <th>What we access</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="col-scope"><code><a href="https://www.googleapis.com/auth/calendar.events.owned" target="_blank" rel="noopener noreferrer">https://www.googleapis.com/auth/calendar.events.owned</a></code></td>
+      <td class="col-last">Read, create, update, and delete calendar events on calendars that you own. We do <strong>not</strong> access events on calendars you do not own (e.g., shared, subscribed, holiday, or birthday calendars).</td>
+    </tr>
+    <tr>
+      <td class="col-scope"><code><a href="https://www.googleapis.com/auth/calendar.calendarlist.readonly" target="_blank" rel="noopener noreferrer">https://www.googleapis.com/auth/calendar.calendarlist.readonly</a></code></td>
+      <td class="col-last">Read the list of calendars associated with your Google account, so we can let you choose which calendars to sync.</td>
+    </tr>
+    <tr>
+      <td class="col-scope"><code>openid</code>, <code>userinfo.email</code>, <code>userinfo.profile</code></td>
+      <td class="col-last">Identify your Google account and fetch your display name and email.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>We do <strong>not</strong> request, access, or store: your Google password, your contacts, your Gmail messages, your Drive files, your Photos, your location history, or any other Google product data outside the scopes listed above. We also do not use the <code><a href="https://www.googleapis.com/auth/calendar" target="_blank" rel="noopener noreferrer">https://www.googleapis.com/auth/calendar</a></code> (full read/write) scope, which is broader than <code>events.owned</code>.</p>
+<h3 id="122-purpose-why-we-access-it">12.2 Purpose (Why We Access It)</h3>
+<p>The integration provides <strong>bidirectional two-way synchronization</strong> of tasks between Orkest and Google Calendar. Specifically:</p>
+<ul>
+  <li><strong>Push (Orkest → Google):</strong> When you create, edit, complete, or delete a task in Orkest that has a due date, time, or recurrence rule, we create, update, or delete the corresponding event in your selected Google Calendar so it appears alongside the rest of your schedule.</li>
+  <li><strong>Pull (Google → Orkest):</strong> When you create, edit, or delete an event in a connected Google Calendar, the change is reflected in Orkest as a task.</li>
+  <li><strong>Webhooks (push notifications):</strong> We register a Google push notification channel so Google notifies Orkest within seconds of a change in a connected calendar, keeping the two systems in sync in near real-time.</li>
+</ul>
+<p>We use Google Calendar data <strong>only</strong> to provide this synchronization feature. We do <strong>not</strong> use it for advertising, profiling, sale to third parties, or for training or improving any general-purpose machine-learning or AI model.</p>
+<h3 id="123-where-we-store-it">12.3 Where We Store It</h3>
+<div class="table-container">
+<table>
+  <colgroup>
+    <col style="width:25%">
+    <col style="width:50%">
+    <col style="width:25%">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Storage location</th>
+      <th>Encryption</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="col-scope">OAuth <code>access_token</code> and <code>refresh_token</code></td>
+      <td>Supabase Postgres (table <code>google_calendar_connections</code>)</td>
+      <td class="col-last">AES-256-GCM application-level encryption before write; never stored in plaintext</td>
+    </tr>
+    <tr>
+      <td class="col-scope">Google user ID, email, display name</td>
+      <td>Supabase Postgres (table <code>google_calendar_connections</code>)</td>
+      <td class="col-last">Encrypted columns</td>
+    </tr>
+    <tr>
+      <td class="col-scope">Calendar ID, calendar name, sync preferences</td>
+      <td>Supabase Postgres (table <code>google_calendar_connections</code>)</td>
+      <td class="col-last">At-rest in Supabase managed Postgres</td>
+    </tr>
+    <tr>
+      <td class="col-scope">Push notification channel ID and token</td>
+      <td>Supabase Postgres (table <code>google_calendar_connections</code>)</td>
+      <td class="col-last">At-rest in Supabase managed Postgres</td>
+    </tr>
+    <tr>
+      <td class="col-scope">Synced event linkage (<code>google_event_id</code>, <code>google_calendar_id</code>, <code>last_google_sync_at</code>)</td>
+      <td>Supabase Postgres (columns on the <code>items</code> table)</td>
+      <td class="col-last">At-rest in Supabase managed Postgres</td>
+    </tr>
+    <tr>
+      <td class="col-scope">Webhook payloads (X-Goog-* headers)</td>
+      <td>Not persisted; processed in memory and discarded after sync</td>
+      <td class="col-last">N/A</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>All storage is in Supabase's managed Postgres database. Tokens are encrypted in the application layer using a master key stored in our server-only environment (<code>GOOGLE_TOKEN_ENCRYPTION_KEY</code>) and never appear in plaintext in the database, application logs, error reports, or backups.</p>
+<h3 id="124-retention-duration">12.4 Retention Duration</h3>
+<ul>
+  <li><strong>OAuth tokens:</strong> Kept for as long as you remain connected. The <code>access_token</code> is auto-refreshed using the <code>refresh_token</code> approximately five minutes before expiry. We do not expire tokens arbitrarily.</li>
+  <li><strong>Sync metadata:</strong> Kept for as long as the related task or connection exists.</li>
+  <li><strong>Push notification channels:</strong> Re-registered automatically on a scheduled basis before the seven-day expiry imposed by Google.</li>
+  <li><strong>Disconnected accounts:</strong> All tokens, calendar connections, and sync metadata are deleted <strong>immediately</strong> when you disconnect (see 12.5) or <strong>within 30 days</strong> when you delete your Orkest account.</li>
+  <li><strong>Anomaly / security events:</strong> We may revoke a token outside the normal flow if we detect compromise. We will notify you at your registered email address if this occurs.</li>
+</ul>
+<h3 id="125-how-to-delete-it">12.5 How to Delete It</h3>
+<p>You have three independent ways to remove your Google Calendar data from Orkest:</p>
+<p>1. <strong>Disconnect from Orkest Settings</strong> — Settings → Integrations → Google Calendar → Disconnect. We will: (a) call Google's <code>oauth2/revoke</code> endpoint to invalidate the tokens on Google's side; (b) stop all push notification channels; (c) delete the rows in <code>google_calendar_connections</code>; (d) clear <code>google_event_id</code> and <code>google_calendar_id</code> from your tasks. Your tasks themselves are not deleted; only the Google link is removed. 2. <strong>Delete your Orkest account</strong> — Settings → Account → Delete Account. We will delete all your data, including Google connection rows, within 30 days. 3. <strong>Revoke Orkest's access from Google</strong> — Visit <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">https://myaccount.google.com/permissions</a> and remove "Orkest". This invalidates the tokens on Google's side. Orkest will discover the revocation on the next API call and clean up the local state.</p>
+<h3 id="126-limited-use-disclosure">12.6 Limited Use Disclosure</h3>
+<p>Our application uses Google Workspace APIs. The use and transfer of raw or derived user data received from Google Workspace APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+<p>In particular:</p>
+<ul>
+  <li>We do not transfer Google user data to third parties except as necessary to provide the synchronization feature (e.g., to Google's own servers via their published APIs).</li>
+  <li>We do not use Google user data for advertising.</li>
+  <li>We do not use Google user data to develop, improve, or train generalized AI / machine-learning models.</li>
+  <li>We use Google user data only to provide the user-facing calendar sync feature that you explicitly requested.</li>
+  <li>We store the minimum data required to provide the feature, encrypted at rest.</li>
+  <li>We do not use Google user data to determine creditworthiness or for any lending decision.</li>
+</ul>
+<h3 id="127-questions-about-google-calendar-integration">12.7 Questions About Google Calendar Integration</h3>
+<p>If you have questions about this section or the Google Calendar integration, please contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>.</p>
+<h2 id="13-childrens-privacy">13. Children's Privacy</h2>
 <p>The Service is not directed to individuals under the age of <strong>16</strong> (or the age of digital consent in your country). We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal information, we will take steps to delete such information promptly. If you believe a child has provided us with personal data, please contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>.</p>
-<h2>13. Changes to This Privacy Policy</h2>
+<h2 id="14-changes-to-this-privacy-policy">14. Changes to This Privacy Policy</h2>
 <p>We may update this Privacy Policy from time to time. Material changes will be communicated as follows:</p>
 <ul>
   <li><strong>Email notification</strong> to the email address associated with your account (at least <strong>30 days</strong> before the effective date for material changes);</li>
@@ -759,24 +929,24 @@
   <li><strong>Notice on the Service website</strong>.</li>
 </ul>
 <p>Your continued use of the Service after the effective date of the revised Privacy Policy constitutes your acceptance of the changes.</p>
-<h2>14. Data Protection Officer and Contact</h2>
+<h2 id="15-data-protection-officer-and-contact">15. Data Protection Officer and Contact</h2>
 <p>Orkest has not appointed a statutory Data Protection Officer as we are not currently required to do so under applicable law. However, all privacy-related inquiries should be directed to:</p>
 <p><strong>Privacy Contact:</strong></p>
 <ul>
   <li><strong>Email:</strong> <a href="mailto:support@wesluma.com">support@wesluma.com</a></li>
   <li><strong>Response Time:</strong> We aim to respond within <strong>48 hours</strong> for general inquiries and within <strong>30 days</strong> for rights requests (or shorter periods as required by applicable law).</li>
 </ul>
-<h2>15. Governing Language</h2>
+<h2 id="16-governing-language">16. Governing Language</h2>
 <p>This Privacy Policy is drafted in English. While we may provide translations for convenience, the English version shall prevail in case of any conflict or inconsistency.</p>
-<h2>16. Specific Provisions for China Users (PIPL)</h2>
-<h3>16.1 Controller Information</h3>
+<h2 id="17-specific-provisions-for-china-users-pipl">17. Specific Provisions for China Users (PIPL)</h2>
+<h3 id="171-controller-information">17.1 Controller Information</h3>
 <p>The controller of your personal information is:</p>
 <ul>
   <li><strong>Operator:</strong> Orkest (contact via <a href="mailto:support@wesluma.com">support@wesluma.com</a>)</li>
 </ul>
-<h3>16.2 Processing Principles</h3>
+<h3 id="172-processing-principles">17.2 Processing Principles</h3>
 <p>We process your personal information in accordance with the principles of <strong>lawfulness, legitimacy, necessity, and good faith</strong>, and with respect for your privacy.</p>
-<h3>16.3 Sensitive Personal Information</h3>
+<h3 id="173-sensitive-personal-information">17.3 Sensitive Personal Information</h3>
 <p>Under PIPL, certain categories of personal information are classified as "sensitive personal information" and require enhanced protection. We do <strong>not</strong> actively collect sensitive personal information as defined by PIPL (e.g., biometric identification information, religious beliefs, specific identity, medical health, financial accounts, personal location tracking). The only potentially sensitive data we process is:</p>
 <ul>
   <li><strong>Voice recordings</strong> you voluntarily upload for transcription purposes. We process this data only with your explicit consent, for the specific purpose of transcription, and delete the recordings immediately after processing.</li>
@@ -788,11 +958,11 @@
   <li>Implement enhanced security measures;</li>
   <li>Conduct a Personal Information Protection Impact Assessment (PIPIA) where required.</li>
 </ul>
-<h3>16.4 Processing of Minors' Personal Information</h3>
+<h3 id="174-processing-of-minors-personal-information">17.4 Processing of Minors' Personal Information</h3>
 <p>If you are under the age of <strong>14</strong>, you must obtain consent from a parent or guardian before using the Service. We do not knowingly collect personal information from children under 14 without such consent. If we become aware that we have collected personal information from a child under 14 without verified parental consent, we will delete that information promptly.</p>
-<h3>16.5 Impact Assessment</h3>
+<h3 id="175-impact-assessment">17.5 Impact Assessment</h3>
 <p>We conduct a <strong>Personal Information Protection Impact Assessment (PIPIA)</strong> before engaging in activities that have a significant impact on your rights, including automated decision-making and international data transfers.</p>
-<h3>16.6 Cross-Border Transfer Mechanisms</h3>
+<h3 id="176-cross-border-transfer-mechanisms">17.6 Cross-Border Transfer Mechanisms</h3>
 <p>For transfers of personal information outside of China, we:</p>
 <ul>
   <li>Pass a security assessment organized by the Chinese cyberspace administration department (if required by law);</li>

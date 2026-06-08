@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Unlink, AlertCircle } from "lucide-react";
+import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
@@ -24,6 +24,7 @@ export function GoogleCalendarSettings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [dataUsageOpen, setDataUsageOpen] = useState(false);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -197,6 +198,46 @@ export function GoogleCalendarSettings() {
           {error}
         </div>
       )}
+
+      <div className="pt-1 text-left">
+        <button
+          type="button"
+          onClick={() => setDataUsageOpen((v) => !v)}
+          aria-expanded={dataUsageOpen}
+          className="inline-flex cursor-pointer items-center gap-1 text-[11px] text-[#9f99a3]/70 hover:text-[#9f99a3] hover:underline"
+        >
+          {t("settings.googleCalendar.dataUsage")}
+          <ChevronDown
+            className={`h-3 w-3 transition-transform ${dataUsageOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {dataUsageOpen && (
+          <ul className="mt-1.5 space-y-1 text-[11px]">
+            <li>
+              <a
+                href="/privacy-policy#126-limited-use-disclosure"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[#9f99a3]/80 underline-offset-2 hover:text-[#9f99a3] hover:underline"
+              >
+                {t("settings.googleCalendar.privacyPolicy")}
+                <ExternalLink className="h-2.5 w-2.5" />
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://myaccount.google.com/permissions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[#9f99a3]/80 underline-offset-2 hover:text-[#9f99a3] hover:underline"
+              >
+                {t("settings.googleCalendar.googlePermissions")}
+                <ExternalLink className="h-2.5 w-2.5" />
+              </a>
+            </li>
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

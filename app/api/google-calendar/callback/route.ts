@@ -12,6 +12,7 @@ import {
   createOAuth2Client,
 } from "@/lib/google/calendar-service";
 import { registerNotificationChannel } from "@/lib/google/channel-manager";
+import { encryptToken, decryptToken } from "@/lib/google/token-encryption";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -87,7 +88,10 @@ export async function GET(request: NextRequest) {
         .match(conflictKeys)
         .maybeSingle();
 
-      const refreshToken = tokens.refreshToken ?? existing?.refresh_token;
+      // `existing.refresh_token` is stored encrypted at rest; decrypt to
+      // get the actual Google refresh token for the upsert below.
+      const decryptedExistingRefresh = decryptToken(existing?.refresh_token);
+      const refreshToken = tokens.refreshToken ?? decryptedExistingRefresh;
       if (!refreshToken) continue;
 
       // Keep existing sync_enabled if already connected, otherwise only enable primary
@@ -98,8 +102,8 @@ export async function GET(request: NextRequest) {
         .upsert(
           {
             ...conflictKeys,
-            access_token: tokens.accessToken,
-            refresh_token: refreshToken,
+            access_token: encryptToken(tokens.accessToken),
+            refresh_token: encryptToken(refreshToken),
             token_expires_at: tokens.expiresAt.toISOString(),
             scope: "https://www.googleapis.com/auth/calendar.events.owned https://www.googleapis.com/auth/calendar.calendarlist.readonly",
             calendar_name: cal.name || null,

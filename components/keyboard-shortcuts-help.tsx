@@ -71,20 +71,35 @@ export function KeyboardShortcutsHelp({
         </div>
         <div className="flex flex-col gap-2.5">
           {SHORTCUTS.map((shortcut) => (
-            <div key={shortcut.actionKey} className="flex items-center justify-between text-sm">
+            <div key={shortcut.actionKey} className="flex items-center justify-between gap-2 text-sm">
               <span className="text-[#2b2a30] dark:text-[#d4d4d4]">{t(shortcut.actionKey)}</span>
-              <span className="flex items-center gap-1">
-                {shortcut.keys.map((key, index) => {
+              <span className="flex items-center gap-2">
+                {(() => {
                   const separator = shortcut.actionKey === "shortcuts.calendarPrevNext" ? "/" : "+";
-                  return (
-                    <span key={`${shortcut.actionKey}-${key}`} className="flex items-center gap-1">
-                      <kbd className="inline-flex min-w-[1.5rem] items-center justify-center rounded-md border border-black/10 bg-[#f4f0ec]/60 px-1.5 py-0.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-[#2a2a2a] dark:text-[#a3a3a3]">
-                        {formatKey(key)}
-                      </kbd>
-                      {index < shortcut.keys.length - 1 ? <span className="text-[#9f99a3]">{separator}</span> : null}
+                  const renderKeyGroup = (keys: string[], groupKey: string) => (
+                    <span className="flex items-center gap-1">
+                      {keys.map((key, index) => (
+                        <span key={`${groupKey}-${key}-${index}`} className="flex items-center gap-1">
+                          <kbd className="inline-flex min-w-[1.5rem] items-center justify-center rounded-md border border-black/10 bg-[#f4f0ec]/60 px-1.5 py-0.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-[#2a2a2a] dark:text-[#a3a3a3]">
+                            {formatKey(key)}
+                          </kbd>
+                          {index < keys.length - 1 ? <span className="text-[#9f99a3]">{separator}</span> : null}
+                        </span>
+                      ))}
                     </span>
                   );
-                })}
+                  return (
+                    <>
+                      {renderKeyGroup(shortcut.keys, shortcut.actionKey)}
+                      {shortcut.macosKeys && (
+                        <>
+                          <span className="text-[#9f99a3]">/</span>
+                          {renderKeyGroup(shortcut.macosKeys, `${shortcut.actionKey}-macos`)}
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
               </span>
             </div>
           ))}

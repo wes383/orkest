@@ -122,7 +122,9 @@ function upsertManualItem(
 
 function computeSections(manualItems: ManualItemRecord[]): Section[] {
   const uniqueManualItems = dedupeManualItemRecords(manualItems);
-  const combinedItems = uniqueManualItems.map((item) => toItemFromManualRecord(item));
+  const combinedItems = uniqueManualItems
+    .filter((record) => !record.deletedAt && !record.parentId)
+    .map((item) => toItemFromManualRecord(item));
   const displayItems = buildDisplayItems(combinedItems);
   return buildSections(displayItems);
 }

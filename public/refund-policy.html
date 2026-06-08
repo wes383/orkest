@@ -67,6 +67,7 @@
       color: #111;
       margin-top: 1.75rem;
       margin-bottom: 0.75rem;
+      scroll-margin-top: 5rem;
     }
 
     article h3 {
@@ -75,6 +76,7 @@
       color: #111;
       margin-top: 1.25rem;
       margin-bottom: 0.5rem;
+      scroll-margin-top: 5rem;
     }
 
     article h1-skip {
@@ -142,6 +144,7 @@
       text-align: left;
       font-size: 0.875rem;
       color: #3c3841;
+      table-layout: fixed;
     }
 
     th {
@@ -150,6 +153,8 @@
       font-weight: 600;
       padding: 0.75rem 1rem;
       border-bottom: 1px solid #e5e5e5;
+      vertical-align: top;
+      word-wrap: break-word;
     }
 
     td {
@@ -157,6 +162,27 @@
       border-bottom: 1px solid #e5e5e5;
       vertical-align: top;
       line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    td.col-scope {
+      font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    td.col-scope code,
+    td.col-scope a {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    td.col-last {
+      word-wrap: break-word;
     }
 
     tr:last-child td {
@@ -201,26 +227,26 @@
         <h1>Refund Policy</h1>
         <div>
           <p><strong>Last Updated: May 20, 2026</strong></p>
-<h2>1. Overview</h2>
+<h2 id="1-overview">1. Overview</h2>
 <p>Orkest ("we," "us," or "our") provides a subscription-based task and time orchestration service. This Refund Policy explains your rights and options regarding subscription payments, cancellations, and refunds.</p>
 <p>By subscribing to Orkest Pro, you agree to the terms outlined in this policy. This policy is incorporated by reference into our <a href="/terms-of-service" target="_blank" rel="noopener noreferrer">Terms of Service</a>.</p>
-<h2>2. Free Trial</h2>
+<h2 id="2-free-trial">2. Free Trial</h2>
 <p>New users may try Orkest Pro free for <strong>7 days</strong> with no payment information required. You will not be charged during the trial period. When the trial ends, your account will automatically revert to the free tier unless you choose to subscribe.</p>
-<h2>3. Subscription Billing</h2>
-<h3>3.1 Payment Processor</h3>
+<h2 id="3-subscription-billing">3. Subscription Billing</h2>
+<h3 id="31-payment-processor">3.1 Payment Processor</h3>
 <p>All payments are processed securely by <strong>Paddle</strong>, our Merchant of Record. Paddle handles billing, tax compliance (including VAT/GST), invoicing, and payment disputes. Your payment information is never stored on our servers.</p>
-<h3>3.2 Billing Cycle</h3>
+<h3 id="32-billing-cycle">3.2 Billing Cycle</h3>
 <p>Orkest Pro is billed <strong>monthly</strong> at <strong>$9.99/month</strong> (or the equivalent in your local currency, as determined by Paddle). Subscriptions auto-renew each billing period unless cancelled.</p>
-<h3>3.3 Price Changes</h3>
+<h3 id="33-price-changes">3.3 Price Changes</h3>
 <p>We reserve the right to change subscription pricing with <strong>30 days' advance notice</strong> via email and/or in-app notification. Price changes will take effect at the start of your next billing cycle. If you do not agree to the price change, you may cancel your subscription before the new price takes effect.</p>
-<h2>4. Refund Policy</h2>
-<h3>4.1 General Policy — No Refunds</h3>
+<h2 id="4-refund-policy">4. Refund Policy</h2>
+<h3 id="41-general-policy-no-refunds">4.1 General Policy — No Refunds</h3>
 <p>Subscription fees are <strong>non-refundable</strong>, except as expressly stated in this policy. When you subscribe to Orkest Pro, you are purchasing access to the Service for the duration of the billing period. Cancelling your subscription stops future billing but does not entitle you to a refund for the current period.</p>
-<h3>4.2 14-Day Dispute Window</h3>
+<h3 id="42-14-day-dispute-window">4.2 14-Day Dispute Window</h3>
 <p>If you believe you were charged in error or there is a billing issue, you must notify us within <strong>14 days of the charge date</strong> by emailing <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>. We will investigate and, at our discretion, may issue a refund or credit.</p>
-<h3>4.3 Refunds for Service Outages</h3>
+<h3 id="43-refunds-for-service-outages">4.3 Refunds for Service Outages</h3>
 <p>In the event of a prolonged and material service outage that significantly impairs the core functionality of Orkest, we may, at our discretion, offer a pro-rata credit or refund for the affected period. Isolated, temporary, or scheduled maintenance outages do not qualify.</p>
-<h3>4.4 Statutory Consumer Rights (EU/EEA/UK)</h3>
+<h3 id="44-statutory-consumer-rights-eueeauk">4.4 Statutory Consumer Rights (EU/EEA/UK)</h3>
 <p>If you are a consumer resident in the European Union, European Economic Area, or the United Kingdom:</p>
 <ul>
   <li>You have a <strong>14-day cooling-off period</strong> under the Consumer Contracts Directive (or applicable local law) during which you may cancel your subscription for any reason and receive a full refund.</li>
@@ -228,20 +254,20 @@
   <li><strong>However</strong>, if you access the Service during the cooling-off period, you acknowledge that the Service is a digital content product supplied with your express consent and that you lose your right of withdrawal once the Service begins. Please review this carefully before subscribing.</li>
   <li>If you wish to cancel under cooling-off rights, contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong> within 14 days of subscribing and before you have accessed the Service.</li>
 </ul>
-<h3>4.5 Refunds for Duplicate or Erroneous Charges</h3>
+<h3 id="45-refunds-for-duplicate-or-erroneous-charges">4.5 Refunds for Duplicate or Erroneous Charges</h3>
 <p>If you are charged multiple times for the same billing period due to a system error, or if you are charged after cancelling your subscription, please contact us at <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong> within 30 days. We will refund any duplicate or erroneous charges in full.</p>
-<h2>5. Cancellation Policy</h2>
-<h3>5.1 How to Cancel</h3>
+<h2 id="5-cancellation-policy">5. Cancellation Policy</h2>
+<h3 id="51-how-to-cancel">5.1 How to Cancel</h3>
 <p>You may cancel your Orkest Pro subscription at any time through the <strong>Billing section</strong> in Settings, or by contacting <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>.</p>
-<h3>5.2 Effect of Cancellation</h3>
+<h3 id="52-effect-of-cancellation">5.2 Effect of Cancellation</h3>
 <ul>
   <li><strong>No future charges:</strong> Your subscription will not renew at the end of the current billing period.</li>
   <li><strong>Access continues:</strong> You will retain full Pro access until the end of the current billing period.</li>
   <li><strong>Downgrade:</strong> After the current period ends, your account will switch to the free tier. Your data will not be deleted, but some features (e.g., unlimited focus sessions, advanced sync) will be limited.</li>
 </ul>
-<h3>5.3 Deletion of Account</h3>
+<h3 id="53-deletion-of-account">5.3 Deletion of Account</h3>
 <p>Cancelling your subscription does not automatically delete your account. If you wish to delete your account and associated data, please do so in Settings or contact <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong>.</p>
-<h2>6. How to Request a Refund</h2>
+<h2 id="6-how-to-request-a-refund">6. How to Request a Refund</h2>
 <p>To request a refund or report a billing issue, please email <strong><a href="mailto:support@wesluma.com">support@wesluma.com</a></strong> with:</p>
 <ul>
   <li>The email address associated with your Orkest account</li>
@@ -249,11 +275,11 @@
   <li>The date of the charge (if applicable)</li>
 </ul>
 <p>We aim to respond to all refund requests within <strong>5 business days</strong>.</p>
-<h2>7. Chargebacks and Disputes</h2>
+<h2 id="7-chargebacks-and-disputes">7. Chargebacks and Disputes</h2>
 <p>If you dispute a charge through your bank or payment provider (a "chargeback"), your subscription will be suspended until the dispute is resolved. If the chargeback is determined in our favour, your subscription will be reinstated. We reserve the right to permanently close accounts that file fraudulent or abusive chargebacks.</p>
-<h2>8. Policy Changes</h2>
+<h2 id="8-policy-changes">8. Policy Changes</h2>
 <p>We may update this Refund Policy from time to time. Changes will be posted on this page with an updated "Last Updated" date. Material changes will be communicated via email and/or in-app notification at least <strong>30 days</strong> before they take effect.</p>
-<h2>9. Contact</h2>
+<h2 id="9-contact">9. Contact</h2>
 <p>For questions about this Refund Policy, please contact us:</p>
 <ul>
   <li><strong>Email:</strong> <a href="mailto:support@wesluma.com">support@wesluma.com</a></li>

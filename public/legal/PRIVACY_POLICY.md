@@ -1,4 +1,4 @@
-**Last Updated: May 29, 2026**
+**Last Updated: June 8, 2026**
 
 ## 1. Introduction
 
@@ -297,11 +297,84 @@ Most browsers allow you to control cookies and local storage through their setti
 
 The Service may contain links to third-party websites or services (e.g., GitHub for support, Vercel for status). We are not responsible for the privacy practices of these third parties. We encourage you to review their privacy policies before providing them with any personal information.
 
-## 12. Children's Privacy
+## 12. Google Calendar Integration
+
+Orkest offers an optional, user-initiated integration with Google Calendar. This section describes, in detail, what data we access, why we need it, where it is stored, how long we keep it, and how to delete it. This section supplements the rest of this Privacy Policy and is required to comply with [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the **Limited Use Requirements**.
+
+### 12.1 Data We Access (Scope)
+
+When you choose to connect your Google account, Orkest requests the following OAuth scopes:
+
+| Scope | What we access |
+| --- | --- |
+| `https://www.googleapis.com/auth/calendar.events.owned` | Read, create, update, and delete calendar events on calendars that you own. We do **not** access events on calendars you do not own (e.g., shared, subscribed, holiday, or birthday calendars). |
+| `https://www.googleapis.com/auth/calendar.calendarlist.readonly` | Read the list of calendars associated with your Google account, so we can let you choose which calendars to sync. |
+| `openid`, `userinfo.email`, `userinfo.profile` | Identify your Google account and fetch your display name and email. |
+
+We do **not** request, access, or store: your Google password, your contacts, your Gmail messages, your Drive files, your Photos, your location history, or any other Google product data outside the scopes listed above. We also do not use the `https://www.googleapis.com/auth/calendar` (full read/write) scope, which is broader than `events.owned`.
+
+### 12.2 Purpose (Why We Access It)
+
+The integration provides **bidirectional two-way synchronization** of tasks between Orkest and Google Calendar. Specifically:
+
+- **Push (Orkest → Google):** When you create, edit, complete, or delete a task in Orkest that has a due date, time, or recurrence rule, we create, update, or delete the corresponding event in your selected Google Calendar so it appears alongside the rest of your schedule.
+- **Pull (Google → Orkest):** When you create, edit, or delete an event in a connected Google Calendar, the change is reflected in Orkest as a task.
+- **Webhooks (push notifications):** We register a Google push notification channel so Google notifies Orkest within seconds of a change in a connected calendar, keeping the two systems in sync in near real-time.
+
+We use Google Calendar data **only** to provide this synchronization feature. We do **not** use it for advertising, profiling, sale to third parties, or for training or improving any general-purpose machine-learning or AI model.
+
+### 12.3 Where We Store It
+
+| Data | Storage location | Encryption |
+| --- | --- | --- |
+| OAuth `access_token` and `refresh_token` | Supabase Postgres (table `google_calendar_connections`) | AES-256-GCM application-level encryption before write; never stored in plaintext |
+| Google user ID, email, display name | Supabase Postgres (table `google_calendar_connections`) | Encrypted columns |
+| Calendar ID, calendar name, sync preferences | Supabase Postgres (table `google_calendar_connections`) | At-rest in Supabase managed Postgres |
+| Push notification channel ID and token | Supabase Postgres (table `google_calendar_connections`) | At-rest in Supabase managed Postgres |
+| Synced event linkage (`google_event_id`, `google_calendar_id`, `last_google_sync_at`) | Supabase Postgres (columns on the `items` table) | At-rest in Supabase managed Postgres |
+| Webhook payloads (X-Goog-* headers) | Not persisted; processed in memory and discarded after sync | N/A |
+
+All storage is in Supabase's managed Postgres database. Tokens are encrypted in the application layer using a master key stored in our server-only environment (`GOOGLE_TOKEN_ENCRYPTION_KEY`) and never appear in plaintext in the database, application logs, error reports, or backups.
+
+### 12.4 Retention Duration
+
+- **OAuth tokens:** Kept for as long as you remain connected. The `access_token` is auto-refreshed using the `refresh_token` approximately five minutes before expiry. We do not expire tokens arbitrarily.
+- **Sync metadata:** Kept for as long as the related task or connection exists.
+- **Push notification channels:** Re-registered automatically on a scheduled basis before the seven-day expiry imposed by Google.
+- **Disconnected accounts:** All tokens, calendar connections, and sync metadata are deleted **immediately** when you disconnect (see 12.5) or **within 30 days** when you delete your Orkest account.
+- **Anomaly / security events:** We may revoke a token outside the normal flow if we detect compromise. We will notify you at your registered email address if this occurs.
+
+### 12.5 How to Delete It
+
+You have three independent ways to remove your Google Calendar data from Orkest:
+
+1. **Disconnect from Orkest Settings** — Settings → Integrations → Google Calendar → Disconnect. We will: (a) call Google's `oauth2/revoke` endpoint to invalidate the tokens on Google's side; (b) stop all push notification channels; (c) delete the rows in `google_calendar_connections`; (d) clear `google_event_id` and `google_calendar_id` from your tasks. Your tasks themselves are not deleted; only the Google link is removed.
+2. **Delete your Orkest account** — Settings → Account → Delete Account. We will delete all your data, including Google connection rows, within 30 days.
+3. **Revoke Orkest's access from Google** — Visit [https://myaccount.google.com/permissions](https://myaccount.google.com/permissions) and remove "Orkest". This invalidates the tokens on Google's side. Orkest will discover the revocation on the next API call and clean up the local state.
+
+### 12.6 Limited Use Disclosure
+
+Our application uses Google Workspace APIs.
+The use and transfer of raw or derived user data received from Google Workspace APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements.
+
+In particular:
+
+- We do not transfer Google user data to third parties except as necessary to provide the synchronization feature (e.g., to Google's own servers via their published APIs).
+- We do not use Google user data for advertising.
+- We do not use Google user data to develop, improve, or train generalized AI / machine-learning models.
+- We use Google user data only to provide the user-facing calendar sync feature that you explicitly requested.
+- We store the minimum data required to provide the feature, encrypted at rest.
+- We do not use Google user data to determine creditworthiness or for any lending decision.
+
+### 12.7 Questions About Google Calendar Integration
+
+If you have questions about this section or the Google Calendar integration, please contact us at **support@wesluma.com**.
+
+## 13. Children's Privacy
 
 The Service is not directed to individuals under the age of **16** (or the age of digital consent in your country). We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal information, we will take steps to delete such information promptly. If you believe a child has provided us with personal data, please contact us at **support@wesluma.com**.
 
-## 13. Changes to This Privacy Policy
+## 14. Changes to This Privacy Policy
 
 We may update this Privacy Policy from time to time. Material changes will be communicated as follows:
 
@@ -311,7 +384,7 @@ We may update this Privacy Policy from time to time. Material changes will be co
 
 Your continued use of the Service after the effective date of the revised Privacy Policy constitutes your acceptance of the changes.
 
-## 14. Data Protection Officer and Contact
+## 15. Data Protection Officer and Contact
 
 Orkest has not appointed a statutory Data Protection Officer as we are not currently required to do so under applicable law. However, all privacy-related inquiries should be directed to:
 
@@ -320,23 +393,23 @@ Orkest has not appointed a statutory Data Protection Officer as we are not curre
 - **Email:** support@wesluma.com
 - **Response Time:** We aim to respond within **48 hours** for general inquiries and within **30 days** for rights requests (or shorter periods as required by applicable law).
 
-## 15. Governing Language
+## 16. Governing Language
 
 This Privacy Policy is drafted in English. While we may provide translations for convenience, the English version shall prevail in case of any conflict or inconsistency.
 
-## 16. Specific Provisions for China Users (PIPL)
+## 17. Specific Provisions for China Users (PIPL)
 
-### 16.1 Controller Information
+### 17.1 Controller Information
 
 The controller of your personal information is:
 
 - **Operator:** Orkest (contact via support@wesluma.com)
 
-### 16.2 Processing Principles
+### 17.2 Processing Principles
 
 We process your personal information in accordance with the principles of **lawfulness, legitimacy, necessity, and good faith**, and with respect for your privacy.
 
-### 16.3 Sensitive Personal Information
+### 17.3 Sensitive Personal Information
 
 Under PIPL, certain categories of personal information are classified as "sensitive personal information" and require enhanced protection. We do **not** actively collect sensitive personal information as defined by PIPL (e.g., biometric identification information, religious beliefs, specific identity, medical health, financial accounts, personal location tracking). The only potentially sensitive data we process is:
 
@@ -349,15 +422,15 @@ If we need to process any other sensitive personal information in the future, we
 - Implement enhanced security measures;
 - Conduct a Personal Information Protection Impact Assessment (PIPIA) where required.
 
-### 16.4 Processing of Minors' Personal Information
+### 17.4 Processing of Minors' Personal Information
 
 If you are under the age of **14**, you must obtain consent from a parent or guardian before using the Service. We do not knowingly collect personal information from children under 14 without such consent. If we become aware that we have collected personal information from a child under 14 without verified parental consent, we will delete that information promptly.
 
-### 16.5 Impact Assessment
+### 17.5 Impact Assessment
 
 We conduct a **Personal Information Protection Impact Assessment (PIPIA)** before engaging in activities that have a significant impact on your rights, including automated decision-making and international data transfers.
 
-### 16.6 Cross-Border Transfer Mechanisms
+### 17.6 Cross-Border Transfer Mechanisms
 
 For transfers of personal information outside of China, we:
 

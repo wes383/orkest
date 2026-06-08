@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono, Manrope, Noto_Sans_SC, Noto_Sans_JP } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -127,10 +128,10 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`h-full antialiased ${inter.variable} ${jetbrainsMono.variable} ${manrope.variable} ${notoSC.variable} ${notoJP.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
       <body className="min-h-full flex flex-col">
+        <Script id="orkest-theme-init" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
         <ThemeProvider>
           <LocaleProvider>
             <AuthProvider>

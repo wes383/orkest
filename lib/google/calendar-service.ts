@@ -9,6 +9,7 @@ import { google, calendar_v3 } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import { createClient } from "@/lib/supabase/server-client";
 import type { Database } from "@/lib/supabase/database.types";
+import { decryptToken, encryptToken } from "./token-encryption";
 
 type GoogleConnection = Database["public"]["Tables"]["google_calendar_connections"]["Row"];
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
@@ -109,9 +110,10 @@ export async function getCalendarClient(
   supabaseClient?: SupabaseClient,
 ): Promise<calendar_v3.Calendar> {
   const oauth2Client = createOAuth2Client();
+  // Tokens are stored encrypted at rest; decrypt before handing them to googleapis.
   oauth2Client.setCredentials({
-    access_token: connection.access_token,
-    refresh_token: connection.refresh_token,
+    access_token: decryptToken(connection.access_token),
+    refresh_token: decryptToken(connection.refresh_token),
   });
 
   // Check if token needs refresh (with deduplication for concurrent calls)
@@ -129,8 +131,8 @@ export async function getCalendarClient(
         .single();
       if (updated) {
         oauth2Client.setCredentials({
-          access_token: updated.access_token,
-          refresh_token: updated.refresh_token,
+          access_token: decryptToken(updated.access_token),
+          refresh_token: decryptToken(updated.refresh_token),
         });
       }
     } else {
@@ -138,13 +140,21 @@ export async function getCalendarClient(
         const { credentials } = await oauth2Client.refreshAccessToken();
         oauth2Client.setCredentials(credentials);
 
-        // Update stored tokens
+        // Update stored tokens. We re-encrypt access_token / refresh_token
+        // before writing them back to the database.
+        const newAccessToken = credentials.access_token
+          ? encryptToken(credentials.access_token)
+          : connection.access_token;
+        const newRefreshToken = credentials.refresh_token
+          ? encryptToken(credentials.refresh_token)
+          : connection.refresh_token;
+
         const supabase = supabaseClient ?? await createClient();
         const { error } = await supabase
           .from("google_calendar_connections")
           .update({
-            access_token: credentials.access_token ?? connection.access_token,
-            refresh_token: credentials.refresh_token ?? connection.refresh_token,
+            access_token: newAccessToken,
+            refresh_token: newRefreshToken,
             token_expires_at: credentials.expiry_date
               ? new Date(credentials.expiry_date).toISOString()
               : connection.token_expires_at,

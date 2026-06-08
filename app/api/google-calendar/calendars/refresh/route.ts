@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server-client";
 import { listCalendars } from "@/lib/google/calendar-service";
+import { encryptToken } from "@/lib/google/token-encryption";
 
 export async function POST() {
   const supabase = await createClient();
@@ -81,6 +82,9 @@ export async function POST() {
       if (cal.accessRole !== "owner") continue;
 
       // New calendar - add with sync disabled by default
+      // Tokens are copied from an existing connection; they are already
+      // encrypted at rest. We re-run encryptToken() to keep the call
+      // idempotent in case a future migration has plaintext values.
       await supabase
         .from("google_calendar_connections")
         .upsert(
@@ -88,8 +92,8 @@ export async function POST() {
             user_id: user.id,
             google_user_id: connection.google_user_id,
             calendar_id: calId,
-            access_token: connection.access_token,
-            refresh_token: connection.refresh_token,
+            access_token: encryptToken(connection.access_token ?? ""),
+            refresh_token: encryptToken(connection.refresh_token ?? ""),
             token_expires_at: connection.token_expires_at,
             scope: connection.scope,
             calendar_name: cal.name || null,

@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server-client";
 import { stopNotificationChannel } from "@/lib/google/channel-manager";
+import { revokeGoogleToken } from "@/lib/google/token-revoke";
+import { decryptToken } from "@/lib/google/token-encryption";
 import { inngest } from "@/lib/inngest/client";
 
 export async function POST() {
@@ -53,6 +55,19 @@ export async function POST() {
           await stopNotificationChannel(conn);
         } catch {
           // Best-effort cleanup — channel may have already expired
+        }
+        // Best-effort: revoke Google tokens so the connection cannot be
+        // silently reused after the user has deleted their Orkest account.
+        try {
+          const refreshToken = decryptToken(conn.refresh_token);
+          const accessToken = decryptToken(conn.access_token);
+          if (refreshToken) {
+            await revokeGoogleToken(refreshToken);
+          } else if (accessToken) {
+            await revokeGoogleToken(accessToken);
+          }
+        } catch {
+          // Best-effort — never block account deletion
         }
       }
     }

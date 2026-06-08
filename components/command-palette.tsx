@@ -1,9 +1,10 @@
 "use client";
 
-import { Search, Plus, ArrowRight, CheckCircle2, Circle, AlertCircle, MessageCircle } from "lucide-react";
+import { Search, Plus, ArrowRight, CheckCircle2, Circle, AlertCircle, MessageCircle, Clock, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
+import { useRecentsStore } from "@/lib/stores/use-recents-store";
 import { fuzzySearchItems } from "@/lib/ai/candidate-search";
 import type { CandidateItem } from "@/lib/ai/candidate-search";
 import type { ManualItemRecord } from "@/lib/types/all-page";
@@ -39,14 +40,14 @@ function toCandidateItem(record: ManualItemRecord): CandidateItem {
     dueDate: record.dueDate,
     timezone: record.timezone,
     recurrenceType: record.recurrenceType,
-    recurrenceInterval: record.recurrenceInterval,
+    recurrenceInterval: record.recurrenceInterval?.toString() ?? "1",
     daysOfWeek: record.daysOfWeek,
     recurrenceEndType: record.recurrenceEndType,
     recurrenceEndDate: record.recurrenceEndDate,
     recurrenceCount: record.recurrenceCount,
     recurrenceBysetpos: record.recurrenceBysetpos,
     priority: record.priority,
-    estimateMinutes: record.estimateMinutes,
+    estimateMinutes: record.estimateMinutes?.toString(),
     tags: record.tags,
     projectId: record.projectId,
     projectName: undefined,
@@ -125,6 +126,15 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
         },
       },
       {
+        id: "go-trash",
+        label: t("nav.trash"),
+        icon: <ArrowRight className="h-4 w-4" />,
+        action: () => {
+          onClose();
+          onNavigate?.("/trash");
+        },
+      },
+      {
         id: "go-settings",
         label: t("nav.settings"),
         icon: <ArrowRight className="h-4 w-4" />,
@@ -157,6 +167,33 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
     return quickActions.filter((a) => a.label.toLowerCase().includes(q));
   }, [query, quickActions]);
 
+  // Build a map of items by id for fast lookup
+  const itemsById = useMemo(() => {
+    const map = new Map<string, ManualItemRecord>();
+    for (const item of manualItems) {
+      map.set(item.id, item);
+    }
+    return map;
+  }, [manualItems]);
+
+  // Recents: filter stored entries against current items (skip deleted/cancelled)
+  const recents = useRecentsStore((s) => s.recents);
+  const recordView = useRecentsStore((s) => s.recordView);
+  const clearRecents = useRecentsStore((s) => s.clear);
+
+  const recentsItems = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return recents
+      .map((r) => {
+        const record = itemsById.get(r.itemId);
+        if (!record) return null;
+        if (record.deletedAt || record.status === "cancelled") return null;
+        if (q && !record.title.toLowerCase().includes(q)) return null;
+        return record;
+      })
+      .filter((r): r is ManualItemRecord => r !== null);
+  }, [recents, itemsById, query]);
+
   // Search results
   const searchResults = useMemo(() => {
     if (query.trim().length < 2) return [];
@@ -173,6 +210,24 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
   const allItems = useMemo(() => {
     const items: Array<{ id: string; type: "action" | "task"; action: () => void }> = [];
 
+    // Recents (already filtered by query + existence)
+    for (const record of recentsItems) {
+      items.push({
+        id: `recent:${record.id}`,
+        type: "task",
+        action: () => {
+          recordView(record.id);
+          onClose();
+          onNavigate?.("/all");
+          setTimeout(() => {
+            window.dispatchEvent(
+              new CustomEvent("orkest:scroll-to-item", { detail: { itemId: record.id } }),
+            );
+          }, 300);
+        },
+      });
+    }
+
     // Quick actions (filtered by query)
     for (const action of filteredActions) {
       items.push({ id: action.id, type: "action", action: action.action });
@@ -184,6 +239,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
         id: result.id,
         type: "task",
         action: () => {
+          recordView(result.id);
           onClose();
           // Navigate to All page and scroll to the item
           onNavigate?.("/all");
@@ -198,7 +254,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
     }
 
     return items;
-  }, [quickActions, searchResults, onClose, onNavigate]);
+  }, [recentsItems, filteredActions, searchResults, recordView, onClose, onNavigate]);
 
   // Reset state when opening
   useEffect(() => {
@@ -298,6 +354,54 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
 
         {/* Results */}
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-1.5">
+          {/* Recents */}
+          {recentsItems.length > 0 && (
+            <>
+              <div className="flex items-center justify-between px-2 py-1.5">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-[#9b95a0]">
+                  {t("commandPalette.recents")}
+                </p>
+                <button
+                  type="button"
+                  onClick={clearRecents}
+                  className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#9b95a0] transition-colors hover:bg-[#f4f0ec] hover:text-[#6d6770] dark:hover:bg-[#2a2a2a] dark:hover:text-[#a3a3a3]"
+                >
+                  <X className="h-3 w-3" />
+                  {t("commandPalette.clearRecents")}
+                </button>
+              </div>
+              {recentsItems.map((record, i) => {
+                const globalIndex = i;
+                const statusIcon =
+                  record.status === "completed" ? (
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  ) : record.status === "in_progress" ? (
+                    <AlertCircle className="h-4 w-4 text-blue-500" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-[#9b95a0]" />
+                  );
+
+                return (
+                  <button
+                    key={`recent-${record.id}`}
+                    data-index={globalIndex}
+                    onClick={allItems[globalIndex]?.action}
+                    onMouseEnter={() => setSelectedIndex(globalIndex)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                      selectedIndex === globalIndex
+                        ? "bg-[#f4f0ec] text-[#25242a] dark:bg-[#2a2a2a] dark:text-[#f5f5f5]"
+                        : "text-[#6d6770] hover:bg-[#f4f0ec]/60 dark:text-[#a3a3a3] dark:hover:bg-[#2a2a2a]/60"
+                    }`}
+                  >
+                    <Clock className="h-4 w-4 text-[#9b95a0]" />
+                    <span className="flex-1 truncate">{record.title}</span>
+                    <span className="ml-1 text-[10px] text-[#9b95a0]">{statusIcon}</span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+
           {/* Quick Actions */}
           {filteredActions.length > 0 && (
             <>
@@ -306,22 +410,25 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
                   {t("commandPalette.quickActions")}
                 </p>
               </div>
-              {filteredActions.map((action, i) => (
-            <button
-              key={action.id}
-              data-index={i}
-              onClick={action.action}
-              onMouseEnter={() => setSelectedIndex(i)}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors ${
-                selectedIndex === i
-                  ? "bg-[#f4f0ec] text-[#25242a] dark:bg-[#2a2a2a] dark:text-[#f5f5f5]"
-                  : "text-[#6d6770] hover:bg-[#f4f0ec]/60 dark:text-[#a3a3a3] dark:hover:bg-[#2a2a2a]/60"
-              }`}
-            >
-              <span className="text-[#9b95a0]">{action.icon}</span>
-              <span className="flex-1 truncate">{action.label}</span>
-            </button>
-              ))}
+              {filteredActions.map((action, i) => {
+                const globalIndex = recentsItems.length + i;
+                return (
+                  <button
+                    key={action.id}
+                    data-index={globalIndex}
+                    onClick={action.action}
+                    onMouseEnter={() => setSelectedIndex(globalIndex)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                      selectedIndex === globalIndex
+                        ? "bg-[#f4f0ec] text-[#25242a] dark:bg-[#2a2a2a] dark:text-[#f5f5f5]"
+                        : "text-[#6d6770] hover:bg-[#f4f0ec]/60 dark:text-[#a3a3a3] dark:hover:bg-[#2a2a2a]/60"
+                    }`}
+                  >
+                    <span className="text-[#9b95a0]">{action.icon}</span>
+                    <span className="flex-1 truncate">{action.label}</span>
+                  </button>
+                );
+              })}
             </>
           )}
 
@@ -334,7 +441,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
                 </p>
               </div>
               {searchResults.map((result, i) => {
-                const globalIndex = filteredActions.length + i;
+                const globalIndex = recentsItems.length + filteredActions.length + i;
                 const statusIcon =
                   result.status === "completed" ? (
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -358,7 +465,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
                   >
                     {statusIcon}
                     <span className="flex-1 truncate">{result.title}</span>
-                    {result.priority && result.priority !== "none" && (
+                    {result.priority && (
                       <span
                         className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_COLORS[result.priority] ?? "bg-gray-400"}`}
                       />
@@ -370,11 +477,14 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
           )}
 
           {/* Empty state */}
-          {query.trim().length >= 2 && searchResults.length === 0 && (
-            <div className="px-3 py-6 text-center text-sm text-[#9b95a0]">
-              {t("commandPalette.noResults")}
-            </div>
-          )}
+          {query.trim().length >= 2 &&
+            searchResults.length === 0 &&
+            filteredActions.length === 0 &&
+            recentsItems.length === 0 && (
+              <div className="px-3 py-6 text-center text-sm text-[#9b95a0]">
+                {t("commandPalette.noResults")}
+              </div>
+            )}
         </div>
 
         {/* Footer hint */}

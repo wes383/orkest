@@ -22,6 +22,14 @@ const POLICY_MAPPING = {
   }
 };
 
+function slugifyHeading(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
 function renderTableHtml(rows) {
   if (rows.length < 2) return rows.join('\n');
 
@@ -38,8 +46,27 @@ function renderTableHtml(rows) {
     return rows.join('\n');
   }
 
-  let html = '<div class="table-container">\n<table>\n';
-  html += '  <thead>\n    <tr>\n';
+  const colCount = headers.length;
+  // For 2 columns (e.g. Scope / What we access) -> 30% / 70%.
+  // For 3 columns -> 25% / 50% / 25% (middle column gets the most space).
+  // For 4 columns -> 25% / 30% / 30% / 15% (last column is for short labels,
+  // middle columns hold long descriptions).
+  const isTwoCol = colCount === 2;
+  const firstPct = 25;
+  const lastPct = isTwoCol ? 70 : (colCount === 3 ? 25 : 15);
+  const middleTotal = Math.max(0, 100 - firstPct - lastPct);
+  const middleEach = colCount > 2 ? (middleTotal / (colCount - 2)) : 0;
+  const colPcts = headers.map((_, i) => {
+    if (i === 0) return firstPct;
+    if (i === colCount - 1) return lastPct;
+    return middleEach;
+  });
+
+  let html = '<div class="table-container">\n<table>\n  <colgroup>\n';
+  colPcts.forEach((p) => {
+    html += `    <col style="width:${p}%">\n`;
+  });
+  html += '  </colgroup>\n  <thead>\n    <tr>\n';
   headers.forEach(h => {
     html += `      <th>${h}</th>\n`;
   });
@@ -50,7 +77,8 @@ function renderTableHtml(rows) {
     html += '    <tr>\n';
     for (let j = 0; j < headers.length; j++) {
       const cellVal = cells[j] || '';
-      html += `      <td>${cellVal}</td>\n`;
+      const cellClass = j === 0 ? ' class="col-scope"' : (j === headers.length - 1 ? ' class="col-last"' : '');
+      html += `      <td${cellClass}>${cellVal}</td>\n`;
     }
     html += '    </tr>\n';
   }
@@ -111,10 +139,12 @@ function simpleMarkdownToHtml(markdown) {
 
     // Headers
     if (t.startsWith('### ')) {
-      return `<h3>${t.slice(4)}</h3>`;
+      const headingText = t.slice(4);
+      return `<h3 id="${slugifyHeading(headingText)}">${headingText}</h3>`;
     }
     if (t.startsWith('## ')) {
-      return `<h2>${t.slice(3)}</h2>`;
+      const headingText = t.slice(3);
+      return `<h2 id="${slugifyHeading(headingText)}">${headingText}</h2>`;
     }
     if (t.startsWith('# ')) {
       return `<h1-skip>${t.slice(2)}</h1-skip>`;
@@ -290,6 +320,7 @@ function generateStaticHtml() {
       color: #111;
       margin-top: 1.75rem;
       margin-bottom: 0.75rem;
+      scroll-margin-top: 5rem;
     }
 
     article h3 {
@@ -298,6 +329,7 @@ function generateStaticHtml() {
       color: #111;
       margin-top: 1.25rem;
       margin-bottom: 0.5rem;
+      scroll-margin-top: 5rem;
     }
 
     article h1-skip {
@@ -365,6 +397,7 @@ function generateStaticHtml() {
       text-align: left;
       font-size: 0.875rem;
       color: #3c3841;
+      table-layout: fixed;
     }
 
     th {
@@ -373,6 +406,8 @@ function generateStaticHtml() {
       font-weight: 600;
       padding: 0.75rem 1rem;
       border-bottom: 1px solid #e5e5e5;
+      vertical-align: top;
+      word-wrap: break-word;
     }
 
     td {
@@ -380,6 +415,27 @@ function generateStaticHtml() {
       border-bottom: 1px solid #e5e5e5;
       vertical-align: top;
       line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    td.col-scope {
+      font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    td.col-scope code,
+    td.col-scope a {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    td.col-last {
+      word-wrap: break-word;
     }
 
     tr:last-child td {
