@@ -4,6 +4,7 @@ import { Calendar, Clock, Tag, Flag, Check } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
+import { useProjectStore } from "@/lib/stores/use-project-store";
 import { parseNaturalLanguage } from "@/lib/natural-language-parse";
 import { emptyForm } from "@/lib/all-page-utils";
 import type { Priority } from "@/lib/types/item";
@@ -35,6 +36,11 @@ export function QuickAddBar({ open, onClose }: QuickAddBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const handleCreateItem = useAllPageStore((s) => s.handleCreateItem);
+  const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
+  const projects = useProjectStore((s) => s.projects);
+
+  const selectedProjectId = listFilterConfig.selectedProjectIds?.[0];
+  const selectedProject = selectedProjectId ? projects.find((p) => p.id === selectedProjectId) : null;
 
   useEffect(() => {
     if (open) {
@@ -81,7 +87,8 @@ export function QuickAddBar({ open, onClose }: QuickAddBarProps) {
       allDay: parsed.allDay ?? false,
       priority: parsed.priority,
       tags: parsed.tags ?? [],
-      projectName: parsed.projectName ?? "",
+      projectId: selectedProjectId || "",
+      projectName: parsed.projectName || selectedProject?.name || "",
       estimateMinutes: parsed.estimateMinutes ? String(parsed.estimateMinutes) : "",
     };
 
@@ -93,7 +100,7 @@ export function QuickAddBar({ open, onClose }: QuickAddBarProps) {
         onClose();
       }, 1500);
     }
-  }, [parsed, handleCreateItem, onClose]);
+  }, [parsed, handleCreateItem, onClose, selectedProjectId, selectedProject]);
 
   if (!open) return null;
 

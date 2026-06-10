@@ -258,8 +258,10 @@ export const useAllPageStore = create<AllPageState>()(
         isComposerOpen: true,
       });
     } else {
+      const { listFilterConfig } = get();
+      const selectedProjectId = listFilterConfig.selectedProjectIds?.[0];
       set({
-        form: { ...emptyForm, timezone: getBrowserTimezone() },
+        form: { ...emptyForm, timezone: getBrowserTimezone(), projectId: selectedProjectId || "" },
         formError: null,
         tagInput: "",
         editingItem: null,
@@ -270,6 +272,8 @@ export const useAllPageStore = create<AllPageState>()(
   },
 
   openComposerWithForm: (formState, editingItem) => {
+    const { listFilterConfig } = get();
+    const selectedProjectId = listFilterConfig.selectedProjectIds?.[0];
     const sanitizedForm: ItemFormState = {
       ...formState,
       endDate: formState.endDate ?? "",
@@ -281,8 +285,8 @@ export const useAllPageStore = create<AllPageState>()(
       nthWeekdayPosition: formState.nthWeekdayPosition ?? "2",
       nthWeekdayDay: formState.nthWeekdayDay ?? 2,
       estimateMinutes: formState.estimateMinutes ?? "",
-      projectId: formState.projectId ?? "",
-      projectName: formState.projectName ?? "",
+      projectId: formState.projectId || (!editingItem && selectedProjectId ? selectedProjectId : ""),
+      projectName: formState.projectName || (!editingItem && selectedProjectId ? "" : ""),
     };
     set({
       form: sanitizedForm,
