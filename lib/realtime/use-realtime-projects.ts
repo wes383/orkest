@@ -43,7 +43,7 @@ export function useRealtimeProjects(userId: string | undefined) {
             return;
           }
 
-          const newRow = payload.new as { id: string; user_id: string; name: string; color: string | null; created_at: string; updated_at: string } | null;
+          const newRow = payload.new as { id: string; user_id: string; name: string; color: string | null; sort_order: number | null; created_at: string; updated_at: string } | null;
           if (!newRow) return;
 
           useProjectStore.getState().applyRemoteProjectChange({
@@ -51,6 +51,7 @@ export function useRealtimeProjects(userId: string | undefined) {
             userId: newRow.user_id,
             name: newRow.name,
             color: newRow.color ?? undefined,
+            sortOrder: newRow.sort_order ?? undefined,
             createdAt: new Date(newRow.created_at),
             updatedAt: new Date(newRow.updated_at),
           });

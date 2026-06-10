@@ -243,6 +243,7 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
         user_id: payload.user_id as string,
         name: payload.name as string,
         color: payload.color as string | null,
+        sort_order: payload.sort_order as number | null,
         created_at: payload.created_at as string,
         updated_at: payload.updated_at as string,
       };

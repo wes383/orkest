@@ -5,6 +5,7 @@ export interface Project {
   userId: string;
   name: string;
   color?: string;
+  sortOrder?: number;
   createdAt: Date;
   updatedAt: Date;
 }

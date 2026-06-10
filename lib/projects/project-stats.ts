@@ -49,10 +49,16 @@ export function computeProjectsWithStats(
 
 export function sortProjectsWithStats(
   projects: ProjectWithStats[],
-  mode: "alpha" | "recent" | "frequency",
+  mode: "default" | "alpha" | "recent" | "frequency",
 ): ProjectWithStats[] {
   const copy = [...projects];
-  if (mode === "alpha") {
+  if (mode === "default") {
+    copy.sort(
+      (a, b) =>
+        (a.sortOrder ?? 0) - (b.sortOrder ?? 0) ||
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+  } else if (mode === "alpha") {
     copy.sort((a, b) => a.name.localeCompare(b.name));
   } else if (mode === "recent") {
     copy.sort(

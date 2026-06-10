@@ -15,6 +15,7 @@ export type Database = {
           user_id: string;
           name: string;
           color: string | null;
+          sort_order: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -23,6 +24,7 @@ export type Database = {
           user_id: string;
           name: string;
           color?: string | null;
+          sort_order?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -31,6 +33,7 @@ export type Database = {
           user_id?: string;
           name?: string;
           color?: string | null;
+          sort_order?: number | null;
           created_at?: string;
           updated_at?: string;
         };

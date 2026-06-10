@@ -186,7 +186,7 @@ export type ListStatusFilter = "all" | "active" | "completed";
 
 export type TagMatchMode = "or" | "and";
 
-export type ProjectSortMode = "alpha" | "recent" | "frequency";
+export type ProjectSortMode = "default" | "alpha" | "recent" | "frequency";
 
 export type PriorityFilterValue = Priority | "none";
 

@@ -13,6 +13,7 @@ interface ProjectStoreState {
   createProject: (userId: string, name: string, color?: string) => Promise<Project | null>;
   updateProject: (userId: string, projectId: string, updates: { name?: string; color?: string }) => Promise<boolean>;
   deleteProject: (userId: string, projectId: string) => Promise<boolean>;
+  reorderProjects: (userId: string, orderedIds: string[]) => Promise<boolean>;
   findProjectByName: (name: string) => Project | undefined;
   resetStore: () => void;
 
@@ -44,6 +45,7 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
         userId: row.user_id,
         name: row.name,
         color: row.color ?? undefined,
+        sortOrder: row.sort_order ?? undefined,
         createdAt: new Date(row.created_at),
         updatedAt: new Date(row.updated_at),
       }));
@@ -57,11 +59,14 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
   async createProject(userId: string, name: string, color?: string) {
     const id = makeUid();
     const now = new Date();
+    const maxSortOrder = get().projects.reduce((max, p) => Math.max(max, p.sortOrder ?? 0), 0);
+    const sortOrder = maxSortOrder + 1;
     const project: Project = {
       id,
       userId,
       name,
       color,
+      sortOrder,
       createdAt: now,
       updatedAt: now,
     };
@@ -73,6 +78,7 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
       user_id: userId,
       name,
       color: color ?? null,
+      sort_order: sortOrder,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
     });
@@ -103,6 +109,39 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
     syncRecord("delete", "projects", projectId, {
       user_id: userId,
     });
+
+    return true;
+  },
+
+  async reorderProjects(userId: string, orderedIds: string[]) {
+    const orderMap = new Map<string, number>();
+    orderedIds.forEach((id, index) => {
+      orderMap.set(id, index + 1);
+    });
+
+    const currentProjects = get().projects;
+
+    const updatedProjects = currentProjects.map((p) => {
+      const newSortOrder = orderMap.get(p.id);
+      if (newSortOrder !== undefined && newSortOrder !== p.sortOrder) {
+        return { ...p, sortOrder: newSortOrder, updatedAt: new Date() };
+      }
+      return p;
+    });
+
+    // Sync changes to database using pre-update values
+    orderedIds.forEach((id, index) => {
+      const p = currentProjects.find((proj) => proj.id === id);
+      const newSortOrder = index + 1;
+      if (p && p.sortOrder !== newSortOrder) {
+        syncRecord("update", "projects", id, {
+          sort_order: newSortOrder,
+          user_id: userId,
+        });
+      }
+    });
+
+    set({ projects: updatedProjects });
 
     return true;
   },

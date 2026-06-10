@@ -153,4 +153,22 @@ describe("sortProjectsWithStats", () => {
     sortProjectsWithStats(stats, "frequency");
     expect(stats).toEqual(original);
   });
+
+  it("sorts by default mode (sortOrder asc, then createdAt asc)", () => {
+    const defaultProjects = [
+      makeProject({ id: "p-1", name: "Charlie", sortOrder: 2, createdAt: new Date("2025-01-01") }),
+      makeProject({ id: "p-2", name: "alpha", sortOrder: 0, createdAt: new Date("2025-01-03") }),
+      makeProject({ id: "p-3", name: "Bravo", sortOrder: 1, createdAt: new Date("2025-01-02") }),
+      makeProject({ id: "p-4", name: "Delta", sortOrder: 1, createdAt: new Date("2025-01-01") }),
+    ];
+    const stats = defaultProjects.map((p) => ({
+      ...p,
+      total: 0,
+      active: 0,
+      completed: 0,
+    }));
+    const sorted = sortProjectsWithStats(stats, "default");
+    // p-2 (sortOrder 0) -> p-4 (sortOrder 1, createdAt 2025-01-01) -> p-3 (sortOrder 1, createdAt 2025-01-02) -> p-1 (sortOrder 2)
+    expect(sorted.map((p) => p.id)).toEqual(["p-2", "p-4", "p-3", "p-1"]);
+  });
 });

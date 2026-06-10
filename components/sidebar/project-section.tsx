@@ -6,6 +6,7 @@ import {
   ArrowDownAZ,
   BarChart3,
   Folder,
+  GripVertical,
   List,
   Pencil,
   Plus,
@@ -36,7 +37,7 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
   const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
   const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
 
-  const [sortMode, setSortMode] = useState<ProjectSortMode>("alpha");
+  const [sortMode, setSortMode] = useState<ProjectSortMode>("default");
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [modalState, setModalState] = useState<
     | { mode: "closed" }
@@ -52,6 +53,43 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
     const withStats = computeProjectsWithStats(projects, manualItems);
     return sortProjectsWithStats(withStats, sortMode);
   }, [projects, manualItems, sortMode]);
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [localOrderedProjects, setLocalOrderedProjects] = useState<typeof projectsWithStats | null>(null);
+
+  const displayProjects = localOrderedProjects ?? projectsWithStats;
+
+  function handleDragStart(e: React.DragEvent, index: number) {
+    setDraggedIndex(index);
+    setLocalOrderedProjects([...projectsWithStats]);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+  }
+
+  function handleDragEnter(e: React.DragEvent, targetIndex: number) {
+    if (draggedIndex === null || draggedIndex === targetIndex || !localOrderedProjects) {
+      return;
+    }
+    const list = [...localOrderedProjects];
+    const [draggedItem] = list.splice(draggedIndex, 1);
+    list.splice(targetIndex, 0, draggedItem);
+    setLocalOrderedProjects(list);
+    setDraggedIndex(targetIndex);
+  }
+
+  function handleDragEnd() {
+    if (localOrderedProjects && user) {
+      void useProjectStore.getState().reorderProjects(
+        user.id,
+        localOrderedProjects.map((p) => p.id),
+      );
+    }
+    setDraggedIndex(null);
+    setLocalOrderedProjects(null);
+  }
 
   function toggleSortMenu() {
     if (showSortMenu) {
@@ -134,7 +172,9 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
             className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
             title={t("projects.sidebar.sortTooltip")}
           >
-            {sortMode === "alpha" ? (
+            {sortMode === "default" ? (
+              <GripVertical className="h-3.5 w-3.5" />
+            ) : sortMode === "alpha" ? (
               <ArrowDownAZ className="h-3.5 w-3.5" />
             ) : sortMode === "frequency" ? (
               <BarChart3 className="h-3.5 w-3.5" />
@@ -164,6 +204,7 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
               }}
             >
               {([
+                { mode: "default" as const, icon: GripVertical, label: t("projects.sort.default") },
                 { mode: "alpha" as const, icon: ArrowDownAZ, label: t("projects.sort.alpha") },
                 { mode: "recent" as const, icon: List, label: t("projects.sort.recent") },
                 { mode: "frequency" as const, icon: BarChart3, label: t("projects.sort.frequency") },
@@ -191,7 +232,7 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
         : null}
 
       <div className="scrollbar-transparent-track flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-4">
-        {projectsWithStats.length === 0 ? (
+        {displayProjects.length === 0 ? (
           <button
             type="button"
             onClick={() => setModalState({ mode: "create" })}
@@ -201,11 +242,19 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
             {t("projects.sidebar.newTooltip")}
           </button>
         ) : (
-          projectsWithStats.map((project) => {
+          displayProjects.map((project, index) => {
             const isSelected = selectedId === project.id;
             const color = normalizeProjectColor(project.color);
             return (
-              <div key={project.id} className="group relative">
+              <div
+                key={project.id}
+                draggable={sortMode === "default"}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={handleDragOver}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`group relative transition-all ${index === draggedIndex ? "opacity-30" : ""}`}
+              >
                 <button
                   type="button"
                   onClick={() => handleClick(project.id)}
