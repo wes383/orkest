@@ -2607,8 +2607,9 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           return { message: `Project "${name}" already exists.` };
         }
 
+        const newProjectId = crypto.randomUUID();
         const { error } = await supabase.from("projects").insert({
-          id: crypto.randomUUID(),
+          id: newProjectId,
           user_id: userId,
           name,
           color: color ?? null,
@@ -2620,6 +2621,11 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         if (error) {
           return { message: `Failed to create project: ${error.message}` };
         }
+
+        // Push the new project into the in-memory context so subsequent tool
+        // calls in the same turn (e.g. proposeCreateItems with projectName)
+        // can resolve it via matchProjectName.
+        context.projects.push({ id: newProjectId, name, color: color ?? undefined });
 
         return { message: `Created project "${name}" successfully.` };
       },
