@@ -650,21 +650,61 @@ export const useAllPageStore = create<AllPageState>()(
     const createdRecords: ManualItemRecord[] = [];
 
     for (const [index, form] of forms.entries()) {
-      const validationError = validateItemForm(form, translator ?? undefined);
+      // Auto-fix: normalize date/time fields to prevent validation errors
+      const fixedForm = { ...form };
+      const todayStr = new Date().toISOString().slice(0, 10);
+      
+      // Fix 1: startDate without startTime -> set allDay
+      if (fixedForm.startDate && !fixedForm.startTime && !fixedForm.allDay) {
+        fixedForm.allDay = true;
+      }
+      
+      // Fix 2: endDate without endTime -> set allDay
+      if (fixedForm.endDate && !fixedForm.endTime && !fixedForm.allDay) {
+        fixedForm.allDay = true;
+      }
+      
+      // Fix 3: startTime without startDate -> set startDate to today
+      if (fixedForm.startTime && !fixedForm.startDate) {
+        fixedForm.startDate = todayStr;
+      }
+      
+      // Fix 4: endTime without endDate -> set endDate to today
+      if (fixedForm.endTime && !fixedForm.endDate) {
+        fixedForm.endDate = todayStr;
+      }
+      
+      // Fix 5: hasTime without startDate -> disable hasTime
+      if (fixedForm.hasTime && !fixedForm.startDate) {
+        fixedForm.hasTime = false;
+      }
+      
+      // Fix 6: swap if end is before start
+      if (fixedForm.startDate && fixedForm.endDate && fixedForm.endDate < fixedForm.startDate) {
+        fixedForm.endDate = fixedForm.startDate;
+        fixedForm.startDate = form.endDate;
+      }
+      if (fixedForm.startTime && fixedForm.endTime && fixedForm.startDate === fixedForm.endDate && fixedForm.endTime < fixedForm.startTime) {
+        const temp = fixedForm.startTime;
+        fixedForm.startTime = fixedForm.endTime;
+        fixedForm.endTime = temp;
+      }
+
+      const validationError = validateItemForm(fixedForm, translator ?? undefined);
       if (validationError) {
         return `Item ${index + 1}: ${validationError}`;
       }
 
       const newId = makeUid();
       const newItem = buildRecordFromForm({
-        form,
+        form: fixedForm,
         now,
         id: newId,
         uid: `manual-${makeUid()}`,
       });
 
       nextManualItems = upsertManualItem(nextManualItems, newItem);
-      nextManualItems = syncSubtasks(nextManualItems, newId, form.subtasks, now);
+      nextManualItems = syncSubtasks(nextManualItems, newId, fixedForm.subtasks, now);
       createdRecords.push(newItem);
     }
 

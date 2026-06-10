@@ -413,6 +413,18 @@ export function ProjectsPage() {
           onConfirm={handleConfirmDelete}
         />
       ) : null}
+
+      {/* FAB Button for creating new project */}
+      {user ? (
+        <button
+          type="button"
+          onClick={() => setCreateOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[#25242a] text-white shadow-[0_18px_45px_rgba(37,36,42,0.22)] transition-all hover:scale-105 hover:shadow-[0_22px_55px_rgba(37,36,42,0.28)] dark:bg-[#f5f5f5] dark:text-[#111111] dark:shadow-none dark:hover:shadow-none sm:bottom-8 sm:right-8"
+          aria-label={t("projects.newProject")}
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+      ) : null}
     </div>
   );
 }
