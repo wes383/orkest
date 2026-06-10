@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
-import { FocusHeader } from "@/components/focus-page/focus-header";
 import { FocusTimer } from "@/components/focus-page/focus-timer";
 import { TimerControls } from "@/components/focus-page/timer-controls";
 import { TimerModeSelector } from "@/components/focus-page/timer-mode-selector";
@@ -101,7 +100,6 @@ export default function FocusPage() {
         className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#fcfbfa] via-[#fcfbfa]/70 to-[#fcfbfa]/0 dark:from-[#101010] dark:via-[#101010]/70 dark:to-[#101010]/0 sm:hidden"
       />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 lg:gap-10" style={{ minHeight: "calc(100vh - 4rem)" }}>
-        <FocusHeader />
 
         <div className="flex flex-1 w-full flex-col items-center gap-10 lg:flex-row lg:items-start lg:justify-center lg:gap-40">
           <div className="flex flex-col items-center gap-8 lg:justify-center" style={{ flex: 1 }}>

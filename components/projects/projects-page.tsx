@@ -200,10 +200,7 @@ export function ProjectsPage() {
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold tracking-[0.2em] text-[#9f99a3] uppercase dark:text-[#737373]">
-            {t("nav.projects")}
-          </p>
-          <h1 className="mt-1 font-display text-3xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">
+          <h1 className="font-display text-3xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">
             {t("projects.title")}
           </h1>
           <p className="mt-1 text-sm text-[#7d7880] dark:text-[#a3a3a3]">

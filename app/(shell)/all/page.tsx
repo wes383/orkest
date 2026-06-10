@@ -469,13 +469,6 @@ export default function AllPage() {
       }}
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-18">
-        <header className="grid gap-4 border-b border-black/6 pb-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
-          <div className="max-w-4xl">
-            <h1 className="font-display text-[clamp(1.8rem,4vw,2.8rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-[#25242a]">
-              {t("nav.all")}
-            </h1>
-          </div>
-        </header>
 
         <div className="-mt-4 flex justify-center lg:hidden">
           <AllPageSearch />

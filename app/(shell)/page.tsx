@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 
-import { TodayHeader } from "@/components/today-page/today-header";
 import { TimelineSection } from "@/components/today-page/timeline-section";
 import { MessageCircle, Sparkles } from "lucide-react";
 import { DailyDigestCard } from "@/components/today-page/daily-digest-card";
@@ -158,12 +157,9 @@ export default function TodayPage() {
         className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#fcfbfa] via-[#fcfbfa]/70 to-[#fcfbfa]/0 sm:hidden"
       />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 lg:gap-10">
-        <TodayHeader
-          dateLabel={todayView.dateLabel}
-        />
 
         {dailyDigestEnabled && (
-        <div className="flex justify-center lg:justify-start px-2 lg:px-3">
+        <div className="flex items-center justify-between px-2 lg:px-3">
           <div className="relative grid grid-cols-2 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5">
             {/* Sliding background */}
             <div
@@ -196,6 +192,17 @@ export default function TodayPage() {
               {t("digest.view.timeline")}
             </button>
           </div>
+          <p className="shrink-0 rounded-full bg-[#e8e6ea] px-3 py-1 text-sm font-medium text-[#6f6a72]">
+            {todayView.dateLabel}
+          </p>
+        </div>
+        )}
+
+        {!dailyDigestEnabled && (
+        <div className="flex justify-end px-2 lg:px-3">
+          <p className="shrink-0 rounded-full bg-[#e8e6ea] px-3 py-1 text-sm font-medium text-[#6f6a72]">
+            {todayView.dateLabel}
+          </p>
         </div>
         )}
 
