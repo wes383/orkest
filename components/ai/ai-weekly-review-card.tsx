@@ -7,12 +7,7 @@ import { useI18n } from "@/lib/i18n";
 export type AiWeeklyReviewTaskStats = {
   total: number;
   completed: number;
-  completionRate: number;
-};
-
-export type AiWeeklyReviewTimeStats = {
-  totalMinutes: number;
-  byCategory: Array<{ category: string; minutes: number; percentage: number }>;
+  completedMinutes?: number;
 };
 
 export type AiWeeklyReviewFocusStats = {
@@ -29,14 +24,23 @@ export type AiWeeklyReviewComparison = {
   trend: "up" | "down" | "same";
 };
 
+export type AiWeeklyReviewProjectStat = {
+  projectId: string;
+  projectName: string;
+  totalTasks: number;
+  completedTasks: number;
+  totalMinutes: number;
+  completionRate: number;
+};
+
 export type AiWeeklyReviewData = {
   weekStart: string;
   weekEnd: string;
   taskStats: AiWeeklyReviewTaskStats;
-  timeStats: AiWeeklyReviewTimeStats;
   focusStats: AiWeeklyReviewFocusStats;
   comparison: AiWeeklyReviewComparison;
   suggestions: string[];
+  projectStats?: AiWeeklyReviewProjectStat[];
 };
 
 type AiWeeklyReviewCardProps = {
@@ -59,6 +63,9 @@ function TrendIcon({ trend }: { trend: "up" | "down" | "same" }) {
 
 export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardProps) {
   const { t } = useI18n();
+  const completionRate = data.taskStats.total > 0
+    ? Math.round((data.taskStats.completed / data.taskStats.total) * 100)
+    : 0;
 
   return (
     <div className={`my-2.5 rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-white/6 ${isFullscreen ? "max-w-2xl" : ""}`}>
@@ -92,10 +99,15 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
           <p className="text-lg font-semibold text-green-700 dark:text-green-300">{data.taskStats.completed}</p>
         </div>
 
-        {/* Completion Rate */}
+        {/* Total Time */}
         <div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-900/20">
-          <p className="text-[10px] font-medium text-blue-600 dark:text-blue-400">{t("review.rate")}</p>
-          <p className="text-lg font-semibold text-blue-700 dark:text-blue-300">{data.taskStats.completionRate}%</p>
+          <div className="flex items-center gap-1">
+            <Timer className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+            <p className="text-[10px] font-medium text-blue-600 dark:text-blue-400">{t("review.totalTime")}</p>
+          </div>
+          <p className="text-lg font-semibold text-blue-700 dark:text-blue-300">
+            {formatMinutes(data.taskStats.completedMinutes ?? 0)}
+          </p>
         </div>
       </div>
 
@@ -103,12 +115,12 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
       <div className="mb-3">
         <div className="mb-1 flex items-center justify-between">
           <p className="text-[10px] font-medium text-[#8c8691] dark:text-[#737373]">{t("review.completionRate")}</p>
-          <p className="text-[10px] font-semibold text-[#25242a] dark:text-[#f5f5f5]">{data.taskStats.completionRate}%</p>
+          <p className="text-[10px] font-semibold text-[#25242a] dark:text-[#f5f5f5]">{completionRate}%</p>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/[0.1]">
           <div 
             className="h-full rounded-full bg-green-500 transition-all duration-300"
-            style={{ width: `${data.taskStats.completionRate}%` }}
+            style={{ width: `${completionRate}%` }}
           />
         </div>
       </div>
@@ -137,42 +149,6 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
           <span>{t("review.lastWeek")}: <span className="font-semibold text-[#25242a] dark:text-[#f5f5f5]">{data.comparison.previousWeek}</span></span>
         </div>
       </div>
-
-      {/* Time Allocation */}
-      {data.timeStats.byCategory.length > 0 && (
-        <div className="mb-3">
-          <div className="mb-1 flex items-center gap-1">
-            <Clock className="h-3 w-3 text-[#7e7982] dark:text-[#a3a3a3]" />
-            <p className="text-[10px] font-semibold tracking-[0.1em] text-[#8c8691] uppercase dark:text-[#737373]">
-              {t("review.timeAllocation")}
-            </p>
-          </div>
-          <p className="mb-1.5 text-[10px] italic text-[#8c8691] dark:text-[#737373]">
-            {t("review.timeAllocationHint")}
-          </p>
-          <div className="space-y-1.5">
-            {data.timeStats.byCategory.map((cat, index) => (
-              <div key={index}>
-                <div className="mb-0.5 flex items-center justify-between">
-                  <span className="text-[10px] font-medium text-[#5f5a63] dark:text-[#a3a3a3]">{cat.category}</span>
-                  <span className="text-[10px] text-[#8c8691] dark:text-[#737373]">
-                    {formatMinutes(cat.minutes)} ({cat.percentage}%)
-                  </span>
-                </div>
-                <div className="h-1 overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/[0.1]">
-                  <div 
-                    className="h-full rounded-full bg-blue-500"
-                    style={{ width: `${cat.percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-1 text-[10px] text-[#8c8691] dark:text-[#737373]">
-            {t("review.total")}: {formatMinutes(data.timeStats.totalMinutes)}
-          </p>
-        </div>
-      )}
 
       {/* Focus Stats */}
       {data.focusStats.sessionCount > 0 && (
@@ -226,6 +202,38 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
               <div key={index} className="flex items-start gap-2 rounded-lg bg-yellow-50 px-2.5 py-1.5 dark:bg-yellow-900/20">
                 <Lightbulb className="mt-0.5 h-3 w-3 shrink-0 text-yellow-500" />
                 <p className="text-xs text-yellow-800 dark:text-yellow-200">{suggestion}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Project Stats */}
+      {data.projectStats && data.projectStats.length > 0 && (
+        <div className="mt-3">
+          <div className="mb-1.5 flex items-center gap-1">
+            <Clock className="h-3 w-3 text-[#7e7982] dark:text-[#a3a3a3]" />
+            <p className="text-[10px] font-semibold tracking-[0.1em] text-[#8c8691] uppercase dark:text-[#737373]">
+              {t("review.projects")}
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            {data.projectStats.map((project) => (
+              <div key={project.projectId} className="rounded-lg bg-black/[0.03] p-2 dark:bg-white/[0.06]">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-[#25242a] dark:text-[#f5f5f5]">{project.projectName}</span>
+                  <span className="text-[10px] font-semibold text-[#8c8691] dark:text-[#737373]">{project.completionRate}%</span>
+                </div>
+                <div className="mt-1 flex items-center gap-3 text-[10px] text-[#8c8691] dark:text-[#737373]">
+                  <span>{project.completedTasks}/{project.totalTasks} tasks</span>
+                  {project.totalMinutes > 0 && <span>{formatMinutes(project.totalMinutes)}</span>}
+                </div>
+                <div className="mt-1 h-1 overflow-hidden rounded-full bg-black/[0.06] dark:bg-white/[0.1]">
+                  <div 
+                    className="h-full rounded-full bg-blue-500 transition-all duration-300"
+                    style={{ width: `${project.completionRate}%` }}
+                  />
+                </div>
               </div>
             ))}
           </div>

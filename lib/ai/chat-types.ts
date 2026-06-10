@@ -471,6 +471,8 @@ export type AiInlineScheduleItem = {
   dueDate?: string;
   priority?: Priority;
   tags?: string[];
+  projectId?: string;
+  projectName?: string;
   estimateMinutes?: number;
   recurrenceType?: "none" | "daily" | "weekly" | "monthly" | "yearly";
   recurrenceInterval?: number;

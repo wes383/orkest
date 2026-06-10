@@ -222,12 +222,17 @@ export function AiInlineItemCard({ item, isFullscreen }: AiInlineItemCardProps) 
         </div>
       ) : null}
 
-      {/* Footer: priority · due date · recurrence · estimate · reminders */}
-      {(item.priority || dueLabel || recurrenceLabel || item.estimateMinutes || (item.reminders && item.reminders.length > 0)) && (
+      {/* Footer: priority · project · due date · recurrence · estimate · reminders */}
+      {(item.priority || item.projectName || dueLabel || recurrenceLabel || item.estimateMinutes || (item.reminders && item.reminders.length > 0)) && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {item.priority ? (
             <span className={`text-xs font-semibold tracking-[0.05em] uppercase ${PRIORITY_CONFIG[item.priority].color.split(" ")[1]}`}>
               {getPriorityLabel(item.priority)}
+            </span>
+          ) : null}
+          {item.projectName ? (
+            <span className="text-xs font-medium text-gray-400 dark:text-[#737373]">
+              {item.projectName}
             </span>
           ) : null}
           {dueLabel ? (

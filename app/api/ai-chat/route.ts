@@ -855,7 +855,7 @@ ${"`"}${"`"}${"`"}schedule-card
 {"title":"Review Reports","hasTime":true,"startTime":"14:00","startDate":"2025-07-01","recurrenceType":"monthly","recurrenceInterval":1,"recurrenceBysetpos":-1,"daysOfWeek":[4]}
 ${"`"}${"`"}${"`"}
 
-Required field: \`title\`. All other fields are optional: \`description\`, \`hasTime\`, \`startTime\`, \`endTime\`, \`startDate\`, \`endDate\`, \`allDay\`, \`hasDueDate\`, \`dueDate\`, \`priority\` (low/medium/high/urgent), \`tags\` (array of strings, max 10), \`estimateMinutes\`, \`recurrenceType\` (none/daily/weekly/monthly/yearly), \`recurrenceInterval\`, \`recurrenceEndDate\`, \`recurrenceCount\` (repeat N times), \`recurrenceBysetpos\` (nth weekday: 1-5 or -1 for last), \`daysOfWeek\` (array of day indices for weekly/monthly: Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6), \`subtasks\` (array of strings, max 20), \`reminders\` (array of objects with minutesBefore, method, triggerTime, dayOffset, max 5), \`completed\` (boolean).
+Required field: \`title\`. All other fields are optional: \`description\`, \`hasTime\`, \`startTime\`, \`endTime\`, \`startDate\`, \`endDate\`, \`allDay\`, \`hasDueDate\`, \`dueDate\`, \`priority\` (low/medium/high/urgent), \`tags\` (array of strings, max 10), \`projectId\`, \`projectName\`, \`estimateMinutes\`, \`recurrenceType\` (none/daily/weekly/monthly/yearly), \`recurrenceInterval\`, \`recurrenceEndDate\`, \`recurrenceCount\` (repeat N times), \`recurrenceBysetpos\` (nth weekday: 1-5 or -1 for last), \`daysOfWeek\` (array of day indices for weekly/monthly: Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6), \`subtasks\` (array of strings, max 20), \`reminders\` (array of objects with minutesBefore, method, triggerTime, dayOffset, max 5), \`completed\` (boolean).
 
 ### Timeline (for a sequence of tasks / daily schedule)
 Use a \`\`\`timeline code block to render a vertical timeline. The code block body must be a single-line JSON object. Example:
@@ -879,10 +879,10 @@ Required fields: \`date\`, \`totalTasks\`. All other fields are optional: \`comp
 Use a \`\`\`weekly-review code block to render a weekly review card. The code block body must be a single-line JSON object. Example:
 
 ${"`"}${"`"}${"`"}weekly-review
-{"weekStart":"2025-06-09","weekEnd":"2025-06-15","taskStats":{"total":20,"completed":15,"completionRate":75},"timeStats":{"totalMinutes":480,"byCategory":[{"category":"Work","minutes":300,"percentage":63},{"category":"Learning","minutes":120,"percentage":25}]},"focusStats":{"totalMinutes":360,"sessionCount":8,"averageMinutes":45,"longestMinutes":120},"comparison":{"currentWeek":15,"previousWeek":12,"change":3,"trend":"up"},"suggestions":["Great progress! You completed more tasks than last week."]}
+{"weekStart":"2025-06-09","weekEnd":"2025-06-15","taskStats":{"total":20,"completed":15,"completedMinutes":480},"focusStats":{"totalMinutes":360,"sessionCount":8,"averageMinutes":45,"longestMinutes":120},"comparison":{"currentWeek":15,"previousWeek":12,"change":3,"trend":"up"},"suggestions":["Great progress! You completed more tasks than last week."],"projectStats":[{"projectId":"abc","projectName":"Website","totalTasks":8,"completedTasks":6,"totalMinutes":240,"completionRate":75},{"projectId":"def","projectName":"Marketing","totalTasks":5,"completedTasks":5,"totalMinutes":120,"completionRate":100}]}
 ${"`"}${"`"}${"`"}
 
-Required fields: \`weekStart\`, \`weekEnd\`. All other fields are optional: \`taskStats\` (object with total, completed, completionRate — all-day events are included; recurring tasks are counted per-occurrence), \`timeStats\` (object with totalMinutes and byCategory array — counts only completed items; recurring tasks contribute their per-occurrence duration), \`focusStats\` (object with totalMinutes, sessionCount, averageMinutes, longestMinutes), \`comparison\` (object with currentWeek, previousWeek, change, trend — currentWeek and previousWeek are per-occurrence counts), \`suggestions\` (array of strings).
+Required fields: \`weekStart\`, \`weekEnd\`. All other fields are optional: \`taskStats\` (object with total, completed, completedMinutes — total completed time in minutes across all tasks), \`focusStats\` (object with totalMinutes, sessionCount, averageMinutes, longestMinutes), \`comparison\` (object with currentWeek, previousWeek, change, trend — currentWeek and previousWeek are per-occurrence counts), \`suggestions\` (array of strings), \`projectStats\` (array of project stat objects with projectId, projectName, totalTasks, completedTasks, totalMinutes, completionRate).
 
 ### When to use:
 - **schedule-card**: When discussing a single task, showing a newly created task, or highlighting a specific item.
@@ -900,26 +900,35 @@ ${selected}`;
 function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
   return {
     searchItems: tool({
-      description: "Search the user's current task context by title, description, project, tag, or subtask. Optionally filter by a date range (YYYY-MM-DD format).",
+      description: "Search the user's current task context by title, description, project, tag, or subtask. Optionally filter by a date range (YYYY-MM-DD format) or project.",
       inputSchema: z.object({
         query: z.string().default(""),
         limit: z.number().int().min(1).max(30).default(10),
         dateRangeStart: z.string().optional().describe("Start date in YYYY-MM-DD format. Use when the user mentions a specific date or range."),
         dateRangeEnd: z.string().optional().describe("End date in YYYY-MM-DD format. Use when the user mentions a specific date or range."),
+        projectId: z.string().optional().describe("Filter by project ID. Use when the user asks about tasks in a specific project."),
       }),
-      execute: async ({ query, limit, dateRangeStart, dateRangeEnd }): Promise<AiToolResult> => {
+      execute: async ({ query, limit, dateRangeStart, dateRangeEnd, projectId }): Promise<AiToolResult> => {
         const dateRange = dateRangeStart && dateRangeEnd
           ? { start: dateRangeStart, end: dateRangeEnd }
           : null;
-        const items = searchLocalItems(context, query, limit, dateRange);
+        let items = searchLocalItems(context, query, limit * 2, dateRange);
+        
+        // Filter by projectId if specified
+        if (projectId) {
+          items = items.filter((item) => item.projectId === projectId);
+        }
+        
+        items = items.slice(0, limit);
         const rangeHint = dateRange ? ` within ${dateRange.start} to ${dateRange.end}` : "";
+        const projectHint = projectId ? ` in project` : "";
         if (items.length === 0) {
-          return { message: `No matching items found${rangeHint}.`, items };
+          return { message: `No matching items found${rangeHint}${projectHint}.`, items };
         }
         const titles = items.slice(0, 5).map((i) => `'${i.title}'`).join(", ");
         const suffix = items.length > 5 ? ` and ${items.length - 5} more` : "";
         return {
-          message: `Found ${items.length} matching item(s)${rangeHint}: ${titles}${suffix}.`,
+          message: `Found ${items.length} matching item(s)${rangeHint}${projectHint}: ${titles}${suffix}.`,
           items,
         };
       },
@@ -2302,61 +2311,83 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           ? Math.round((completedTasks.length / weekItems.length) * 100)
           : 0;
 
-        // Calculate time allocation by project/tag
-        // Priority: endTime - startTime > estimateMinutes > skip
-        // Skip: all-day events, cross-day tasks, tasks without duration
-        const timeByCategory = new Map<string, number>();
-        let totalTimeMinutes = 0;
-
-        for (const item of weekItems) {
-          // Only count completed items for time distribution
-          if (item.status !== "completed") continue;
-
-          // Skip all-day events
-          if (item.allDay) continue;
+        // Project time stats for weekly review
+        // Use original context.items to count tasks, with special handling for recurring tasks
+        const timeByProject = new Map<string, { name: string; total: number; completed: number; minutes: number }>();
+        const weekRange = { start: weekStartStr, end: weekEndStr };
+        
+        for (const item of context.items) {
+          if (!item.projectId) continue;
+          if (item.status === "cancelled") continue;
+          const project = context.projects.find((p) => p.id === item.projectId);
+          if (!project) continue;
           
-          // Skip cross-day tasks
-          if (item.startDate && item.endDate && item.startDate !== item.endDate) continue;
+          const existing = timeByProject.get(item.projectId) ?? { name: project.name, total: 0, completed: 0, minutes: 0 };
           
-          let duration = 0;
-          
-          // If has endTime and startTime, calculate duration
-          if (item.startTime && item.endTime) {
-            const start = minutesFromTime(item.startTime);
-            const end = minutesFromTime(item.endTime);
-            if (start !== null && end !== null && end > start) {
-              duration = end - start;
+          if (isRecurring(item)) {
+            // For recurring tasks, count occurrences in this week
+            const occurrences = getOccurrencesInRange(item, weekRange);
+            const totalOccurrences = occurrences.length;
+            const completedOccurrences = occurrences.filter(
+              (date) => getItemStatusOnDate(item, date, context.timezone) === "completed"
+            ).length;
+            
+            existing.total += totalOccurrences;
+            existing.completed += completedOccurrences;
+            
+            // Calculate minutes for completed occurrences
+            if (completedOccurrences > 0) {
+              let duration = 0;
+              if (item.startTime && item.endTime) {
+                const start = minutesFromTime(item.startTime);
+                const end = minutesFromTime(item.endTime);
+                if (start !== null && end !== null && end > start) {
+                  duration = end - start;
+                }
+              }
+              if (duration <= 0 && item.estimateMinutes) {
+                duration = parseInt(item.estimateMinutes);
+              }
+              existing.minutes += duration * completedOccurrences;
+            }
+          } else {
+            // Non-recurring task
+            existing.total += 1;
+            if (item.status === "completed" || item.status === "skipped") {
+              existing.completed += 1;
+            }
+            
+            // Calculate minutes for completed items
+            if (item.status === "completed") {
+              let duration = 0;
+              if (item.startTime && item.endTime) {
+                const start = minutesFromTime(item.startTime);
+                const end = minutesFromTime(item.endTime);
+                if (start !== null && end !== null && end > start) {
+                  duration = end - start;
+                }
+              }
+              if (duration <= 0 && item.estimateMinutes) {
+                duration = parseInt(item.estimateMinutes);
+              }
+              existing.minutes += duration;
             }
           }
           
-          // If no duration from time calculation, try estimateMinutes
-          if (duration <= 0 && item.estimateMinutes) {
-            duration = parseInt(item.estimateMinutes);
-          }
-          
-          // Skip if no duration
-          if (duration <= 0) continue;
-
-          // Multi-bucket allocation: a task's duration is credited to EACH of
-          // its tags, not just the first one. Tasks with no tags fall into
-          // "Uncategorized". `totalTimeMinutes` counts each task's duration
-          // exactly once, so the per-bucket percentages can legitimately sum
-          // to more than 100% — that simply reflects overlap across tags.
-          const taskTags = item.tags && item.tags.length > 0 ? item.tags : ["Uncategorized"];
-          for (const tag of taskTags) {
-            timeByCategory.set(tag, (timeByCategory.get(tag) ?? 0) + duration);
-          }
-          totalTimeMinutes += duration;
+          timeByProject.set(item.projectId, existing);
         }
-
-        const timeAllocation = Array.from(timeByCategory.entries())
-          .map(([category, minutes]) => ({
-            category,
-            minutes,
-            percentage: totalTimeMinutes > 0 ? Math.round((minutes / totalTimeMinutes) * 100) : 0,
+        
+        const projectTimeStats = Array.from(timeByProject.entries())
+          .map(([id, stats]) => ({
+            projectId: id,
+            projectName: stats.name,
+            totalTasks: stats.total,
+            completedTasks: stats.completed,
+            totalMinutes: stats.minutes,
+            completionRate: stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0,
           }))
-          .sort((a, b) => b.minutes - a.minutes)
-          .slice(0, 5); // Top 5 categories
+          .sort((a, b) => b.totalMinutes - a.totalMinutes)
+          .slice(0, 10); // Max 10 projects
 
         // Focus session stats
         const focusSessions = context.focusSessions ?? [];
@@ -2406,6 +2437,51 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         const weekChange = completedTasks.length - prevWeekCompleted.length;
         const trend: "up" | "down" | "same" = weekChange > 0 ? "up" : weekChange < 0 ? "down" : "same";
 
+        // Calculate total completed minutes (all tasks, regardless of project)
+        let completedMinutes = 0;
+        for (const item of context.items) {
+          if (item.status === "cancelled") continue;
+          
+          if (isRecurring(item)) {
+            // For recurring tasks, count completed occurrences
+            const occurrences = getOccurrencesInRange(item, weekRange);
+            const completedOccurrences = occurrences.filter(
+              (date) => getItemStatusOnDate(item, date, context.timezone) === "completed"
+            ).length;
+            
+            if (completedOccurrences > 0) {
+              let duration = 0;
+              if (item.startTime && item.endTime) {
+                const start = minutesFromTime(item.startTime);
+                const end = minutesFromTime(item.endTime);
+                if (start !== null && end !== null && end > start) {
+                  duration = end - start;
+                }
+              }
+              if (duration <= 0 && item.estimateMinutes) {
+                duration = parseInt(item.estimateMinutes);
+              }
+              completedMinutes += duration * completedOccurrences;
+            }
+          } else {
+            // Non-recurring task
+            if (item.status === "completed") {
+              let duration = 0;
+              if (item.startTime && item.endTime) {
+                const start = minutesFromTime(item.startTime);
+                const end = minutesFromTime(item.endTime);
+                if (start !== null && end !== null && end > start) {
+                  duration = end - start;
+                }
+              }
+              if (duration <= 0 && item.estimateMinutes) {
+                duration = parseInt(item.estimateMinutes);
+              }
+              completedMinutes += duration;
+            }
+          }
+        }
+
         // Generate AI suggestions
         const suggestions: string[] = [];
 
@@ -2413,8 +2489,8 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           suggestions.push("Your completion rate is below 50%. Consider breaking down large tasks into smaller, manageable pieces.");
         }
 
-        if (totalTimeMinutes > 40 * 60) {
-          suggestions.push("You have over 40 hours of tasks this week. Consider delegating or postponing lower priority items.");
+        if (completedMinutes > 40 * 60) {
+          suggestions.push("You have over 40 hours of completed tasks this week. Great productivity!");
         }
 
         if (weekFocusSessions.length > 0 && averageFocusMinutes < 25) {
@@ -2463,11 +2539,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           taskStats: {
             total: weekItems.length,
             completed: completedTasks.length,
-            completionRate: taskCompletionRate,
-          },
-          timeStats: {
-            totalMinutes: totalTimeMinutes,
-            byCategory: timeAllocation,
+            completedMinutes,
           },
           focusStats: {
             totalMinutes: totalFocusMinutes,
@@ -2482,20 +2554,214 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
             trend,
           },
           suggestions,
+          projectStats: projectTimeStats,
         };
 
         // Generate summary message
+        const projectSummary = projectTimeStats.length > 0
+          ? ` Projects: ${projectTimeStats.slice(0, 3).map((p) => `${p.projectName} (${p.completionRate}%)`).join(", ")}.`
+          : "";
         const summaryParts = [
           `Week of ${weekStartStr} to ${weekEndStr}:`,
           `${completedTasks.length}/${weekItems.length} tasks completed (${taskCompletionRate}%).`,
-          totalTimeMinutes > 0 ? `Total completed time: ${Math.floor(totalTimeMinutes / 60)}h ${totalTimeMinutes % 60}min.` : "",
+          completedMinutes > 0 ? `Total completed time: ${Math.floor(completedMinutes / 60)}h ${completedMinutes % 60}min.` : "",
           weekFocusSessions.length > 0 ? `Focus time: ${Math.floor(totalFocusMinutes / 60)}h ${totalFocusMinutes % 60}min across ${weekFocusSessions.length} sessions.` : "",
           trend === "up" ? `+${weekChange} tasks vs last week.` : trend === "down" ? `${weekChange} tasks vs last week.` : "Same as last week.",
+          projectSummary,
         ].filter(Boolean).join(" ");
 
         return {
           message: summaryParts,
           review: reviewData,
+        };
+      },
+    }),
+    listProjects: tool({
+      description: "List all projects for the user. Use when the user asks about their projects, wants to see project list, or needs to choose a project.",
+      inputSchema: z.object({}),
+      execute: async (): Promise<AiToolResult> => {
+        const projects = context.projects;
+        if (projects.length === 0) {
+          return { message: "No projects found. The user hasn't created any projects yet." };
+        }
+        const projectList = projects.map((p) => {
+          const taskCount = context.items.filter((item) => item.projectId === p.id).length;
+          return `- ${p.name} (${taskCount} tasks)`;
+        }).join("\n");
+        return {
+          message: `Found ${projects.length} project(s):\n${projectList}`,
+        };
+      },
+    }),
+    createProject: tool({
+      description: "Create a new project. Use when the user wants to create a project, add a new project, or organize tasks into a new project.",
+      inputSchema: z.object({
+        name: z.string().describe("The project name."),
+        color: z.string().optional().describe("Optional color for the project (hex color code like #FF5733 or color name)."),
+      }),
+      execute: async ({ name, color }): Promise<AiToolResult> => {
+        const existingProject = context.projects.find(
+          (p) => p.name.toLowerCase() === name.toLowerCase(),
+        );
+        if (existingProject) {
+          return { message: `Project "${name}" already exists.` };
+        }
+
+        const { error } = await supabase.from("projects").insert({
+          id: crypto.randomUUID(),
+          user_id: userId,
+          name,
+          color: color ?? null,
+          sort_order: context.projects.length + 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+        if (error) {
+          return { message: `Failed to create project: ${error.message}` };
+        }
+
+        return { message: `Created project "${name}" successfully.` };
+      },
+    }),
+    updateProject: tool({
+      description: "Update an existing project's name or color. Use when the user wants to rename a project, change its color, or modify project details.",
+      inputSchema: z.object({
+        projectId: z.string().describe("The project ID to update."),
+        name: z.string().optional().describe("New name for the project."),
+        color: z.string().optional().describe("New color for the project (hex color code or color name)."),
+      }),
+      execute: async ({ projectId, name, color }): Promise<AiToolResult> => {
+        const project = context.projects.find((p) => p.id === projectId);
+        if (!project) {
+          return { message: "Project not found." };
+        }
+
+        const updates: Record<string, unknown> = {
+          updated_at: new Date().toISOString(),
+        };
+        if (name !== undefined) updates.name = name;
+        if (color !== undefined) updates.color = color;
+
+        const { error } = await supabase
+          .from("projects")
+          .update(updates)
+          .eq("id", projectId)
+          .eq("user_id", userId);
+
+        if (error) {
+          return { message: `Failed to update project: ${error.message}` };
+        }
+
+        const changes = [];
+        if (name !== undefined) changes.push(`name to "${name}"`);
+        if (color !== undefined) changes.push(`color to "${color}"`);
+        return { message: `Updated project "${project.name}": changed ${changes.join(", ")}.` };
+      },
+    }),
+    deleteProject: tool({
+      description: "Delete a project. Use when the user wants to remove a project. Tasks in the project will be unlinked, not deleted.",
+      inputSchema: z.object({
+        projectId: z.string().describe("The project ID to delete."),
+      }),
+      execute: async ({ projectId }): Promise<AiToolResult> => {
+        const project = context.projects.find((p) => p.id === projectId);
+        if (!project) {
+          return { message: "Project not found." };
+        }
+
+        const taskCount = context.items.filter((item) => item.projectId === projectId).length;
+
+        const { error } = await supabase
+          .from("projects")
+          .delete()
+          .eq("id", projectId)
+          .eq("user_id", userId);
+
+        if (error) {
+          return { message: `Failed to delete project: ${error.message}` };
+        }
+
+        return {
+          message: `Deleted project "${project.name}". ${taskCount} task(s) were unlinked from this project (not deleted).`,
+        };
+      },
+    }),
+    getProjectStats: tool({
+      description: "Get statistics for a specific project including task counts, completion rate, and time estimates. Use when the user asks about project progress, status, or statistics.",
+      inputSchema: z.object({
+        projectId: z.string().describe("The project ID to get stats for."),
+      }),
+      execute: async ({ projectId }): Promise<AiToolResult> => {
+        const project = context.projects.find((p) => p.id === projectId);
+        if (!project) {
+          return { message: "Project not found." };
+        }
+
+        const projectItems = context.items.filter((item) => item.projectId === projectId);
+        const totalTasks = projectItems.length;
+        const completedTasks = projectItems.filter((item) => item.status === "completed").length;
+        const activeTasks = projectItems.filter((item) => item.status === "active" || item.status === "in_progress").length;
+        const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        // Calculate total estimated time
+        const totalEstimateMinutes = projectItems.reduce((sum, item) => {
+          const minutes = parseInt(item.estimateMinutes || "0") || 0;
+          return sum + minutes;
+        }, 0);
+
+        // Get overdue tasks
+        const today = context.today;
+        const overdueTasks = projectItems.filter((item) => {
+          if (item.status === "completed" || item.status === "cancelled") return false;
+          const dueDate = item.dueDate || item.startDate;
+          return dueDate && dueDate < today;
+        });
+
+        // Get upcoming tasks (next 7 days)
+        const nextWeek = new Date(today + "T12:00:00");
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        const nextWeekStr = nextWeek.toISOString().slice(0, 10);
+        const upcomingTasks = projectItems.filter((item) => {
+          if (item.status === "completed" || item.status === "cancelled") return false;
+          const dueDate = item.dueDate || item.startDate;
+          return dueDate && dueDate >= today && dueDate <= nextWeekStr;
+        });
+
+        // Priority breakdown
+        const priorityCounts = {
+          urgent: projectItems.filter((item) => item.priority === "urgent").length,
+          high: projectItems.filter((item) => item.priority === "high").length,
+          medium: projectItems.filter((item) => item.priority === "medium").length,
+          low: projectItems.filter((item) => item.priority === "low").length,
+        };
+
+        const statsData = {
+          projectName: project.name,
+          totalTasks,
+          completedTasks,
+          activeTasks,
+          completionRate,
+          totalEstimateMinutes,
+          overdueTasks: overdueTasks.length,
+          upcomingTasks: upcomingTasks.length,
+          priorityCounts,
+          overdueTaskTitles: overdueTasks.slice(0, 3).map((t) => t.title),
+          upcomingTaskTitles: upcomingTasks.slice(0, 3).map((t) => t.title),
+        };
+
+        const summaryParts = [
+          `Project "${project.name}" stats:`,
+          `${totalTasks} total tasks, ${completedTasks} completed (${completionRate}%).`,
+          `${activeTasks} active tasks.`,
+          totalEstimateMinutes > 0 ? `Estimated time: ${Math.floor(totalEstimateMinutes / 60)}h ${totalEstimateMinutes % 60}min.` : "",
+          overdueTasks.length > 0 ? `${overdueTasks.length} overdue task(s).` : "",
+          upcomingTasks.length > 0 ? `${upcomingTasks.length} task(s) due this week.` : "",
+        ].filter(Boolean).join(" ");
+
+        return {
+          message: summaryParts,
+          briefing: statsData,
         };
       },
     }),
