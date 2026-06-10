@@ -446,14 +446,13 @@ export function AiOverlay({
             : state === "output-available"
               ? t("ai.toolCompleted")
               : t("ai.usingTool");
-          const label = rawLabel.length > 80 ? rawLabel.slice(0, 80) + "..." : rawLabel;
           return (
             <span
               key={`${message.id}-tool-${index}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-black/8 bg-[#f8f7f6] px-2.5 py-1 text-xs text-[#6d6871]"
+              className="inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full border border-black/8 bg-[#f8f7f6] px-2.5 py-1 text-xs text-[#6d6871]"
             >
-              <Sparkles className="h-3 w-3" />
-              {label}
+              <Sparkles className="h-3 w-3 shrink-0" />
+              <span className="truncate">{rawLabel}</span>
             </span>
           );
         })}

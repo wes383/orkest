@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import {
   ArrowDownAZ,
   BarChart3,
+  ChevronRight,
   Folder,
   GripVertical,
   List,
@@ -24,6 +25,9 @@ import { normalizeProjectColor } from "@/lib/projects/color-palette";
 import { ProjectFormModal } from "@/components/projects/project-form-modal";
 import type { ProjectSortMode } from "@/lib/types/all-page";
 
+export const PROJECTS_SECTION_STORAGE_KEY = "projects-section-collapsed";
+export const PROJECTS_SECTION_EXPAND_EVENT = "projects-section-expand";
+
 interface ProjectSectionProps {
   onSelect: (projectId: string) => void;
 }
@@ -36,6 +40,28 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
   const manualItems = useAllPageStore((s) => s.manualItems);
   const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
   const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
+
+  const [isSectionCollapsed, setIsSectionCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(PROJECTS_SECTION_STORAGE_KEY) === "true";
+  });
+
+  useEffect(() => {
+    function handleExpand() {
+      setIsSectionCollapsed(false);
+      window.localStorage.setItem(PROJECTS_SECTION_STORAGE_KEY, "false");
+    }
+    window.addEventListener(PROJECTS_SECTION_EXPAND_EVENT, handleExpand);
+    return () => window.removeEventListener(PROJECTS_SECTION_EXPAND_EVENT, handleExpand);
+  }, []);
+
+  function toggleSectionCollapsed() {
+    setIsSectionCollapsed((prev) => {
+      const next = !prev;
+      window.localStorage.setItem(PROJECTS_SECTION_STORAGE_KEY, String(next));
+      return next;
+    });
+  }
 
   const [sortMode, setSortMode] = useState<ProjectSortMode>("default");
   const [showSortMenu, setShowSortMenu] = useState(false);
@@ -231,12 +257,23 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
             >
               <X className="h-3 w-3" />
             </button>
-          ) : null}
+          ) : (
+            <button
+              type="button"
+              onClick={toggleSectionCollapsed}
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
+              title={isSectionCollapsed ? t("projects.sidebar.expand") : t("projects.sidebar.collapse")}
+            >
+              <ChevronRight
+                className={`h-3.5 w-3.5 transition-transform duration-200 ${isSectionCollapsed ? "" : "rotate-90"}`}
+              />
+            </button>
+          )}
           <button
             type="button"
             onClick={toggleSortMenu}
             ref={sortBtnRef}
-            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
+            className={`flex h-6 w-6 cursor-pointer items-center justify-center rounded-md transition-colors ${isSectionCollapsed ? "invisible" : "text-[#9f99a3] hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"}`}
             title={t("projects.sidebar.sortTooltip")}
           >
             {sortMode === "default" ? (
@@ -252,7 +289,7 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
           <button
             type="button"
             onClick={() => setModalState({ mode: "create" })}
-            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
+            className={`flex h-6 w-6 cursor-pointer items-center justify-center rounded-md transition-colors ${isSectionCollapsed ? "invisible" : "text-[#9f99a3] hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"}`}
             title={t("projects.sidebar.newTooltip")}
           >
             <Plus className="h-3.5 w-3.5" />
@@ -260,6 +297,8 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
         </div>
       </div>
 
+      {!isSectionCollapsed && (
+      <>
       {showSortMenu && sortMenuPos && typeof document !== "undefined"
         ? createPortal(
             <div
@@ -365,6 +404,8 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
           })
         )}
       </div>
+      </>
+      )}
 
       {user ? (
         <ProjectFormModal

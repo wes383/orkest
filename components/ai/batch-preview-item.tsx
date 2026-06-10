@@ -46,15 +46,17 @@ export function BatchPreviewItemRenderer({
   const actionLabel =
     item.kind === "delete"
       ? t("ai.batch.deleteTitle", { index: index + 1 })
-      : item.kind === "update"
-        ? `Update ${index + 1}`
-        : `Draft ${index + 1}`;
+      : item.kind === "delete_project"
+        ? t("ai.batch.deleteProjectTitle", { index: index + 1 })
+        : item.kind === "update"
+          ? `Update ${index + 1}`
+          : `Draft ${index + 1}`;
 
   return (
     <div
       key={item.id}
       className={`rounded-2xl border p-4 transition-colors ${isFullscreen ? "max-w-2xl" : ""} ${
-        item.kind === "delete" && item.selected
+        (item.kind === "delete" || item.kind === "delete_project") && item.selected
           ? "border-red-200/70 bg-red-50/45 dark:border-red-900/30 dark:bg-red-950/15"
           : item.selected
             ? "border-black/10 bg-white/85 dark:border-white/10 dark:bg-zinc-900/85"
@@ -77,7 +79,7 @@ export function BatchPreviewItemRenderer({
             ) : null}
           </div>
         </div>
-        {item.kind === "delete" ? (
+        {item.kind === "delete" || item.kind === "delete_project" ? (
           <div className="inline-flex h-8 items-center gap-1.5 rounded-full border border-red-200 bg-white/70 px-3 text-xs font-medium text-red-600 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
             <Trash2 className="h-3.5 w-3.5" />
             {t("ai.batch.delete")}
@@ -116,7 +118,21 @@ export function BatchPreviewItemRenderer({
         </div>
       ) : null}
 
-      {item.kind === "delete" ? null : (
+      {item.kind === "delete_project" ? (
+        <div className="rounded-2xl border border-red-200/50 bg-red-50/30 p-4 dark:border-red-900/30 dark:bg-red-950/15">
+          <p className="text-[11px] font-semibold tracking-[0.2em] text-red-500/70 dark:text-red-400/60 uppercase">
+            {t("ai.batch.willDelete")}
+          </p>
+          <h3 className="mt-1 text-lg font-semibold text-red-600/80 dark:text-red-400/90">
+            {item.projectName || t("ai.untitledItem")}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-red-500/80 dark:text-red-400/80">
+            {t("ai.batch.deleteProjectHint", { count: item.unlinkedTaskCount ?? 0 })}
+          </p>
+        </div>
+      ) : null}
+
+      {item.kind === "delete" || item.kind === "delete_project" ? null : (
       <div className="rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-zinc-900/80">
         <h3 className="text-lg font-semibold text-[#25242a] dark:text-zinc-100">
           {item.formState.title || t("ai.untitledItem")}
@@ -192,7 +208,7 @@ export function BatchPreviewItemRenderer({
         </div>
       ) : null}
 
-      {item.kind !== "delete" ? (
+      {item.kind !== "delete" && item.kind !== "delete_project" ? (
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {reviewSchedule ? (
           <div className={`rounded-2xl border border-black/8 bg-white/70 p-3 dark:border-white/10 dark:bg-zinc-900/70 ${reviewMetaCount === 1 ? "sm:col-span-2" : ""}`}>

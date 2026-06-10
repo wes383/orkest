@@ -4,11 +4,13 @@ import { createContext, useContext, useState, useCallback, useMemo, type ReactNo
 
 import { useAiChat } from "@/lib/hooks/use-ai-chat";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
+import { useProjectStore } from "@/lib/stores/use-project-store";
 import { useAuth } from "@/lib/auth/auth-provider";
 import type { ItemFormState } from "@/lib/types/all-page";
 import type { AiPageContext } from "@/lib/ai/chat-types";
 import { toItemFromManualRecord } from "@/lib/all-page-utils";
 import { sanitizeUsername } from "@/lib/ai/sanitize";
+import { useI18n } from "@/lib/i18n";
 
 type AiChatContextValue = ReturnType<typeof useAiChat> & {
   pageContext: AiPageContext;
@@ -19,6 +21,7 @@ const AiChatContext = createContext<AiChatContextValue | null>(null);
 
 export function AiChatProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [pageContext, setPageContextState] = useState<AiPageContext>("today");
 
   const setPageContext = useCallback((ctx: AiPageContext) => {
@@ -32,6 +35,20 @@ export function AiChatProvider({ children }: { children: ReactNode }) {
   const handleCreateItems = useAllPageStore((s) => s.handleCreateItems);
   const applyAiUpdates = useAllPageStore((s) => s.applyAiUpdates);
   const handleBatchDelete = useAllPageStore((s) => s.handleBatchDelete);
+  const deleteProjectFromStore = useProjectStore((s) => s.deleteProject);
+
+  const handleDeleteProject = useCallback(
+    (projectId: string): string | null => {
+      if (!user?.id) {
+        return t("ai.missingUser");
+      }
+      // Optimistic delete — store updates local state and enqueues sync.
+      // The project store's deleteProject is fire-and-forget and never throws.
+      void deleteProjectFromStore(user.id, projectId);
+      return null;
+    },
+    [deleteProjectFromStore, user?.id, t],
+  );
 
   const ai = useAiChat({
     pageContext,
@@ -49,6 +66,7 @@ export function AiChatProvider({ children }: { children: ReactNode }) {
     applyAiUpdates,
     handleBatchDelete,
     toItemFromManualRecord,
+    handleDeleteProject,
   });
 
   const value = useMemo<AiChatContextValue>(

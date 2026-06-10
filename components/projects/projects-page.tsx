@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth/auth-provider";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
 import { computeProjectsWithStats, sortProjectsWithStats } from "@/lib/projects/project-stats";
+import { PROJECTS_SECTION_EXPAND_EVENT } from "@/components/sidebar/project-section";
 import { distanceToNow } from "@/lib/projects/distance-to-now";
 import { normalizeProjectColor, withAlpha } from "@/lib/projects/color-palette";
 import type { ProjectSortMode } from "@/lib/types/all-page";
@@ -65,6 +66,7 @@ export function ProjectsPage() {
 
   function handleCardClick(projectId: string) {
     setListFilterConfig({ selectedProjectIds: [projectId] });
+    window.dispatchEvent(new Event(PROJECTS_SECTION_EXPAND_EVENT));
     const target = addLocaleToPathname(`/all?project=${projectId}`, locale);
     router.push(target);
   }
@@ -413,19 +415,7 @@ export function ProjectsPage() {
           onConfirm={handleConfirmDelete}
         />
       ) : null}
-
-      {/* FAB Button for creating new project */}
-      {user ? (
-        <button
-          type="button"
-          onClick={() => setCreateOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[#25242a] text-white shadow-[0_18px_45px_rgba(37,36,42,0.22)] transition-all hover:scale-105 hover:shadow-[0_22px_55px_rgba(37,36,42,0.28)] dark:bg-[#f5f5f5] dark:text-[#111111] dark:shadow-none dark:hover:shadow-none sm:bottom-8 sm:right-8"
-          aria-label={t("projects.newProject")}
-        >
-          <Plus className="h-6 w-6" />
-        </button>
-      ) : null}
-    </div>
+</div>
   );
 }
 

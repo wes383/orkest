@@ -2577,7 +2577,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
       },
     }),
     listProjects: tool({
-      description: "List all projects for the user. Use when the user asks about their projects, wants to see project list, or needs to choose a project.",
+      description: "REQUIRED entry point for resolving any projectId. ALWAYS call this FIRST when the user mentions a project by name, or any identifier other than a UUID. The result includes each project's canonical UUID and the number of tasks it currently holds. Do NOT search items to infer a project id — call listProjects instead. Do NOT guess the projectId; an invalid id will fail.",
       inputSchema: z.object({}),
       execute: async (): Promise<AiToolResult> => {
         const projects = context.projects;
@@ -2586,10 +2586,10 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         }
         const projectList = projects.map((p) => {
           const taskCount = context.items.filter((item) => item.projectId === p.id).length;
-          return `- ${p.name} (${taskCount} tasks)`;
+          return `- ${p.name} (${taskCount} tasks) | id=${p.id}`;
         }).join("\n");
         return {
-          message: `Found ${projects.length} project(s):\n${projectList}`,
+          message: `Found ${projects.length} project(s):\n${projectList}\n\nUse the exact id (UUID) shown above when calling deleteProject or updateProject.`,
         };
       },
     }),
@@ -2643,7 +2643,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           return { message: "Project not found." };
         }
 
-        const updates: Record<string, unknown> = {
+        const updates: { updated_at: string; name?: string; color?: string | null } = {
           updated_at: new Date().toISOString(),
         };
         if (name !== undefined) updates.name = name;
@@ -2666,30 +2666,36 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
       },
     }),
     deleteProject: tool({
-      description: "Delete a project. Use when the user wants to remove a project. Tasks in the project will be unlinked, not deleted.",
+      description: "Prepare a reviewable delete proposal for a project. The project is only removed after the user confirms in the preview UI. Tasks in the project will be unlinked, not deleted. You MUST pass a projectId from the context.projects list (UUID, not the project's display number/name). If the user refers to a project by name, list order, or any identifier other than its UUID, call listProjects first to obtain the correct id — do not guess or assume.",
       inputSchema: z.object({
         projectId: z.string().describe("The project ID to delete."),
+        reason: z.string().optional(),
       }),
-      execute: async ({ projectId }): Promise<AiToolResult> => {
+      execute: async ({ projectId, reason }): Promise<AiToolResult> => {
         const project = context.projects.find((p) => p.id === projectId);
         if (!project) {
           return { message: "Project not found." };
         }
 
-        const taskCount = context.items.filter((item) => item.projectId === projectId).length;
+        const unlinkedTaskCount = context.items.filter((item) => item.projectId === projectId).length;
+        const actionId = makeActionId("delete-project");
 
-        const { error } = await supabase
-          .from("projects")
-          .delete()
-          .eq("id", projectId)
-          .eq("user_id", userId);
-
-        if (error) {
-          return { message: `Failed to delete project: ${error.message}` };
-        }
+        // Remove the project from the in-memory context so subsequent tool
+        // calls in the same turn can't match against it (mirrors the push
+        // done in createProject).
+        context.projects = context.projects.filter((p) => p.id !== projectId);
 
         return {
-          message: `Deleted project "${project.name}". ${taskCount} task(s) were unlinked from this project (not deleted).`,
+          message: `Prepared to delete project "${project.name}" (${unlinkedTaskCount} task(s) will be unlinked).`,
+          proposedActions: [{
+            id: actionId,
+            type: "delete_project",
+            title: `Delete project "${project.name}"`,
+            projectId: project.id,
+            projectName: project.name,
+            unlinkedTaskCount,
+            reason,
+          }],
         };
       },
     }),

@@ -45,6 +45,7 @@ export type UseAiChatConfig = {
   applyAiUpdates: (updates: Array<{ itemId: string; form: ItemFormState }>) => void;
   handleBatchDelete: (items: import("@/lib/types/all-page").DisplayItem[]) => void;
   toItemFromManualRecord: (record: ManualItemRecord) => import("@/lib/types/all-page").DisplayItem;
+  handleDeleteProject: (projectId: string) => string | null;
 };
 
 export function useAiChat(config: UseAiChatConfig) {
@@ -60,6 +61,7 @@ export function useAiChat(config: UseAiChatConfig) {
     applyAiUpdates,
     handleBatchDelete,
     toItemFromManualRecord,
+    handleDeleteProject,
   } = config;
 
   const projects = useProjectStore((s) => s.projects);
@@ -577,6 +579,12 @@ export function useAiChat(config: UseAiChatConfig) {
       .filter((record): record is NonNullable<typeof record> => Boolean(record))
       .map((record) => toItemFromManualRecord(record));
 
+    const deleteProjects = selectedDrafts
+      .filter((item): item is AiBatchPreviewItem & { projectId: string } =>
+        item.kind === "delete_project" && typeof item.projectId === "string"
+      )
+      .map((item) => item.projectId);
+
     if (updateItems.length > 0) {
       applyAiUpdates(updateItems);
     }
@@ -593,10 +601,24 @@ export function useAiChat(config: UseAiChatConfig) {
       handleBatchDelete(deleteItems);
     }
 
+    if (deleteProjects.length > 0) {
+      for (const projectId of deleteProjects) {
+        if (!userId) {
+          setAiError(t("ai.missingUser"));
+          return;
+        }
+        const error = handleDeleteProject(projectId);
+        if (error) {
+          setAiError(error);
+          return;
+        }
+      }
+    }
+
     setAiBatchPreview([]);
     setAiTargetItems([]);
     setAiError(null);
-  }, [aiBatchPreview, aiLoading, manualItems, toItemFromManualRecord, applyAiUpdates, handleCreateItems, handleBatchDelete, t]);
+  }, [aiBatchPreview, aiLoading, manualItems, toItemFromManualRecord, applyAiUpdates, handleCreateItems, handleBatchDelete, handleDeleteProject, userId, t]);
 
   const applyDroppedItem = useCallback((item: CandidateItem) => {
     setAiTargetItems((current) => {

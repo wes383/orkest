@@ -12,6 +12,40 @@ import { getTimeFormatHour12, getDateLocale } from "@/lib/stores/use-settings-st
 import type { Locale } from "@/lib/i18n/config";
 import { dayjs } from "@/lib/dayjs";
 
+// Minimal placeholder form state used for preview items that don't represent
+// a real task (e.g. delete_project). The shape mirrors ItemFormState so the
+// type stays consistent across preview kinds.
+const EMPTY_FORM_PLACEHOLDER: ItemFormState = {
+  title: "",
+  description: "",
+  hasTime: false,
+  startDate: "",
+  startTime: "",
+  endDate: "",
+  endTime: "",
+  allDay: false,
+  hasDueDate: false,
+  dueDate: "",
+  timezone: "",
+  recurrenceType: "none",
+  recurrenceInterval: "1",
+  daysOfWeek: [false, false, false, false, false, false, false],
+  recurrenceEndType: "never",
+  recurrenceEndDate: "",
+  recurrenceCount: "10",
+  monthlyPattern: "day_of_month",
+  nthWeekdayPosition: "2",
+  nthWeekdayDay: 2,
+  priority: undefined,
+  estimateMinutes: "",
+  tags: [],
+  subtasks: [],
+  projectId: "",
+  projectName: "",
+  status: undefined,
+  reminders: [],
+};
+
 export type AiChatItemContext = {
   id: string;
   title: string;
@@ -58,7 +92,7 @@ export type AiChatProjectContext = {
   color?: string;
 };
 
-export type AiPageContext = "all" | "today" | "focus";
+export type AiPageContext = "all" | "today" | "focus" | "projects";
 
 export type AiChatContext = {
   items: AiChatItemContext[];
@@ -169,6 +203,16 @@ export type AiProposedAction =
       after: ItemFormState;
       childItems?: ItemFormState[];
       reason?: string;
+    }
+  | {
+      id: string;
+      type: "delete_project";
+      title: string;
+      projectId: string;
+      projectName: string;
+      /** Number of tasks that would be unlinked as a result of this deletion. */
+      unlinkedTaskCount: number;
+      reason?: string;
     };
 
 export type AiToolResult = {
@@ -193,10 +237,16 @@ export type OrkestAIMessage = UIMessage<
 
 export type AiBatchPreviewItem = {
   id: string;
-  kind: "create" | "update" | "delete";
+  kind: "create" | "update" | "delete" | "delete_project";
   selected: boolean;
   formState: ItemFormState;
   targetItemId?: string;
+  /** For delete_project: the project ID to remove. */
+  projectId?: string;
+  /** For delete_project: the project name, for display. */
+  projectName?: string;
+  /** For delete_project: number of tasks that will be unlinked. */
+  unlinkedTaskCount?: number;
   originalForm?: ItemFormState | null;
   autoSelected?: boolean;
   reason?: string;
@@ -589,6 +639,17 @@ export function convertProposedActionsToBatchPreview(actions: AiProposedAction[]
           reason: action.reason,
         });
       }
+    } else if (action.type === "delete_project") {
+      nextBatch.push({
+        id: action.id,
+        kind: "delete_project",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        projectId: action.projectId,
+        projectName: action.projectName,
+        unlinkedTaskCount: action.unlinkedTaskCount,
+        reason: action.reason,
+      });
     }
   }
 
