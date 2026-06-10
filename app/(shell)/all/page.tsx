@@ -397,19 +397,25 @@ export default function AllPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Monitor header height to detect wrapping
+  // Monitor header height and layout to detect wrapping
   useEffect(() => {
     const el = headerRef.current;
     if (!el) return;
 
-    const observer = new ResizeObserver(() => {
-      const leftGroup = el.querySelector(".lg\\:justify-start");
-      const rightGroup = el.querySelector(".lg\\:justify-end");
-      if (leftGroup && rightGroup) {
-        const leftRect = leftGroup.getBoundingClientRect();
-        const rightRect = rightGroup.getBoundingClientRect();
-        // If the top of the right group is below the left group, it means they wrapped
-        setIsHeaderWrapped(rightRect.top > leftRect.top + 10);
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const leftGroup = el.querySelector(".lg\\:justify-start");
+        const rightGroup = el.querySelector(".lg\\:justify-end");
+        if (leftGroup && rightGroup) {
+          const leftRect = leftGroup.getBoundingClientRect();
+          const rightRect = rightGroup.getBoundingClientRect();
+          // If the top of the right group is below the left group, it means they wrapped
+          setIsHeaderWrapped(rightRect.top > leftRect.top + 10);
+        } else {
+          // Fallback to height threshold
+          const height = entry.contentRect.height;
+          setIsHeaderWrapped(height > 45);
+        }
       }
     });
 
@@ -417,7 +423,7 @@ export default function AllPage() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [showStickyHeader, viewMode]);
 
   // Load items from Supabase when user is available
   useEffect(() => {

@@ -129,9 +129,7 @@ export default function RootLayout({
   return (
     <html className={`h-full antialiased ${inter.variable} ${jetbrainsMono.variable} ${manrope.variable} ${notoSC.variable} ${notoJP.variable}`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <Script id="orkest-theme-init" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
+        <Script id="orkest-theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
         <ThemeProvider>
           <LocaleProvider>
             <AuthProvider>

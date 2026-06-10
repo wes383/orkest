@@ -41,10 +41,14 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
   const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
   const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
 
-  const [isSectionCollapsed, setIsSectionCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem(PROJECTS_SECTION_STORAGE_KEY) === "true";
-  });
+  const [isSectionCollapsed, setIsSectionCollapsed] = useState(false);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(PROJECTS_SECTION_STORAGE_KEY);
+    if (stored === "true") {
+      setIsSectionCollapsed(true);
+    }
+  }, []);
 
   useEffect(() => {
     function handleExpand() {
