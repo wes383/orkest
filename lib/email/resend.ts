@@ -275,7 +275,11 @@ export async function sendDailyDigestEmail(input: SendDailyDigestEmailInput) {
     extrasHtml += `<div style="${sectionStyle}"><p style="${labelStyle}">${translate(locale, "email.bookRecommendation")}</p><p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#25242a;">${escapeHtml(extras.book.title)}</p><p style="margin:0 0 8px;font-size:12px;color:#7d7880;">${escapeHtml(extras.book.author)} · ${extras.book.year}</p><p style="margin:0;font-size:13px;line-height:1.5;color:#3c3841;">${escapeHtml(extras.book.recommendation)}</p></div>`;
   }
   if (extras.movie) {
-    extrasHtml += `<div style="${sectionStyle}"><p style="${labelStyle}">${translate(locale, "email.movieRecommendation")}</p><p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#25242a;">${escapeHtml(extras.movie.title)} (${extras.movie.year})</p><p style="margin:0 0 8px;font-size:12px;color:#7d7880;">${escapeHtml(extras.movie.directors)} · ${escapeHtml(extras.movie.genres)}</p><p style="margin:0;font-size:13px;line-height:1.5;color:#3c3841;">${escapeHtml(extras.movie.recommendation)}</p></div>`;
+    // The daily-movie API sometimes returns year=null; the server coerces it
+    // to 0 as a sentinel. Suppress the year suffix entirely in that case
+    // so the email subject line does not read "Dr. Jekyll and Mr. Hyde (0)".
+    const movieYearSuffix = extras.movie.year > 0 ? ` (${extras.movie.year})` : "";
+    extrasHtml += `<div style="${sectionStyle}"><p style="${labelStyle}">${translate(locale, "email.movieRecommendation")}</p><p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#25242a;">${escapeHtml(extras.movie.title)}${movieYearSuffix}</p><p style="margin:0 0 8px;font-size:12px;color:#7d7880;">${escapeHtml(extras.movie.directors)} · ${escapeHtml(extras.movie.genres)}</p><p style="margin:0;font-size:13px;line-height:1.5;color:#3c3841;">${escapeHtml(extras.movie.recommendation)}</p></div>`;
   }
 
   const html = `

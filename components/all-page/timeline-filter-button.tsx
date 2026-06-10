@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { useScrollLock } from "@/lib/hooks/use-scroll-lock";
 import { useI18n } from "@/lib/i18n";
+import { ProjectFilterSection } from "@/components/projects/project-filter-section";
 import type {
   ListFilterConfig,
   ListTimeFilterPreset,
@@ -52,6 +53,7 @@ function getActiveFilterCount(config: ListFilterConfig) {
   if (config.status !== "all") count += 1;
   if (config.selectedTags?.length > 0) count += 1;
   if (config.selectedPriorities?.length > 0) count += 1;
+  if (config.selectedProjectIds?.length > 0) count += 1;
   return count;
 }
 
@@ -88,6 +90,7 @@ export function TimelineFilterButton({
       selectedTags: [],
       tagMatchMode: "or",
       selectedPriorities: [],
+      selectedProjectIds: [],
     });
   }
 
@@ -363,6 +366,11 @@ export function TimelineFilterButton({
                   </p>
                 )}
               </div>
+
+              <ProjectFilterSection
+                selectedProjectIds={filterConfig.selectedProjectIds ?? []}
+                onChange={(update) => onFilterChange(update)}
+              />
             </div>
           </div>
         </>

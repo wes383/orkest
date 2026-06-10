@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useSyncExternalStore, useState, useMemo, useRef } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 
 import { AiOverlay } from "@/components/ai/ai-overlay";
@@ -199,11 +200,18 @@ export default function AllPage() {
     selectedTags: [],
     tagMatchMode: "or",
     selectedPriorities: [],
+    selectedProjectIds: [],
     searchQuery: "",
   });
 
   const handleTimelineFilterChange = useCallback((update: Partial<ListFilterConfig>) => {
-    if ("selectedTags" in update || "tagMatchMode" in update || "selectedPriorities" in update || "status" in update) {
+    if (
+      "selectedTags" in update ||
+      "tagMatchMode" in update ||
+      "selectedPriorities" in update ||
+      "status" in update ||
+      "selectedProjectIds" in update
+    ) {
       setListFilterConfig(update);
     } else {
       setTimelineFilterConfig((current) => ({ ...current, ...update }));
@@ -218,6 +226,7 @@ export default function AllPage() {
     selectedTags: [],
     tagMatchMode: "or",
     selectedPriorities: [],
+    selectedProjectIds: [],
     searchQuery: "",
   });
   const [kanbanSortConfig, setKanbanSortConfig] = useState<ListSortConfig>({
@@ -232,7 +241,12 @@ export default function AllPage() {
   });
 
   const handleKanbanFilterChange = useCallback((update: Partial<ListFilterConfig>) => {
-    if ("selectedTags" in update || "tagMatchMode" in update || "selectedPriorities" in update) {
+    if (
+      "selectedTags" in update ||
+      "tagMatchMode" in update ||
+      "selectedPriorities" in update ||
+      "selectedProjectIds" in update
+    ) {
       setListFilterConfig(update);
     } else {
       setKanbanFilterConfig((current) => ({ ...current, ...update }));
@@ -251,6 +265,20 @@ export default function AllPage() {
 
   const projects = useProjectStore((s) => s.projects);
 
+  // Sync URL ?project= with listFilterConfig.selectedProjectIds
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (!searchParams) return;
+    const projectId = searchParams.get("project");
+    const current = listFilterConfig.selectedProjectIds ?? [];
+    if (projectId && (current.length !== 1 || current[0] !== projectId)) {
+      setListFilterConfig({ selectedProjectIds: [projectId] });
+    } else if (!projectId && current.length > 0) {
+      setListFilterConfig({ selectedProjectIds: [] });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   const availableListTags = useMemo(
     () => getAvailableListTags(sections),
     [sections],
@@ -263,8 +291,17 @@ export default function AllPage() {
       selectedPriorities: listFilterConfig.selectedPriorities,
       status: listFilterConfig.status,
       searchQuery: listFilterConfig.searchQuery,
+      selectedProjectIds: listFilterConfig.selectedProjectIds,
     }),
-    [timelineFilterConfig, listFilterConfig.selectedTags, listFilterConfig.tagMatchMode, listFilterConfig.selectedPriorities, listFilterConfig.status, listFilterConfig.searchQuery],
+    [
+      timelineFilterConfig,
+      listFilterConfig.selectedTags,
+      listFilterConfig.tagMatchMode,
+      listFilterConfig.selectedPriorities,
+      listFilterConfig.status,
+      listFilterConfig.searchQuery,
+      listFilterConfig.selectedProjectIds,
+    ],
   );
   const effectiveKanbanFilter = useMemo(
     () => ({
@@ -273,8 +310,16 @@ export default function AllPage() {
       tagMatchMode: listFilterConfig.tagMatchMode,
       selectedPriorities: listFilterConfig.selectedPriorities,
       searchQuery: listFilterConfig.searchQuery,
+      selectedProjectIds: listFilterConfig.selectedProjectIds,
     }),
-    [kanbanFilterConfig, listFilterConfig.selectedTags, listFilterConfig.tagMatchMode, listFilterConfig.selectedPriorities, listFilterConfig.searchQuery],
+    [
+      kanbanFilterConfig,
+      listFilterConfig.selectedTags,
+      listFilterConfig.tagMatchMode,
+      listFilterConfig.selectedPriorities,
+      listFilterConfig.searchQuery,
+      listFilterConfig.selectedProjectIds,
+    ],
   );
   const filteredTimelineSections = useMemo(
     () => filterSections(sections, effectiveTimelineFilter),

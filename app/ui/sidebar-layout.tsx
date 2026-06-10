@@ -7,11 +7,6 @@ import {
   Target,
   Trash2,
   User,
-  Tag,
-  ArrowDownAZ,
-  BarChart3,
-  List,
-  X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -22,6 +17,7 @@ import FocusPage from "@/app/(shell)/focus/page";
 import TodayPage from "@/app/(shell)/page";
 import { TrashPage } from "@/components/trash-page";
 import { ItemForm } from "@/components/all-page/item-form";
+import { ProjectSection } from "@/components/sidebar/project-section";
 import { SyncStatusIndicator } from "@/components/sync-status-indicator";
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 import { useAiChatContext } from "@/lib/contexts/ai-chat-context";
@@ -117,6 +113,7 @@ export function SidebarLayout({
   const isSettingsPage = localPathname === "/settings";
   const isTrashPage = localPathname === "/trash";
   const isAiChatPage = localPathname === "/chat";
+  const isProjectsPage = localPathname === "/projects";
 
   const [activeTab, setActiveTab] = useState(() => {
     if (localPathname === "/trash") return "/trash";
@@ -133,7 +130,7 @@ export function SidebarLayout({
 
   const switchTab = useCallback(
     (href: string) => {
-      if (href === activeTab && !isSettingsPage && !isTrashPage) return;
+      if (href === activeTab && !isSettingsPage && !isTrashPage && !isProjectsPage) return;
       setActiveTab(href);
       setMountedTabs((prev) => {
         if (prev.has(href)) return prev;
@@ -141,13 +138,13 @@ export function SidebarLayout({
         next.add(href);
         return next;
       });
-      if (isSettingsPage && href !== "/trash") {
+      if ((isSettingsPage || isProjectsPage) && href !== "/trash") {
         router.push(addLocaleToPathname(href, locale));
       } else {
         window.history.pushState(null, "", addLocaleToPathname(href, locale));
       }
     },
-    [activeTab, isSettingsPage, isTrashPage, locale, router],
+    [activeTab, isSettingsPage, isTrashPage, isProjectsPage, locale, router],
   );
 
   // Handle browser back/forward navigation
@@ -183,9 +180,6 @@ export function SidebarLayout({
 
   const ai = useAiChatContext();
   const openComposer = useAllPageStore((s) => s.openComposer);
-  const sections = useAllPageStore((s) => s.sections);
-  const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
-  const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
   const { timerMode, timerState, timeRemainingSeconds, startedAtTimestamp, pausedElapsedSeconds, settings, startTimer, pauseTimer, resumeTimer, resetTimer } = useFocusStore();
 
   // Tick every 1s while the timer is running so the sidebar indicator stays live
@@ -218,10 +212,6 @@ export function SidebarLayout({
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [tagSortMode, setTagSortMode] = useState<"default" | "alpha" | "frequency">("default");
-  const [showTagSortMenu, setShowTagSortMenu] = useState(false);
-  const tagSortBtnRef = useRef<HTMLButtonElement>(null);
-  const tagSortMenuRef = useRef<HTMLDivElement>(null);
   const expandedMenuRef = useRef<HTMLDivElement>(null);
   const collapsedMenuRef = useRef<HTMLDivElement>(null);
   const userMenuAnchorRef = useRef<HTMLButtonElement>(null);
@@ -280,24 +270,21 @@ export function SidebarLayout({
 
   // Close user menu when clicking outside
   useEffect(() => {
-    if (!showUserMenu && !showTagSortMenu) return;
+    if (!showUserMenu) return;
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
       if (
         expandedMenuRef.current?.contains(target) ||
         collapsedMenuRef.current?.contains(target) ||
-        userMenuAnchorRef.current?.contains(target) ||
-        tagSortBtnRef.current?.contains(target) ||
-        tagSortMenuRef.current?.contains(target)
+        userMenuAnchorRef.current?.contains(target)
       ) {
         return;
       }
       setShowUserMenu(false);
-      setShowTagSortMenu(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showUserMenu, showTagSortMenu]);
+  }, [showUserMenu]);
 
   // Hide rail after menu closes if mouse is no longer over rail
   useEffect(() => {
@@ -556,95 +543,32 @@ export function SidebarLayout({
             })}
           </nav>
 
-          {activeTab === "/all" && !isSettingsPage && !isTrashPage && (() => {
-            const tagCountMap = new Map<string, number>();
-            for (const s of sections) {
-              for (const g of s.groups) {
-                for (const item of g.items) {
-                  for (const tag of item.tags ?? []) {
-                    tagCountMap.set(tag, (tagCountMap.get(tag) ?? 0) + 1);
-                  }
-                }
-              }
-            }
-            const availableTags = Array.from(tagCountMap.keys());
-            if (availableTags.length === 0) return null;
-            const sortedTags = [...availableTags].sort((a, b) => {
-              if (tagSortMode === "alpha") return a.localeCompare(b);
-              if (tagSortMode === "frequency") return (tagCountMap.get(b) ?? 0) - (tagCountMap.get(a) ?? 0);
-              return 0;
-            });
+          {((activeTab === "/all" && !isSettingsPage && !isTrashPage) || isProjectsPage) && (() => {
             return (
-              <div className="mt-4 flex flex-1 flex-col gap-2 min-h-0">
-                <div className="flex flex-col gap-1.5 px-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
-                  <div className="flex items-center gap-2">
-                    <Tag className="h-3.5 w-3.5 text-[#9f99a3] dark:text-[#737373]" />
-                    <p className="text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase dark:text-[#737373]">
-                      {t("listControls.tags")}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-end gap-0.5 sm:flex-shrink-0">
-                    {listFilterConfig.selectedTags.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setListFilterConfig({ selectedTags: [], tagMatchMode: "or" })}
-                        className="flex h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-[10px] font-medium text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
-                        title="Clear"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
-                    {listFilterConfig.selectedTags.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => setListFilterConfig({ tagMatchMode: listFilterConfig.tagMatchMode === "or" ? "and" : "or" })}
-                        className="flex h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-[10px] font-semibold uppercase text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
-                      >
-                        {listFilterConfig.tagMatchMode}
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      ref={tagSortBtnRef}
-                      onClick={() => setShowTagSortMenu((prev) => !prev)}
-                      className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
-                    >
-                      {tagSortMode === "alpha" ? (
-                        <ArrowDownAZ className="h-3.5 w-3.5" />
-                      ) : tagSortMode === "frequency" ? (
-                        <BarChart3 className="h-3.5 w-3.5" />
-                      ) : (
-                        <List className="h-3.5 w-3.5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div className="scrollbar-transparent-track flex flex-1 flex-col gap-1.5 px-4 min-h-24 overflow-y-auto">
-                  {sortedTags.map((tag) => {
-                    const selected = listFilterConfig.selectedTags.includes(tag);
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() =>
-                          setListFilterConfig({
-                            selectedTags: selected
-                              ? listFilterConfig.selectedTags.filter((t) => t !== tag)
-                              : [...listFilterConfig.selectedTags, tag],
-                          })
-                        }
-                        className={`w-full cursor-pointer rounded-full px-2.5 py-1 text-xs font-medium transition-colors text-left ${
-                          selected
-                            ? "bg-[#25242a] text-white shadow-sm dark:bg-[#e5e5e5] dark:text-[#111111]"
-                            : "bg-black/[0.035] text-[#5f5a63] hover:bg-black/[0.07] dark:bg-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/12"
-                        }`}
-                      >
-                        <span className="truncate">{tag}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <ProjectSection
+                onSelect={(projectId) => {
+                  if (isProjectsPage) {
+                    router.push(addLocaleToPathname(`/all?project=${projectId}`, locale));
+                    setActiveTab("/all");
+                    setMountedTabs((prev) => {
+                      if (prev.has("/all")) return prev;
+                      const next = new Set(prev);
+                      next.add("/all");
+                      return next;
+                    });
+                    return;
+                  }
+                  if (activeTab !== "/all") {
+                    setActiveTab("/all");
+                    setMountedTabs((prev) => {
+                      if (prev.has("/all")) return prev;
+                      const next = new Set(prev);
+                      next.add("/all");
+                      return next;
+                    });
+                  }
+                }}
+              />
             );
           })()}
 
@@ -720,40 +644,6 @@ export function SidebarLayout({
             <Settings className="h-4 w-4" strokeWidth={2} />
             <span>{t("nav.settings")}</span>
           </button>
-        </div>
-      )}
-      {/* Tag sort dropdown - rendered outside overflow:hidden */}
-      {!isCollapsed && showTagSortMenu && activeTab === "/all" && !isSettingsPage && !isTrashPage && (
-        <div
-          ref={tagSortMenuRef}
-          className="fixed z-50 w-36 rounded-xl bg-sidebar p-1 shadow-lg border border-black/8 dark:border-white/10 flex flex-col gap-0.5"
-          style={{
-            top: ((tagSortBtnRef.current?.getBoundingClientRect().bottom ?? 0) + 4) + 'px',
-            left: (tagSortBtnRef.current?.getBoundingClientRect().left ?? 0) + 'px',
-          }}
-        >
-          {([
-            { mode: "default" as const, icon: List, label: t("sidebar.tagSort.default") },
-            { mode: "alpha" as const, icon: ArrowDownAZ, label: t("sidebar.tagSort.alpha") },
-            { mode: "frequency" as const, icon: BarChart3, label: t("sidebar.tagSort.frequency") },
-          ]).map(({ mode, icon: Icon, label }) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => {
-                setTagSortMode(mode);
-                setShowTagSortMenu(false);
-              }}
-              className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
-                tagSortMode === mode
-                  ? "bg-black/[0.05] text-[#25242a] dark:bg-white/10 dark:text-[#f5f5f5]"
-                  : "text-[#7d7880] hover:bg-black/[0.035] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5 shrink-0" />
-              <span>{label}</span>
-            </button>
-          ))}
         </div>
       )}
       {/* Hover trigger zone */}
@@ -877,6 +767,8 @@ export function SidebarLayout({
           {isAiChatPage ? (
             children
           ) : isSettingsPage ? (
+            children
+          ) : isProjectsPage ? (
             children
           ) : isTrashPage ? (
             mountedTabs.has("/trash") && <TrashPage />

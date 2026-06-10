@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { useScrollLock } from "@/lib/hooks/use-scroll-lock";
 import { useI18n } from "@/lib/i18n";
+import { ProjectFilterSection } from "@/components/projects/project-filter-section";
 import type {
   ListFilterConfig,
   ListSortConfig,
@@ -36,6 +37,7 @@ function getActiveFilterCount(config: ListFilterConfig, includeTime: boolean) {
   if (config.status !== "all") count += 1;
   if (config.selectedTags?.length > 0) count += 1;
   if (config.selectedPriorities?.length > 0) count += 1;
+  if (config.selectedProjectIds?.length > 0) count += 1;
   return count;
 }
 
@@ -88,6 +90,7 @@ export function ListControlsButton({
       selectedTags: [],
       tagMatchMode: "or",
       selectedPriorities: [],
+      selectedProjectIds: [],
     });
   }
 
@@ -382,6 +385,11 @@ export function ListControlsButton({
                     </p>
                   )}
                 </div>
+
+                <ProjectFilterSection
+                  selectedProjectIds={filterConfig.selectedProjectIds ?? []}
+                  onChange={(update) => onFilterChange(update)}
+                />
               </section>
 
               <section className="min-w-0 border-t border-black/8 pt-4 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-5 dark:border-white/10">

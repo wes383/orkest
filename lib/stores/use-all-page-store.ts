@@ -181,6 +181,7 @@ const defaultListFilterConfig: ListFilterConfig = {
   selectedTags: [],
   tagMatchMode: "or",
   selectedPriorities: [],
+  selectedProjectIds: [],
   searchQuery: "",
 };
 
@@ -232,7 +233,14 @@ export const useAllPageStore = create<AllPageState>()(
     })),
   setListFilterConfig: (update) =>
     set((state) => ({
-      listFilterConfig: { ...state.listFilterConfig, ...update },
+      // Spread the defaults first so any missing fields from older persisted
+      // snapshots (e.g. `selectedProjectIds` added later) are backfilled on
+      // every write instead of persisting `undefined` values forever.
+      listFilterConfig: {
+        ...defaultListFilterConfig,
+        ...state.listFilterConfig,
+        ...update,
+      },
     })),
 
   openComposer: (item) => {
@@ -1166,6 +1174,34 @@ export const useAllPageStore = create<AllPageState>()(
   }),
   {
     name: "orkest-list-controls",
+    version: 1,
+    migrate: (persistedState, version) => {
+      // Bump `version` above whenever the persisted shape gains a new field.
+      // Older snapshots are merged with the latest defaults so legacy users
+      // (e.g. those whose saved `listFilterConfig` predates the
+      // `selectedProjectIds` field) do not end up with `undefined` array
+      // values that crash consumers.
+      if (!persistedState || typeof persistedState !== "object") {
+        return persistedState as never;
+      }
+      const state = persistedState as {
+        listFilterConfig?: Partial<ListFilterConfig>;
+        listSortConfig?: Partial<ListSortConfig>;
+      };
+      if (version < 1) {
+        return {
+          listFilterConfig: {
+            ...defaultListFilterConfig,
+            ...(state.listFilterConfig ?? {}),
+          },
+          listSortConfig: {
+            ...defaultListSortConfig,
+            ...(state.listSortConfig ?? {}),
+          },
+        } as never;
+      }
+      return persistedState as never;
+    },
     partialize: (state) => ({
       listSortConfig: state.listSortConfig,
       listFilterConfig: state.listFilterConfig,

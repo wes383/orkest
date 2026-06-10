@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Tag, X } from "lucide-react";
+import { ChevronDown, Plus, Tag, X } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,9 @@ import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
 import { useScrollLock } from "@/lib/hooks/use-scroll-lock";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth/auth-provider";
+import { ProjectFormModal } from "@/components/projects/project-form-modal";
+import { normalizeProjectColor } from "@/lib/projects/color-palette";
 import {
   TITLE_MAX_LENGTH,
   DESCRIPTION_MAX_LENGTH,
@@ -1016,40 +1019,151 @@ export function ItemForm() {
 
 function ProjectSelector() {
   const { t } = useI18n();
+  const { user } = useAuth();
   const form = useAllPageStore((s) => s.form);
   const setForm = useAllPageStore((s) => s.setForm);
   const projects = useProjectStore((s) => s.projects);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  if (projects.length === 0) return null;
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const selectedProject = form.projectId
+    ? projects.find((p) => p.id === form.projectId)
+    : null;
+  const selectedColor = selectedProject
+    ? normalizeProjectColor(selectedProject.color)
+    : null;
+
+  function selectProject(projectId: string) {
+    const project = projects.find((p) => p.id === projectId);
+    setForm((current) => ({
+      ...current,
+      projectId,
+      projectName: project?.name ?? "",
+    }));
+    setOpen(false);
+  }
 
   return (
-    <div>
+    <div ref={containerRef} className="relative">
       <p className="mb-2 text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase">
         {t("itemForm.project")}
       </p>
-      <select
-        value={form.projectId || ""}
-        onChange={(event) => {
-          const selectedId = event.target.value;
-          const selectedProject = projects.find((p) => p.id === selectedId);
-          setForm((current) => ({
-            ...current,
-            projectId: selectedId,
-            projectName: selectedProject?.name || "",
-          }));
-        }}
-        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-12 w-full items-center justify-between gap-2 rounded-2xl border border-black/8 bg-white px-4 text-[15px] text-[#4d4a51] transition-colors hover:border-black/15 focus:border-black/22 focus:outline-none dark:border-white/10 dark:bg-[#202020] dark:text-[#d4d4d4] dark:hover:border-white/18 dark:focus:border-white/25"
       >
-        <option value="">{t("itemForm.noProject")}</option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.name}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  }
+        <span className="flex min-w-0 items-center gap-2">
+          {selectedColor ? (
+            <span
+              aria-hidden="true"
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: selectedColor }}
+            />
+          ) : null}
+          <span className={`truncate ${selectedProject ? "" : "text-[#9f99a3] dark:text-[#737373]"}`}>
+            {selectedProject?.name ?? t("itemForm.noProject")}
+          </span>
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#9f99a3] transition-transform dark:text-[#737373] ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open ? (
+        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-2xl border border-black/8 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-[#202020]">
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              setForm((current) => ({
+                ...current,
+                projectId: "",
+                projectName: "",
+              }));
+              setOpen(false);
+            }}
+            className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[15px] transition-colors hover:bg-black/3 dark:hover:bg-white/5 ${
+              !form.projectId
+                ? "font-medium text-[#25242a] dark:text-[#f5f5f5]"
+                : "text-[#4d4a51] dark:text-[#d4d4d4]"
+            }`}
+          >
+            <span className="h-2 w-2 shrink-0 rounded-full border border-dashed border-black/15 dark:border-white/20" />
+            <span className="truncate">{t("itemForm.noProject")}</span>
+          </button>
+          {projects.map((project) => {
+            const color = normalizeProjectColor(project.color);
+            const isSelected = form.projectId === project.id;
+            return (
+              <button
+                key={project.id}
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => selectProject(project.id)}
+                className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[15px] transition-colors hover:bg-black/3 dark:hover:bg-white/5 ${
+                  isSelected
+                    ? "font-medium text-[#25242a] dark:text-[#f5f5f5]"
+                    : "text-[#4d4a51] dark:text-[#d4d4d4]"
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="truncate">{project.name}</span>
+              </button>
+            );
+          })}
+          {user ? (
+            <div className="mt-1 border-t border-black/6 pt-1 dark:border-white/8">
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setOpen(false);
+                  setModalOpen(true);
+                }}
+                className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[15px] text-[#4d4a51] transition-colors hover:bg-black/3 dark:text-[#d4d4d4] dark:hover:bg-white/5"
+              >
+                <Plus className="h-4 w-4 shrink-0 text-[#9f99a3] dark:text-[#737373]" />
+                <span className="truncate">{t("projects.newProject")}</span>
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {user ? (
+        <ProjectFormModal
+          open={modalOpen}
+          mode="create"
+          onClose={() => setModalOpen(false)}
+          onSubmitted={(projectId) => {
+            const created = useProjectStore.getState().projects.find((p) => p.id === projectId);
+            setForm((current) => ({
+              ...current,
+              projectId,
+              projectName: created?.name ?? "",
+            }));
+            setModalOpen(false);
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
 
 function TimezoneSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const { t } = useI18n();

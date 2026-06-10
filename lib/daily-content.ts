@@ -391,7 +391,7 @@ Return a JSON object with:
 
 // --- Movie ---
 
-interface MovieApiResponse { id: number; title: string; year: number; genres: string; imdb_id: string; directors: string }
+interface MovieApiResponse { id: number; title: string; year: number | null; genres: string; imdb_id: string; directors: string }
 
 async function fetchMovieFromApi(seed: string): Promise<MovieApiResponse> {
   const url = new URL("https://movie.wesluma.com/api/random-movie");
@@ -399,6 +399,17 @@ async function fetchMovieFromApi(seed: string): Promise<MovieApiResponse> {
   const res = await fetch(url.toString(), { headers: { Accept: "application/json" } });
   if (!res.ok) throw new Error(`Movie API failed: ${res.status}`);
   return res.json();
+}
+
+/**
+ * Normalize a movie record so downstream code can rely on `year` being a
+ * non-null number. The external movie API sometimes returns `year: null`
+ * (mostly for very old films where the release year is uncertain). We use 0
+ * as a sentinel for "unknown" — UI surfaces should treat `year <= 0` as
+ * "no year to display" and the database column is NOT NULL.
+ */
+function normalizeMovieYear(year: number | null | undefined): number {
+  return typeof year === "number" && Number.isFinite(year) && year > 0 ? year : 0;
 }
 
 export interface MovieResult {
@@ -421,7 +432,7 @@ export async function ensureMovie(admin: Admin, dateKey: string, locale: string,
   if (cached?.recommendation) {
     return {
       title: cached.title,
-      year: cached.year,
+      year: normalizeMovieYear(cached.year),
       genres: cached.genres,
       directors: cached.directors,
       recommendation: cached.recommendation,
@@ -448,7 +459,7 @@ export async function ensureMovie(admin: Admin, dateKey: string, locale: string,
 
   if (enCached?.recommendation) {
     sourceTitle = enCached.title;
-    sourceYear = enCached.year;
+    sourceYear = normalizeMovieYear(enCached.year);
     sourceGenres = enCached.genres;
     sourceDirectors = enCached.directors;
     sourceImdbId = enCached.imdb_id as string;
@@ -457,7 +468,15 @@ export async function ensureMovie(admin: Admin, dateKey: string, locale: string,
   } else {
     const api = await fetchMovieFromApi(dateKey);
     sourceTitle = api.title;
-    sourceYear = api.year;
+    sourceYear = normalizeMovieYear(api.year);
+    if (api.year == null) {
+      // The external API occasionally returns `year: null` for very old or
+      // poorly catalogued films. We persist 0 as a sentinel so the DB NOT
+      // NULL constraint is satisfied and the UI can hide the year badge.
+      console.warn(
+        `[ensureMovie] Movie API returned null year for dateKey=${dateKey} (title="${sourceTitle}"). Persisting 0 as placeholder.`,
+      );
+    }
     sourceGenres = api.genres || "Unknown";
     sourceDirectors = api.directors || "Unknown";
     sourceImdbId = api.imdb_id;

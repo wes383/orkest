@@ -118,9 +118,11 @@ export function DailyMovieCard() {
               {state.movie.title}
             </h3>
             <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-[#6f6a72] dark:text-[#a09ba5]">
-              <span>
-                {t("movie.year")}: {state.movie.year}
-              </span>
+              {state.movie.year > 0 ? (
+                <span>
+                  {t("movie.year")}: {state.movie.year}
+                </span>
+              ) : null}
               <span>
                 {t("movie.genres")}: {state.movie.genres}
               </span>

@@ -7,6 +7,7 @@ import { Bell, CheckCircle, Circle, Pencil, Trash2 } from "lucide-react";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useSettingsStore, getDateLocale } from "@/lib/stores/use-settings-store";
 import { useI18n } from "@/lib/i18n";
+import { ProjectPill } from "@/components/projects/project-pill";
 import {
   PRIORITY_CONFIG,
   formatDateInput,
@@ -619,6 +620,24 @@ export function ItemCard({
       >
         <div className="flex gap-4">
           <div className="flex-1">
+            {item.projectId ? (
+              <div className="mb-2">
+                <ProjectPill
+                  projectId={item.projectId}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const id = item.projectId;
+                    if (!id) return;
+                    const current = useAllPageStore.getState().listFilterConfig;
+                    const existing = current.selectedProjectIds ?? [];
+                    const next = existing.includes(id) ? [] : [id];
+                    useAllPageStore.getState().setListFilterConfig({
+                      selectedProjectIds: next,
+                    });
+                  }}
+                />
+              </div>
+            ) : null}
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 {formatItemTime(item, forceDateIfNotToday) && (

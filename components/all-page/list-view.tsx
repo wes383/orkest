@@ -144,6 +144,15 @@ function matchesFilters(item: DisplayItem, config: ListFilterConfig) {
     }
   }
 
+  if (config.selectedProjectIds?.length > 0) {
+    const projectId = item.projectId ?? null;
+    // Single-select mode: items must match the selected project. Items with
+    // no project are excluded when a project filter is active.
+    if (projectId === null || !config.selectedProjectIds.includes(projectId)) {
+      return false;
+    }
+  }
+
   return true;
 }
 

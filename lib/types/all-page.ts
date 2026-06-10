@@ -186,6 +186,8 @@ export type ListStatusFilter = "all" | "active" | "completed";
 
 export type TagMatchMode = "or" | "and";
 
+export type ProjectSortMode = "alpha" | "recent" | "frequency";
+
 export type PriorityFilterValue = Priority | "none";
 
 export type ListSortConfig = {
@@ -210,6 +212,7 @@ export type ListFilterConfig = {
   selectedTags: string[];
   tagMatchMode: TagMatchMode;
   selectedPriorities: PriorityFilterValue[];
+  selectedProjectIds: string[];
   searchQuery: string;
 };
 
