@@ -7,7 +7,7 @@ import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useSettingsStore } from "@/lib/stores/use-settings-store";
 import { useI18n } from "@/lib/i18n";
 import { translate } from "@/lib/i18n/dictionary";
-import { isOverdueDisplayItem, toItemFromManualRecord } from "@/lib/all-page-utils";
+import { createRecurringDisplayItem, isOverdueDisplayItem, toItemFromManualRecord } from "@/lib/all-page-utils";
 import type { DisplayItem, KanbanColumnId, KanbanColumn as KanbanColumnType, ManualItemRecord } from "@/lib/types/all-page";
 import { KanbanCard } from "./kanban-card";
 
@@ -16,7 +16,8 @@ export const KANBAN_DRAG_MIME = "application/x-orkest-kanban-item";
 type KanbanColumnProps = {
   column: KanbanColumnType;
   now: Date;
-  onDropComplete?: (itemTitle: string, targetColumn: KanbanColumnId, originalRecord: ManualItemRecord) => void;
+  onDropComplete?: (itemTitle: string, targetColumn: KanbanColumnId, originalRecord: ManualItemRecord, isRecurring: boolean) => void;
+  onDropUnsupported?: (itemTitle: string, targetColumn: KanbanColumnId, isRecurring: boolean) => void;
 };
 
 type DragPayload = {
@@ -37,7 +38,7 @@ function readDragPayload(dataTransfer: DataTransfer): DragPayload | null {
   }
 }
 
-export function KanbanColumn({ column, now, onDropComplete }: KanbanColumnProps) {
+export function KanbanColumn({ column, now, onDropComplete, onDropUnsupported }: KanbanColumnProps) {
   const { t, locale } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -59,12 +60,17 @@ export function KanbanColumn({ column, now, onDropComplete }: KanbanColumnProps)
       if (record.id !== payload.itemId) continue;
       if (record.deletedAt) return null;
       if (payload.occurrenceKey) {
-        if (record.completedOccurrences?.includes(payload.occurrenceKey)) {
-          return null;
-        }
-        if (record.status === "completed") {
-          return null;
-        }
+        const occurrenceDate = new Date(payload.occurrenceKey);
+        if (isNaN(occurrenceDate.getTime())) return null;
+        const baseItem = toItemFromManualRecord(record);
+        const isCompleted = record.completedOccurrences?.includes(payload.occurrenceKey) ?? false;
+        const displayItem = createRecurringDisplayItem(
+          baseItem,
+          occurrenceDate,
+          isCompleted ? "completed" : "active",
+        );
+        if (!displayItem) return null;
+        return displayItem;
       }
       return toItemFromManualRecord(record) as DisplayItem;
     }
@@ -91,9 +97,12 @@ export function KanbanColumn({ column, now, onDropComplete }: KanbanColumnProps)
     if (payload.sourceColumn === column.id) return;
     const source = findItemForDrop(payload);
     if (!source) return;
+    const isRecurring = source.isRecurringInstance || Boolean(source.recurrence);
     const result = handleMoveItemToColumn(source, column.id as KanbanColumnId);
     if (result && onDropComplete) {
-      onDropComplete(source.title, column.id as KanbanColumnId, result.originalRecord);
+      onDropComplete(source.title, column.id as KanbanColumnId, result.originalRecord, isRecurring);
+    } else if (!result && isRecurring && column.id === "backlog" && onDropUnsupported) {
+      onDropUnsupported(source.title, column.id as KanbanColumnId, isRecurring);
     }
   }
 

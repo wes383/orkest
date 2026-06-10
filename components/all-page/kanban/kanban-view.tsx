@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import { LayoutGrid, MessageCircle } from "lucide-react";
+import { LayoutGrid, MessageCircle, Repeat } from "lucide-react";
 
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useAiChatContext } from "@/lib/contexts/ai-chat-context";
@@ -25,7 +25,9 @@ interface ToastMessage {
   id: number;
   itemTitle: string;
   columnLabel: string;
-  undoAction: () => void;
+  isRecurring: boolean;
+  isUnsupported?: boolean;
+  undoAction?: () => void;
 }
 
 const COLUMN_LABEL_KEYS: Record<KanbanColumnId, TranslationKey> = {
@@ -82,7 +84,7 @@ export function KanbanView({
   );
 
   const handleDropComplete = useCallback(
-    (itemTitle: string, targetColumn: KanbanColumnId, originalRecord: ManualItemRecord) => {
+    (itemTitle: string, targetColumn: KanbanColumnId, originalRecord: ManualItemRecord, isRecurring: boolean) => {
       if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
       }
@@ -91,6 +93,7 @@ export function KanbanView({
         id: Date.now(),
         itemTitle,
         columnLabel: t(COLUMN_LABEL_KEYS[targetColumn]),
+        isRecurring,
         undoAction: () => {
           restoreMovedItem(originalRecord);
           setToast(null);
@@ -107,6 +110,28 @@ export function KanbanView({
       }, 5000);
     },
     [restoreMovedItem, t],
+  );
+
+  const handleDropUnsupported = useCallback(
+    (itemTitle: string, targetColumn: KanbanColumnId, isRecurring: boolean) => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+
+      setToast({
+        id: Date.now(),
+        itemTitle,
+        columnLabel: t(COLUMN_LABEL_KEYS[targetColumn]),
+        isRecurring,
+        isUnsupported: true,
+      });
+
+      toastTimerRef.current = setTimeout(() => {
+        setToast(null);
+        toastTimerRef.current = null;
+      }, 3000);
+    },
+    [t],
   );
 
   const hasAnyItem = columns.some((c) => c.items.length > 0);
@@ -134,22 +159,33 @@ export function KanbanView({
             column={column}
             now={now}
             onDropComplete={handleDropComplete}
+            onDropUnsupported={handleDropUnsupported}
           />
         ))}
       </div>
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#25242a] text-white px-4 py-2.5 rounded-xl shadow-lg">
+          {toast.isRecurring && <Repeat className="h-4 w-4 shrink-0" />}
           <span className="text-sm">
-            <span className="font-medium">{toast.itemTitle}</span> {t("kanban.movedTo", { column: toast.columnLabel })}
+            {toast.isUnsupported ? (
+              t("kanban.recurring.unsupported")
+            ) : (
+              <>
+                <span className="font-medium">{toast.itemTitle}</span>{" "}
+                {t("kanban.movedTo", { column: toast.columnLabel })}
+              </>
+            )}
           </span>
-          <button
-            type="button"
-            onClick={toast.undoAction}
-            className="text-sm font-medium text-white/70 hover:text-white underline underline-offset-2 cursor-pointer"
-          >
-            {t("common.undo")}
-          </button>
+          {toast.undoAction && (
+            <button
+              type="button"
+              onClick={toast.undoAction}
+              className="text-sm font-medium text-white/70 hover:text-white underline underline-offset-2 cursor-pointer"
+            >
+              {t("common.undo")}
+            </button>
+          )}
         </div>
       )}
     </div>

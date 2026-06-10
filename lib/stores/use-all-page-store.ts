@@ -744,6 +744,7 @@ export const useAllPageStore = create<AllPageState>()(
     const todayKey = formatDateInput(now);
     const baseItem = item.seriesSource ?? item;
     let originalRecord: ManualItemRecord | undefined;
+    let isUnsupported = false;
 
     set((state) => {
       const existingManualItem = state.manualItems.find((current) => current.id === baseItem.id);
@@ -785,7 +786,7 @@ export const useAllPageStore = create<AllPageState>()(
               (entry) => entry !== occurrenceKey,
             );
           }
-        } else {
+        } else if (targetColumn === "today") {
           // Reopen this occurrence: pull it out of completedOccurrences
           if (currentCompletedOccurrences.includes(occurrenceKey)) {
             overrides.completedOccurrences = currentCompletedOccurrences.filter(
@@ -797,6 +798,10 @@ export const useAllPageStore = create<AllPageState>()(
               );
             }
           }
+        } else {
+          // backlog: recurring tasks cannot be moved to unscheduled
+          isUnsupported = true;
+          return {};
         }
       } else {
         if (targetColumn === "done") {
@@ -838,6 +843,7 @@ export const useAllPageStore = create<AllPageState>()(
       return { manualItems: newManualItems, sections };
     });
 
+    if (isUnsupported) return null;
     return originalRecord ? { originalRecord } : null;
   },
 
