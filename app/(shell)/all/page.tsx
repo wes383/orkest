@@ -475,16 +475,13 @@ export default function AllPage() {
               {t("nav.all")}
             </h1>
           </div>
-          <div className="hidden lg:flex lg:justify-end">
-            <AllPageSearch />
-          </div>
         </header>
 
-        <div className="-mt-4 lg:hidden">
+        <div className="-mt-4 flex justify-center lg:hidden">
           <AllPageSearch />
         </div>
 
-        <div className={`-mt-8 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:items-center lg:justify-between lg:gap-3 px-2 lg:px-3 ${
+        <div className={`-mt-4 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:items-center lg:justify-between lg:gap-3 px-2 lg:px-3 ${
           showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" ? "sticky top-3 z-30 mx-auto -mb-3 w-fit max-w-[calc(100%-1.5rem)] rounded-2xl px-2 py-1.5 gap-3 lg:rounded-full lg:mx-0 lg:w-auto lg:max-w-none lg:-mb-4 lg:px-3 lg:py-2 lg:gap-3" : ""
         }`}>
           {showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" && (
@@ -550,6 +547,9 @@ export default function AllPage() {
               >
                 {t("settings.view.kanban")}
               </button>
+            </div>
+            <div className="hidden lg:block">
+              <AllPageSearch />
             </div>
             {showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" && (
               <button

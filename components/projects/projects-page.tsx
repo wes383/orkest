@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Folder, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowDownAZ, BarChart3, Folder, GripVertical, List, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,10 @@ import { useI18n, addLocaleToPathname } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
-import { computeProjectsWithStats } from "@/lib/projects/project-stats";
+import { computeProjectsWithStats, sortProjectsWithStats } from "@/lib/projects/project-stats";
 import { distanceToNow } from "@/lib/projects/distance-to-now";
 import { normalizeProjectColor, withAlpha } from "@/lib/projects/color-palette";
+import type { ProjectSortMode } from "@/lib/types/all-page";
 
 export function ProjectsPage() {
   const { t, locale } = useI18n();
@@ -27,15 +28,35 @@ export function ProjectsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  useEffect(() => {
+    setListFilterConfig({ selectedProjectIds: [] });
+  }, [setListFilterConfig]);
+
+  const [sortMode, setSortMode] = useState<ProjectSortMode>("default");
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const sortBtnRef = useRef<HTMLButtonElement>(null);
+  const sortMenuRef = useRef<HTMLDivElement>(null);
+  const [sortMenuPos, setSortMenuPos] = useState<{ top: number; left: number } | null>(null);
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [localOrderedProjects, setLocalOrderedProjects] = useState<typeof projectWithStatsSorted | null>(null);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollDirectionRef = useRef<"up" | "down" | null>(null);
+  const scrollSpeedRef = useRef<number>(0);
+
   const projectsWithStats = useMemo(
     () => computeProjectsWithStats(projects, manualItems),
     [projects, manualItems],
   );
 
-  const sorted = useMemo(
-    () => [...projectsWithStats].sort((a, b) => a.name.localeCompare(b.name)),
-    [projectsWithStats],
+  const projectWithStatsSorted = useMemo(
+    () => sortProjectsWithStats(projectsWithStats, sortMode),
+    [projectsWithStats, sortMode],
   );
+
+  const displayProjects = localOrderedProjects ?? projectWithStatsSorted;
 
   const deletingProject = useMemo(
     () => projects.find((p) => p.id === deletingId) ?? null,
@@ -55,6 +76,124 @@ export function ProjectsPage() {
     setDeletingId(null);
   }
 
+  function toggleSortMenu() {
+    if (showSortMenu) {
+      setShowSortMenu(false);
+      return;
+    }
+    const rect = sortBtnRef.current?.getBoundingClientRect();
+    if (rect) {
+      setSortMenuPos({ top: rect.bottom + 4, left: rect.left });
+    }
+    setShowSortMenu(true);
+  }
+
+  useEffect(() => {
+    if (!showSortMenu) return;
+    function handleClick(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        sortBtnRef.current?.contains(target) ||
+        sortMenuRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setShowSortMenu(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showSortMenu]);
+
+  function startScrollLoop() {
+    if (scrollIntervalRef.current) return;
+    scrollIntervalRef.current = setInterval(() => {
+      const container = containerRef.current;
+      if (!container || !scrollDirectionRef.current) return;
+      const speed = scrollSpeedRef.current;
+      if (scrollDirectionRef.current === "up") {
+        container.scrollTop -= speed;
+      } else if (scrollDirectionRef.current === "down") {
+        container.scrollTop += speed;
+      }
+    }, 16);
+  }
+
+  function stopScrollLoop() {
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
+    }
+    scrollDirectionRef.current = null;
+    scrollSpeedRef.current = 0;
+  }
+
+  useEffect(() => {
+    return () => {
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current);
+      }
+    };
+  }, []);
+
+  function handleDragStart(e: React.DragEvent, index: number) {
+    setDraggedIndex(index);
+    setLocalOrderedProjects([...projectWithStatsSorted]);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const relativeY = e.clientY - rect.top;
+    const threshold = 35;
+    const maxSpeed = 10;
+    if (relativeY < threshold && container.scrollTop > 0) {
+      scrollDirectionRef.current = "up";
+      const intensity = (threshold - Math.max(0, relativeY)) / threshold;
+      scrollSpeedRef.current = Math.ceil(intensity * maxSpeed);
+      startScrollLoop();
+    } else if (
+      relativeY > rect.height - threshold &&
+      container.scrollTop < container.scrollHeight - container.clientHeight
+    ) {
+      scrollDirectionRef.current = "down";
+      const intensity = Math.max(0, relativeY - (rect.height - threshold)) / threshold;
+      scrollSpeedRef.current = Math.ceil(intensity * maxSpeed);
+      startScrollLoop();
+    } else {
+      scrollDirectionRef.current = null;
+      scrollSpeedRef.current = 0;
+    }
+  }
+
+  function handleDragEnter(e: React.DragEvent, targetIndex: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (draggedIndex === null || draggedIndex === targetIndex || !localOrderedProjects) {
+      return;
+    }
+    const list = [...localOrderedProjects];
+    const [draggedItem] = list.splice(draggedIndex, 1);
+    list.splice(targetIndex, 0, draggedItem);
+    setLocalOrderedProjects(list);
+    setDraggedIndex(targetIndex);
+  }
+
+  function handleDragEnd() {
+    stopScrollLoop();
+    if (localOrderedProjects && user) {
+      void useProjectStore.getState().reorderProjects(
+        user.id,
+        localOrderedProjects.map((p) => p.id),
+      );
+    }
+    setDraggedIndex(null);
+    setLocalOrderedProjects(null);
+  }
+
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
       <div className="mb-6 flex items-end justify-between gap-4">
@@ -69,19 +208,76 @@ export function ProjectsPage() {
             {t("projects.subtitle")}
           </p>
         </div>
-        {user ? (
-          <Button
+        <div className="flex items-center gap-2">
+          <button
             type="button"
-            onClick={() => setCreateOpen(true)}
-            className="h-9 gap-1.5 px-4 text-sm"
+            onClick={toggleSortMenu}
+            ref={sortBtnRef}
+            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-black/8 px-3 text-sm text-[#7d7880] transition-colors hover:bg-black/[0.05] hover:text-[#25242a] dark:border-white/10 dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
           >
-            <Plus className="h-4 w-4" />
-            {t("projects.newProject")}
-          </Button>
-        ) : null}
+            {sortMode === "default" ? (
+              <GripVertical className="h-3.5 w-3.5" />
+            ) : sortMode === "alpha" ? (
+              <ArrowDownAZ className="h-3.5 w-3.5" />
+            ) : sortMode === "frequency" ? (
+              <BarChart3 className="h-3.5 w-3.5" />
+            ) : (
+              <List className="h-3.5 w-3.5" />
+            )}
+            <span>{sortMode === "default" ? t("projects.sort.default") : sortMode === "alpha" ? t("projects.sort.alpha") : sortMode === "frequency" ? t("projects.sort.frequency") : t("projects.sort.recent")}</span>
+          </button>
+          {user ? (
+            <Button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="h-9 gap-1.5 px-4 text-sm"
+            >
+              <Plus className="h-4 w-4" />
+              {t("projects.newProject")}
+            </Button>
+          ) : null}
+        </div>
       </div>
 
-      {sorted.length === 0 ? (
+      {showSortMenu && sortMenuPos && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              ref={sortMenuRef}
+              className="fixed z-50 w-44 rounded-xl border border-black/8 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#1f1d24] flex flex-col gap-0.5"
+              style={{
+                top: sortMenuPos.top,
+                left: sortMenuPos.left,
+              }}
+            >
+              {([
+                { mode: "default" as const, icon: GripVertical, label: t("projects.sort.default") },
+                { mode: "alpha" as const, icon: ArrowDownAZ, label: t("projects.sort.alpha") },
+                { mode: "recent" as const, icon: List, label: t("projects.sort.recent") },
+                { mode: "frequency" as const, icon: BarChart3, label: t("projects.sort.frequency") },
+              ]).map(({ mode, icon: Icon, label }) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => {
+                    setSortMode(mode);
+                    setShowSortMenu(false);
+                  }}
+                  className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
+                    sortMode === mode
+                      ? "bg-black/[0.05] text-[#25242a] dark:bg-white/10 dark:text-[#f5f5f5]"
+                      : "text-[#7d7880] hover:bg-black/[0.035] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>,
+            document.body,
+          )
+        : null}
+
+      {displayProjects.length === 0 ? (
         <EmptyState
           icon={Folder}
           title={t("projects.empty.title")}
@@ -97,14 +293,24 @@ export function ProjectsPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sorted.map((project) => {
+        <div
+          ref={containerRef}
+          onDragOver={sortMode === "default" ? handleDragOver : undefined}
+          onDragEnter={sortMode === "default" ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } : undefined}
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {displayProjects.map((project, index) => {
             const color = normalizeProjectColor(project.color);
             const total = Math.max(project.total, 1);
             const completedPct = Math.round((project.completed / total) * 100);
             return (
               <div
                 key={project.id}
+                draggable={sortMode === "default"}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={handleDragOver}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDragEnd={handleDragEnd}
                 role="button"
                 tabIndex={0}
                 onClick={() => handleCardClick(project.id)}
@@ -114,7 +320,7 @@ export function ProjectsPage() {
                     handleCardClick(project.id);
                   }
                 }}
-                className="group relative cursor-pointer overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-5 text-left shadow-sm transition-colors hover:border-black/15 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5f5a63] dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/20 dark:hover:bg-white/[0.06] dark:focus-visible:ring-[#a3a3a3]"
+                className={`group relative cursor-pointer overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-5 text-left shadow-sm transition-all hover:border-black/15 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5f5a63] dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/20 dark:hover:bg-white/[0.06] dark:focus-visible:ring-[#a3a3a3] ${index === draggedIndex ? "opacity-30" : ""}`}
               >
                 <span
                   aria-hidden="true"
