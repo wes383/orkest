@@ -168,15 +168,15 @@ export function AllPageSkeleton() {
           </div>
         </header>
 
-        <div className="-mt-8 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:items-center lg:justify-between lg:gap-3 px-2 lg:px-3">
+        <div className="-mt-8 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-3 lg:gap-y-4 px-2 lg:px-3">
           <div className="flex items-center justify-center gap-3 lg:justify-start">
-            <div className="relative grid grid-cols-4 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5">
+            <div className="relative grid grid-cols-4 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5 shrink-0">
               {Array.from({ length: 4 }).map((_, index) => (
                 <Skeleton key={index} className="h-7 w-16 rounded-full" />
               ))}
             </div>
           </div>
-          <div className="flex justify-center gap-2 lg:justify-end">
+          <div className="flex justify-center gap-2 lg:justify-end shrink-0">
             <Skeleton className="h-9 w-12 rounded-full" />
             <Skeleton className="h-9 w-28 rounded-full" />
           </div>

@@ -192,6 +192,8 @@ export default function AllPage() {
   const [isListSelectionMode, setIsListSelectionMode] = useState(false);
   const [listSelectedIds, setListSelectedIds] = useState<Set<string>>(new Set());
   const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const [isHeaderWrapped, setIsHeaderWrapped] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
   const [timelineFilterConfig, setTimelineFilterConfig] = useState<ListFilterConfig>({
     timePreset: "none",
     customStartDate: "",
@@ -395,6 +397,28 @@ export default function AllPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Monitor header height to detect wrapping
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver(() => {
+      const leftGroup = el.querySelector(".lg\\:justify-start");
+      const rightGroup = el.querySelector(".lg\\:justify-end");
+      if (leftGroup && rightGroup) {
+        const leftRect = leftGroup.getBoundingClientRect();
+        const rightRect = rightGroup.getBoundingClientRect();
+        // If the top of the right group is below the left group, it means they wrapped
+        setIsHeaderWrapped(rightRect.top > leftRect.top + 10);
+      }
+    });
+
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   // Load items from Supabase when user is available
   useEffect(() => {
     if (user && !isLoaded) {
@@ -474,12 +498,21 @@ export default function AllPage() {
           <AllPageSearch />
         </div>
 
-        <div className={`-mt-4 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:items-center lg:justify-between lg:gap-3 px-2 lg:px-3 ${
-          showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" ? "sticky top-3 z-30 mx-auto -mb-3 w-fit max-w-[calc(100%-1.5rem)] rounded-2xl px-2 py-1.5 gap-3 lg:rounded-full lg:mx-0 lg:w-auto lg:max-w-none lg:-mb-4 lg:px-3 lg:py-2 lg:gap-3" : ""
-        }`}>
+        <div
+          ref={headerRef}
+          className={`-mt-4 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-3 lg:gap-y-4 px-2 lg:px-3 ${
+            showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban"
+              ? `sticky top-3 z-30 mx-auto -mb-3 w-fit max-w-[calc(100%-1.5rem)] rounded-2xl px-2 py-1.5 gap-3 lg:mx-0 lg:w-auto lg:max-w-none lg:-mb-4 lg:px-3 lg:py-2 lg:gap-3 ${
+                  isHeaderWrapped ? "lg:rounded-2xl" : "lg:rounded-full"
+                }`
+              : ""
+          }`}
+        >
           {showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" && (
             <div
-              className="absolute inset-0 -z-10 rounded-2xl border border-black/8 dark:border-white/10 shadow-lg bg-white/55 dark:bg-[#1e1e1e]/70 lg:rounded-full"
+              className={`absolute inset-0 -z-10 rounded-2xl border border-black/8 dark:border-white/10 shadow-lg bg-white/55 dark:bg-[#1e1e1e]/70 ${
+                isHeaderWrapped ? "lg:rounded-2xl" : "lg:rounded-full"
+              }`}
               style={{
                 backdropFilter: "blur(18px) saturate(140%)",
                 WebkitBackdropFilter: "blur(18px) saturate(140%)",
@@ -487,7 +520,7 @@ export default function AllPage() {
             />
           )}
           <div className="flex items-center justify-center gap-3 lg:justify-start">
-            <div className="relative grid grid-cols-4 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5">
+            <div className="relative grid grid-cols-4 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5 shrink-0">
               {/* Sliding background */}
               <div
                 className="absolute top-0.5 bottom-0.5 rounded-full bg-[#ffffff] shadow-sm transition-all duration-300 ease-in-out dark:bg-[#d4d4d4]"
@@ -554,7 +587,7 @@ export default function AllPage() {
               </button>
             )}
           </div>
-          <div className="flex justify-center lg:justify-end gap-2">
+          <div className="flex justify-center lg:justify-end gap-2 shrink-0">
             {viewMode !== "calendar" && viewMode !== "list" && (
               <button
                 type="button"
