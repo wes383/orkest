@@ -63,6 +63,7 @@ describe("dbRowToManualItemRecord", () => {
       google_event_id: null,
       google_calendar_id: null,
       last_google_sync_at: null,
+      reminders: [],
     };
 
     const result = dbRowToManualItemRecord(row);
@@ -110,6 +111,7 @@ describe("dbRowToManualItemRecord", () => {
       created_at: "2025-01-01T00:00:00.000Z",
       updated_at: "2025-01-01T00:00:00.000Z",
       google_event_id: null, google_calendar_id: null, last_google_sync_at: null,
+      reminders: [],
     };
     const result = dbRowToManualItemRecord(row);
     expect(result.description).toBeUndefined();

@@ -161,7 +161,7 @@ export function AiWeeklyReviewCard({ data, isFullscreen }: AiWeeklyReviewCardPro
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-lg bg-purple-50 p-1.5 dark:bg-purple-900/20">
-              <p className="text-[10px] text-purple-600 dark:text-purple-400">{t("review.total")}</p>
+              <p className="text-[10px] text-purple-600 dark:text-purple-400">{t("review.totalTime")}</p>
               <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">
                 {formatMinutes(data.focusStats.totalMinutes)}
               </p>

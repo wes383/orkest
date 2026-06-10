@@ -8,7 +8,7 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 
 | License | Count |
 |---------|-------|
-| MIT | 585 |
+| MIT | 587 |
 | Apache-2.0 | 131 |
 | ISC | 29 |
 | BSD-3-Clause | 17 |
@@ -60,6 +60,7 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 | @emnapi/core | 1.10.0 | [toyobayashi/emnapi](https://github.com/toyobayashi/emnapi) |
 | @emnapi/runtime | 1.10.0 | [toyobayashi/emnapi](https://github.com/toyobayashi/emnapi) |
 | @emnapi/wasi-threads | 1.2.1 | [toyobayashi/emnapi](https://github.com/toyobayashi/emnapi) |
+| @epic-web/invariant | 1.0.0 | [epicweb-dev/invariant](https://github.com/epicweb-dev/invariant) |
 | @eslint-community/eslint-utils | 4.9.1 | [eslint-community/eslint-utils](https://github.com/eslint-community/eslint-utils) |
 | @eslint-community/regexpp | 4.12.2 | [eslint-community/regexpp](https://github.com/eslint-community/regexpp) |
 | @eslint/eslintrc | 3.3.5 | [eslint/eslintrc](https://github.com/eslint/eslintrc) |
@@ -232,6 +233,7 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 | concat-map | 0.0.1 | [substack/node-concat-map](https://github.com/substack/node-concat-map) |
 | convert-source-map | 2.0.0 | [thlorenz/convert-source-map](https://github.com/thlorenz/convert-source-map) |
 | cookie | 1.1.1 | [jshttp/cookie](https://github.com/jshttp/cookie) |
+| cross-env | 10.1.0 | [kentcdodds/cross-env](https://github.com/kentcdodds/cross-env) |
 | cross-fetch | 4.1.0 | [lquixada/cross-fetch](https://github.com/lquixada/cross-fetch) |
 | cross-spawn | 7.0.6 | [moxystudio/node-cross-spawn](https://github.com/moxystudio/node-cross-spawn) |
 | css-tree | 3.2.1 | [csstree/csstree](https://github.com/csstree/csstree) |
