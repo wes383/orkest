@@ -59,6 +59,43 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
 
   const displayProjects = localOrderedProjects ?? projectsWithStats;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollDirectionRef = useRef<"up" | "down" | null>(null);
+  const scrollSpeedRef = useRef<number>(0);
+
+  function startScrollLoop() {
+    if (scrollIntervalRef.current) return;
+    scrollIntervalRef.current = setInterval(() => {
+      const container = containerRef.current;
+      if (!container || !scrollDirectionRef.current) return;
+
+      const speed = scrollSpeedRef.current;
+      if (scrollDirectionRef.current === "up") {
+        container.scrollTop -= speed;
+      } else if (scrollDirectionRef.current === "down") {
+        container.scrollTop += speed;
+      }
+    }, 16);
+  }
+
+  function stopScrollLoop() {
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
+    }
+    scrollDirectionRef.current = null;
+    scrollSpeedRef.current = 0;
+  }
+
+  useEffect(() => {
+    return () => {
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current);
+      }
+    };
+  }, []);
+
   function handleDragStart(e: React.DragEvent, index: number) {
     setDraggedIndex(index);
     setLocalOrderedProjects([...projectsWithStats]);
@@ -67,9 +104,38 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
+    const relativeY = e.clientY - rect.top;
+    const threshold = 35;
+    const maxSpeed = 10;
+
+    if (relativeY < threshold && container.scrollTop > 0) {
+      scrollDirectionRef.current = "up";
+      const intensity = (threshold - Math.max(0, relativeY)) / threshold;
+      scrollSpeedRef.current = Math.ceil(intensity * maxSpeed);
+      startScrollLoop();
+    } else if (
+      relativeY > rect.height - threshold &&
+      container.scrollTop < container.scrollHeight - container.clientHeight
+    ) {
+      scrollDirectionRef.current = "down";
+      const intensity = Math.max(0, relativeY - (rect.height - threshold)) / threshold;
+      scrollSpeedRef.current = Math.ceil(intensity * maxSpeed);
+      startScrollLoop();
+    } else {
+      scrollDirectionRef.current = null;
+      scrollSpeedRef.current = 0;
+    }
   }
 
   function handleDragEnter(e: React.DragEvent, targetIndex: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
     if (draggedIndex === null || draggedIndex === targetIndex || !localOrderedProjects) {
       return;
     }
@@ -81,6 +147,7 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
   }
 
   function handleDragEnd() {
+    stopScrollLoop();
     if (localOrderedProjects && user) {
       void useProjectStore.getState().reorderProjects(
         user.id,
@@ -231,7 +298,12 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
           )
         : null}
 
-      <div className="scrollbar-transparent-track flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-4">
+      <div
+        ref={containerRef}
+        onDragOver={sortMode === "default" ? handleDragOver : undefined}
+        onDragEnter={sortMode === "default" ? (e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } : undefined}
+        className="scrollbar-transparent-track flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-4"
+      >
         {displayProjects.length === 0 ? (
           <button
             type="button"
