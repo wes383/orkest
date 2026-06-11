@@ -1106,6 +1106,7 @@ const zh: Dictionary = {
   "settings.view.list": "列表",
   "settings.view.calendar": "日历",
   "settings.view.kanban": "看板",
+  "settings.view.table": "表格",
   "settings.density": "显示密度",
   "settings.density.default": "默认",
   "settings.density.compact": "紧凑",

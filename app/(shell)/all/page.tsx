@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useSyncExternalStore, useState, useMemo, useRef } from "react";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Minimize2, Clock, List, Calendar, LayoutGrid, Table2, ChevronDown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 
@@ -199,6 +199,8 @@ export default function AllPage() {
   const [listSelectedIds, setListSelectedIds] = useState<Set<string>>(new Set());
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [isHeaderWrapped, setIsHeaderWrapped] = useState(false);
+  const [viewDropdownOpen, setViewDropdownOpen] = useState(false);
+  const viewDropdownRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [timelineFilterConfig, setTimelineFilterConfig] = useState<ListFilterConfig>({
     timePreset: "none",
@@ -403,6 +405,18 @@ export default function AllPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close view dropdown when clicking outside
+  useEffect(() => {
+    if (!viewDropdownOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (viewDropdownRef.current && !viewDropdownRef.current.contains(event.target as Node)) {
+        setViewDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [viewDropdownOpen]);
+
   // Monitor header height and layout to detect wrapping
   useEffect(() => {
     const el = headerRef.current;
@@ -532,70 +546,50 @@ export default function AllPage() {
             />
           )}
           <div className="flex items-center justify-center gap-3 lg:justify-start">
-            <div className="relative grid grid-cols-5 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5 shrink-0">
-              {/* Sliding background */}
-              <div
-                className="absolute top-0.5 bottom-0.5 rounded-full bg-[#ffffff] shadow-sm transition-all duration-300 ease-in-out dark:bg-[#d4d4d4]"
-                style={{
-                  left: `calc(2px + ${viewMode === "timeline" ? 0 : viewMode === "list" ? 1 : viewMode === "calendar" ? 2 : viewMode === "kanban" ? 3 : 4} * (100% - 4px) / 5)`,
-                  width: "calc((100% - 4px) / 5)",
-                }}
-              />
+            <div ref={viewDropdownRef} className="relative">
               <button
                 type="button"
-                onClick={() => (showStickyHeader ? setViewModeWithScroll : setViewMode)("timeline")}
-                className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-xs font-medium tracking-wide transition-colors ${
-                  viewMode === "timeline"
-                    ? "text-[#1a1a1a] dark:text-[#000000]"
-                    : "text-[#7d7880] hover:text-[#5f5a63] dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
-                }`}
+                onClick={() => setViewDropdownOpen(!viewDropdownOpen)}
+                className="flex h-9 cursor-pointer items-center gap-2 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] px-4 text-xs font-medium tracking-wide text-[#525059] dark:text-[#d4d4d4] transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
               >
-                {t("settings.view.timeline")}
+                {viewMode === "timeline" && <Clock className="h-3.5 w-3.5" />}
+                {viewMode === "list" && <List className="h-3.5 w-3.5" />}
+                {viewMode === "calendar" && <Calendar className="h-3.5 w-3.5" />}
+                {viewMode === "kanban" && <LayoutGrid className="h-3.5 w-3.5" />}
+                {viewMode === "table" && <Table2 className="h-3.5 w-3.5" />}
+                {t(`settings.view.${viewMode}`)}
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${viewDropdownOpen ? "rotate-180" : ""}`} />
               </button>
-              <button
-                type="button"
-                onClick={() => (showStickyHeader ? setViewModeWithScroll : setViewMode)("list")}
-                className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-xs font-medium tracking-wide transition-colors ${
-                  viewMode === "list"
-                    ? "text-[#1a1a1a] dark:text-[#000000]"
-                    : "text-[#7d7880] hover:text-[#5f5a63] dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
-                }`}
-              >
-                {t("settings.view.list")}
-              </button>
-              <button
-                type="button"
-                onClick={() => (showStickyHeader ? setViewModeWithScroll : setViewMode)("calendar")}
-                className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-xs font-medium tracking-wide transition-colors ${
-                  viewMode === "calendar"
-                    ? "text-[#1a1a1a] dark:text-[#000000]"
-                    : "text-[#7d7880] hover:text-[#5f5a63] dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
-                }`}
-              >
-                {t("settings.view.calendar")}
-              </button>
-              <button
-                type="button"
-                onClick={() => (showStickyHeader ? setViewModeWithScroll : setViewMode)("kanban")}
-                className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-xs font-medium tracking-wide transition-colors ${
-                  viewMode === "kanban"
-                    ? "text-[#1a1a1a] dark:text-[#000000]"
-                    : "text-[#7d7880] hover:text-[#5f5a63] dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
-                }`}
-              >
-                {t("settings.view.kanban")}
-              </button>
-              <button
-                type="button"
-                onClick={() => (showStickyHeader ? setViewModeWithScroll : setViewMode)("table")}
-                className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-xs font-medium tracking-wide transition-colors ${
-                  viewMode === "table"
-                    ? "text-[#1a1a1a] dark:text-[#000000]"
-                    : "text-[#7d7880] hover:text-[#5f5a63] dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
-                }`}
-              >
-                {t("settings.view.table")}
-              </button>
+              {viewDropdownOpen && (
+                <div className="absolute left-0 top-full z-50 mt-1 min-w-[10rem] rounded-2xl border border-black/8 dark:border-white/10 bg-white dark:bg-[#202020] p-1.5 shadow-[0_20px_45px_rgba(28,24,35,0.10)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+                  <div className="space-y-0.5">
+                    {([
+                      { key: "timeline", icon: Clock },
+                      { key: "list", icon: List },
+                      { key: "calendar", icon: Calendar },
+                      { key: "kanban", icon: LayoutGrid },
+                      { key: "table", icon: Table2 },
+                    ] as const).map(({ key, icon: Icon }) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => {
+                          (showStickyHeader ? setViewModeWithScroll : setViewMode)(key);
+                          setViewDropdownOpen(false);
+                        }}
+                        className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
+                          viewMode === key
+                            ? "bg-black/[0.06] dark:bg-white/[0.08] text-[#1a1a1a] dark:text-[#f5f5f5]"
+                            : "text-[#525059] dark:text-[#d4d4d4] hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                        }`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {t(`settings.view.${key}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="hidden lg:block">
               <AllPageSearch />

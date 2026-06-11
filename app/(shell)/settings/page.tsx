@@ -1109,12 +1109,13 @@ export default function SettingsPage() {
           <LayoutList className="h-5 w-5 text-[#25242a]/60 dark:text-[#d4d4d4]/70" />
           <h2 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.allDefaultView")}</h2>
         </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           {([
             { value: "timeline" as const, label: t("settings.view.timeline"), icon: List },
             { value: "list" as const, label: t("settings.view.list"), icon: LayoutList },
             { value: "calendar" as const, label: t("settings.view.calendar"), icon: Calendar },
             { value: "kanban" as const, label: t("settings.view.kanban"), icon: LayoutGrid },
+            { value: "table" as const, label: t("settings.view.table"), icon: TableIcon },
           ] satisfies { value: AllDefaultView; label: string; icon: typeof List }[]).map((option) => {
             const Icon = option.icon;
             const isActive = allDefaultView === option.value;
