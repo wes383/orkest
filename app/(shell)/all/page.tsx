@@ -719,6 +719,30 @@ export default function AllPage() {
           </div>
         </div>
 
+        {listFilterConfig.selectedProjectIds && listFilterConfig.selectedProjectIds.length > 0 && (
+          <div className="px-2 lg:px-3 -mt-2 lg:-mt-6 -mb-6">
+            <div className="flex flex-wrap items-center gap-2">
+              {listFilterConfig.selectedProjectIds.map((projectId) => {
+                const project = projects.find((p) => p.id === projectId);
+                return (
+                  <div
+                    key={projectId}
+                    className="inline-flex items-center gap-1.5"
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: project?.color ?? "#a3a3a3" }}
+                    />
+                    <span className="text-base font-medium text-[#25242a] dark:text-[#f5f5f5]">
+                      {project?.name ?? projectId}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {(() => {
           if (viewMode === "timeline") {
             return (
