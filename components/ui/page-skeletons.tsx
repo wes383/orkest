@@ -140,13 +140,8 @@ export function TodayPageSkeleton() {
         className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#fcfbfa] via-[#fcfbfa]/70 to-[#fcfbfa]/0 dark:from-[#101010] dark:via-[#101010]/70 dark:to-[#101010]/0 sm:hidden"
       />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 lg:gap-10">
-        <header className="flex items-end justify-between border-b border-black/6 pb-6">
-          <Skeleton className="h-12 w-34 rounded-full" />
+        <div className="flex justify-end px-2 lg:px-3">
           <Skeleton className="h-7 w-28 rounded-full" />
-        </header>
-
-        <div className="flex justify-center lg:justify-start px-2 lg:px-3">
-          <Skeleton className="h-8 w-40 rounded-full" />
         </div>
 
         <div className="flex flex-col gap-6">
@@ -162,24 +157,17 @@ export function AllPageSkeleton() {
   return (
     <section className="min-h-screen bg-[#fcfbfa] px-8 py-8 text-[#2b2a30] transition-[padding] duration-300 ease-in-out sm:px-14 lg:py-12 lg:pr-14 lg:pl-14 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32 dark:bg-[#101010] dark:text-[#d4d4d4]">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-18">
-        <header className="grid gap-4 border-b border-black/6 pb-6 dark:border-white/10 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
-          <div className="max-w-4xl">
-            <Skeleton className="h-12 w-28 rounded-full" />
-          </div>
-        </header>
-
-        <div className="-mt-8 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-3 lg:gap-y-4 px-2 lg:px-3">
-          <div className="flex items-center justify-center gap-3 lg:justify-start">
-            <div className="relative grid grid-cols-4 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5 shrink-0">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <Skeleton key={index} className="h-7 w-16 rounded-full" />
-              ))}
-            </div>
+        <div className="-mt-4 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-3 lg:gap-y-4 px-2 lg:px-3">
+          <div className="flex items-center justify-center gap-2 lg:justify-start">
+            <Skeleton className="h-9 w-32 rounded-full" />
           </div>
           <div className="flex justify-center gap-2 lg:justify-end shrink-0">
-            <Skeleton className="h-9 w-12 rounded-full" />
             <Skeleton className="h-9 w-28 rounded-full" />
           </div>
+        </div>
+
+        <div className="px-2 lg:px-3 -mt-2 lg:-mt-10 -mb-4">
+          <Skeleton className="h-7 w-48 rounded-full" />
         </div>
 
         <div className="space-y-20">
@@ -199,10 +187,6 @@ export function FocusPageSkeleton() {
         className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#fcfbfa] via-[#fcfbfa]/70 to-[#fcfbfa]/0 dark:from-[#101010] dark:via-[#101010]/70 dark:to-[#101010]/0 sm:hidden"
       />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 lg:gap-10" style={{ minHeight: "calc(100vh - 4rem)" }}>
-        <header className="border-b border-black/6 pb-6 dark:border-white/10">
-          <Skeleton className="h-12 w-32 rounded-full" />
-        </header>
-
         <div className="flex w-full flex-1 flex-col items-center gap-10 lg:flex-row lg:items-start lg:justify-center lg:gap-40">
           <div className="flex flex-1 flex-col items-center gap-8 lg:justify-center">
             <div className="inline-flex items-center">
