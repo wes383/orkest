@@ -86,6 +86,7 @@ interface AllPageState {
   handleMoveItemToColumn: (item: DisplayItem, targetColumn: "backlog" | "today" | "done") => { originalRecord: ManualItemRecord } | null;
   restoreMovedItem: (record: ManualItemRecord) => void;
   handleEditItem: (item: DisplayItem) => void;
+  patchManualItem: (itemId: string, patch: Partial<ManualItemRecord>) => void;
   handleDeleteItem: (item: DisplayItem, scope?: "single" | "series") => void;
   handleToggleSubtaskComplete: (subtaskRecord: ManualItemRecord, occurrenceKey?: string) => void;
   getSubtasksForItem: (parentId: string) => ManualItemRecord[];
@@ -902,6 +903,31 @@ export const useAllPageStore = create<AllPageState>()(
 
   handleEditItem: (item) => {
     get().openComposer(item);
+  },
+
+  patchManualItem: (itemId, patch) => {
+    const now = new Date().toISOString();
+    set((state) => {
+      const existing = state.manualItems.find((record) => record.id === itemId);
+      if (!existing) return state;
+
+      // Preserve recurring-instance-only fields (exdates, completedOccurrences, etc.)
+      // when patching, since those are managed by handleToggleComplete.
+      const nextRecord: ManualItemRecord = {
+        ...existing,
+        ...patch,
+        id: existing.id,
+        uid: existing.uid,
+        createdAt: existing.createdAt,
+        updatedAt: now,
+        deletedAt: existing.deletedAt,
+      };
+
+      const newManualItems = upsertManualItem(state.manualItems, nextRecord);
+      const sections = computeSections(newManualItems);
+      syncRecord("update", "items", nextRecord.id, nextRecord);
+      return { manualItems: newManualItems, sections };
+    });
   },
 
   handleDeleteItem: (item, scope = "series") => {

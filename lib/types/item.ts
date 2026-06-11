@@ -45,6 +45,7 @@ export interface Item {
     end?: Date;
     due?: Date;
     allDay?: boolean;
+    hasTime?: boolean;
     timezone?: string;
   };
   actual: {

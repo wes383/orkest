@@ -1,15 +1,28 @@
 "use client";
 
-import { useMemo } from "react";
-import { CheckCircle, Circle, Pencil, Repeat } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CheckCircle, Circle, Pencil, Repeat, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
-import { useSettingsStore } from "@/lib/stores/use-settings-store";
-import { PRIORITY_CONFIG, getAnchorDate, getTimelinePointColor } from "@/lib/all-page-utils";
+import { useDateLocale, useSettingsStore } from "@/lib/stores/use-settings-store";
+import { formatDateInput, getAnchorDate, getTimelinePointColor, PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { cn } from "@/lib/utils";
 import type { DisplayItem } from "@/lib/types/all-page";
 import type { Priority } from "@/lib/types/item";
 import { ProjectPill } from "@/components/projects/project-pill";
+
+import {
+  DateCellEditor,
+  EstimateCellEditor,
+  PriorityCellEditor,
+  ProjectCellEditor,
+  RecurrenceCellEditor,
+  TagsCellEditor,
+  TitleCellEditor,
+  type RecurrenceValue,
+} from "./table-cell-editors";
+import { TableCellTooltip } from "./table-cell-tooltip";
 
 function formatEstimate(minutes: number | undefined) {
   if (minutes === undefined) return "";
@@ -18,6 +31,34 @@ function formatEstimate(minutes: number | undefined) {
   const mins = minutes % 60;
   return mins === 0 ? `${hours}h` : `${hours}h${mins}m`;
 }
+
+function formatTimeOfDay(date: Date, locale: string, is12h: boolean) {
+  return new Intl.DateTimeFormat(locale, {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: is12h,
+  }).format(date);
+}
+
+function toInputDate(date?: Date) {
+  return date ? formatDateInput(date) : "";
+}
+
+function toInputTime(date: Date | undefined, locale: string, is12h: boolean) {
+  if (!date) return "";
+  const formatted = formatTimeOfDay(date, locale, is12h);
+  // Normalize "9:00 AM" -> "09:00" for <input type="time">
+  const match = formatted.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+  if (!match) return "";
+  let hour = Number(match[1]);
+  const minute = match[2];
+  const meridiem = match[3]?.toUpperCase();
+  if (meridiem === "PM" && hour < 12) hour += 12;
+  if (meridiem === "AM" && hour === 12) hour = 0;
+  return `${String(hour).padStart(2, "0")}:${minute}`;
+}
+
+type EditableCell = "title" | "start" | "end" | "project" | "tags" | "priority" | "estimate" | "recurring";
 
 export function TableRow({
   item,
@@ -39,52 +80,158 @@ export function TableRow({
   const { t } = useI18n();
   const projects = useProjectStore((s) => s.projects);
   const timeFormat = useSettingsStore((s) => s.timeFormat);
+  const dateLocale = useDateLocale();
   const is12h = timeFormat === "12h";
+  const patchManualItem = useAllPageStore((s) => s.patchManualItem);
+  const handleDeleteItem = useAllPageStore((s) => s.handleDeleteItem);
+
   const isCompleted = item.status === "completed";
   const anchorDate = getAnchorDate(item);
+  const [editingCell, setEditingCell] = useState<EditableCell | null>(null);
+  const tooltipsDisabled = editingCell !== null;
 
-  // Rebuild formatters per render so they pick up locale + 12h/24h changes
-  // from the settings store without needing a global cache.
   const dateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }),
-    [],
+    () =>
+      new Intl.DateTimeFormat(dateLocale, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+    [dateLocale],
   );
   const timeFormatter = useMemo(
     () =>
-      new Intl.DateTimeFormat(undefined, {
+      new Intl.DateTimeFormat(dateLocale, {
         hour: "numeric",
         minute: "2-digit",
         hour12: is12h,
       }),
-    [is12h],
+    [dateLocale, is12h],
   );
-  const formatDateTimeCell = (date: Date | undefined, allDay: boolean) => {
+  const formatDateTimeCell = (date: Date | undefined, showTime: boolean) => {
     if (!date) return "";
     const datePart = dateFormatter.format(date);
-    if (allDay) return datePart;
+    if (!showTime) return datePart;
     return `${datePart} ${timeFormatter.format(date)}`;
   };
 
   const priority: Priority | undefined = item.priority;
   const priorityConfig = priority ? PRIORITY_CONFIG[priority] : undefined;
   const tags = item.tags ?? [];
-  const recurring = item.recurrence && item.recurrence.type && item.recurrence.type !== "none";
+  const recurrence = item.recurrence;
+  const recurrenceDraft: RecurrenceValue | undefined = recurrence
+    ? {
+        type: recurrence.type,
+        interval: recurrence.interval ?? 1,
+        daysOfWeek: recurrence.daysOfWeek ?? [],
+        endType: recurrence.endDate
+          ? "on_date"
+          : recurrence.count !== undefined
+            ? "after_count"
+            : "never",
+        endDate: recurrence.endDate ? formatDateInput(recurrence.endDate) : "",
+        count: recurrence.count ?? 10,
+        monthlyPattern: "day_of_month",
+        nthWeekdayPosition: recurrence.bysetpos ?? 2,
+        nthWeekdayDay: recurrence.daysOfWeek?.[0] ?? 1,
+      }
+    : undefined;
+  const recurrenceType = recurrence?.type ?? "none";
   const estimate = formatEstimate(item.estimateMinutes);
   const startDate = item.time.start;
   const endDate = item.time.end;
   const dueDate = item.time.due;
+  const allDay = Boolean(item.time.allDay);
+  const hasTime = item.time.hasTime ?? false;
   const anchorForStart = startDate ?? dueDate ?? anchorDate;
-  const allDay = item.time.allDay;
-  const startLabel = formatDateTimeCell(anchorForStart, Boolean(allDay && !startDate));
-  const endLabel = formatDateTimeCell(endDate, Boolean(allDay));
+  const showStartTime = !allDay && hasTime;
+  const showEndTime = !allDay && hasTime;
+  const startLabel = formatDateTimeCell(anchorForStart, showStartTime);
+  const endLabel = formatDateTimeCell(endDate, showEndTime);
   const project = item.projectId ? projects.find((p) => p.id === item.projectId) : undefined;
   const dateColor = getTimelinePointColor(anchorDate);
+
+  function openCell(cell: EditableCell) {
+    return (event: React.MouseEvent) => {
+      event.stopPropagation();
+      setEditingCell(cell);
+    };
+  }
+
+  function commitTitle(next: string) {
+    patchManualItem(item.id, { title: next });
+    setEditingCell(null);
+  }
+
+  function commitPriority(next: Priority | undefined) {
+    patchManualItem(item.id, { priority: next });
+    setEditingCell(null);
+  }
+
+  function commitProject(next: string | undefined) {
+    patchManualItem(item.id, { projectId: next });
+    setEditingCell(null);
+  }
+
+  function commitEstimate(next: number | undefined) {
+    patchManualItem(item.id, { estimateMinutes: next });
+    setEditingCell(null);
+  }
+
+  function commitTags(next: string[] | undefined) {
+    patchManualItem(item.id, { tags: next });
+    setEditingCell(null);
+  }
+
+  function commitDate(patch: {
+    startDate?: string;
+    startTime?: string;
+    endDate?: string;
+    endTime?: string;
+    allDay?: boolean;
+  }) {
+    patchManualItem(item.id, {
+      startDate: patch.startDate,
+      startTime: patch.startTime,
+      endDate: patch.endDate,
+      endTime: patch.endTime,
+      allDay: patch.allDay ?? false,
+      hasTime: patch.allDay ? false : Boolean(patch.startTime),
+    });
+    setEditingCell(null);
+  }
+
+  function commitRecurrence(next: RecurrenceValue) {
+    const daysOfWeek = next.type === "weekly" ? next.daysOfWeek : [];
+    const bysetpos =
+      next.type === "monthly" && next.monthlyPattern === "nth_weekday"
+        ? next.nthWeekdayPosition
+        : undefined;
+    const recurrenceEndDate =
+      next.type !== "none" && next.endType === "on_date" ? next.endDate || undefined : undefined;
+    const recurrenceCount =
+      next.type !== "none" && next.endType === "after_count" ? next.count : undefined;
+    patchManualItem(item.id, {
+      recurrenceType: next.type,
+      recurrenceInterval: next.type === "none" ? 1 : next.interval,
+      daysOfWeek,
+      recurrenceEndType: next.type === "none" ? "never" : next.endType,
+      recurrenceEndDate,
+      recurrenceCount,
+      recurrenceBysetpos: bysetpos,
+    });
+    setEditingCell(null);
+  }
+
+  function cancelEdit() {
+    setEditingCell(null);
+  }
 
   return (
     <tr
       data-item-id={item.id}
       className={cn(
-        "border-b border-black/5 dark:border-white/5 transition-colors cursor-pointer",
+        "border-b border-black/5 dark:border-white/5 transition-colors",
         isSelected
           ? "bg-blue-50/80 dark:bg-blue-950/40"
           : "hover:bg-white/70 dark:hover:bg-white/[0.04]",
@@ -111,7 +258,7 @@ export function TableRow({
               e.stopPropagation();
               onToggleComplete(item);
             }}
-            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[#9f99a3] hover:text-[#25242a] dark:hover:text-white"
+            className="inline-flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#9f99a3] hover:text-[#25242a] dark:hover:text-white"
             aria-label={isCompleted ? t("batch.undo") : t("batch.complete")}
           >
             {isCompleted ? (
@@ -125,102 +272,339 @@ export function TableRow({
             style={{ backgroundColor: dateColor }}
             aria-hidden
           />
-          <span
-            className={cn(
-              "min-w-0 max-w-[10rem] flex-1 truncate text-sm text-[#25242a] dark:text-[#f5f5f5]",
-              isCompleted && "line-through",
-            )}
-            title={item.title}
-            onClick={() => onOpen(item)}
-          >
-            {item.title}
-          </span>
+          {editingCell === "title" ? (
+            <TitleCellEditor
+              value={item.title}
+              onCommit={commitTitle}
+              onCancel={cancelEdit}
+              label={t("table.column.title")}
+            />
+          ) : (
+            <TableCellTooltip
+              label={t("table.column.title")}
+              value={item.title || "Untitled"}
+              disabled={tooltipsDisabled || !item.title.trim()}
+            >
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={openCell("title")}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setEditingCell("title");
+                  }
+                }}
+                className={cn(
+                  "min-w-0 max-w-[10rem] flex-1 cursor-pointer truncate text-sm text-[#25242a] dark:text-[#f5f5f5]",
+                  isCompleted && "line-through",
+                )}
+              >
+                {item.title}
+              </span>
+            </TableCellTooltip>
+          )}
         </div>
       </td>
 
-      <td className={cn("px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums", isCompact ? "py-1.5" : "py-2.5")}>
-        {startLabel || <span className="text-[#9f99a3]">—</span>}
-      </td>
-
-      <td className={cn("px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums", isCompact ? "py-1.5" : "py-2.5")}>
-        {endLabel || <span className="text-[#9f99a3]">—</span>}
-      </td>
-
-      <td className={cn("px-3 align-middle", isCompact ? "py-1.5" : "py-2.5")}>
-        {project ? (
-          <ProjectPill projectId={project.id} projectName={project.name} />
-        ) : (
-          <span className="text-xs text-[#9f99a3]">—</span>
+      <td
+        className={cn(
+          "px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums",
+          isCompact ? "py-1.5" : "py-2.5",
         )}
-      </td>
-
-      <td className={cn("px-3 align-middle", isCompact ? "py-1.5" : "py-2.5")}>
-        {tags.length > 0 ? (
-          <div className="flex flex-wrap gap-1 max-w-[10rem]">
-            {tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center rounded-md bg-black/5 dark:bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-[#525059] dark:text-[#d4d4d4]"
-              >
-                #{tag}
+        onClick={openCell("start")}
+      >
+        {editingCell === "start" ? (
+          <DateCellEditor
+            startDate={toInputDate(startDate)}
+            startTime={toInputTime(startDate, dateLocale, is12h)}
+            endDate={toInputDate(endDate)}
+            endTime={toInputTime(endDate, dateLocale, is12h)}
+            allDay={allDay}
+            onCommit={commitDate}
+            onCancel={cancelEdit}
+            label={t("table.column.start")}
+            trigger={
+              <span className="cursor-pointer text-xs">
+                {startLabel || <span className="text-[#9f99a3]">—</span>}
               </span>
-            ))}
-            {tags.length > 2 ? (
-              <span className="text-[10px] text-[#9f99a3]">+{tags.length - 2}</span>
-            ) : null}
-          </div>
+            }
+          />
         ) : (
-          <span className="text-xs text-[#9f99a3]">—</span>
-        )}
-      </td>
-
-      <td className={cn("px-3 align-middle text-center", isCompact ? "py-1.5" : "py-2.5")}>
-        {priorityConfig ? (
-          <span
-            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
-            style={{
-              color: priorityConfig.textColor,
-              backgroundColor: `${priorityConfig.textColor}1a`,
-            }}
-          >
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: priorityConfig.textColor }}
-              aria-hidden
-            />
-            {t(`priority.${priority}` as Parameters<typeof t>[0])}
+          <span className="cursor-pointer">
+            {startLabel || <span className="text-[#9f99a3]">—</span>}
           </span>
-        ) : (
-          <span className="text-xs text-[#9f99a3]">—</span>
         )}
       </td>
 
-      <td className={cn("px-3 align-middle text-right text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums", isCompact ? "py-1.5" : "py-2.5")}>
-        {estimate || <span className="text-[#9f99a3]">—</span>}
+      <td
+        className={cn(
+          "px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums",
+          isCompact ? "py-1.5" : "py-2.5",
+        )}
+        onClick={openCell("end")}
+      >
+        {editingCell === "end" ? (
+          <DateCellEditor
+            startDate={toInputDate(startDate)}
+            startTime={toInputTime(startDate, dateLocale, is12h)}
+            endDate={toInputDate(endDate)}
+            endTime={toInputTime(endDate, dateLocale, is12h)}
+            allDay={allDay}
+            onCommit={commitDate}
+            onCancel={cancelEdit}
+            label={t("table.column.end")}
+            trigger={
+              <span className="cursor-pointer text-xs">
+                {endLabel || <span className="text-[#9f99a3]">—</span>}
+              </span>
+            }
+          />
+        ) : (
+          <span className="cursor-pointer">
+            {endLabel || <span className="text-[#9f99a3]">—</span>}
+          </span>
+        )}
       </td>
 
-      <td className={cn("px-3 align-middle text-center text-base", isCompact ? "py-1.5" : "py-2.5")}>
-        {recurring ? (
-          <Repeat className="inline-block h-3.5 w-3.5 text-[#7d7880] dark:text-[#a3a3a3]" aria-label="Recurring" />
+      <td
+        className={cn("px-3 align-middle", isCompact ? "py-1.5" : "py-2.5")}
+        onClick={openCell("project")}
+      >
+        {editingCell === "project" ? (
+          <ProjectCellEditor
+            value={item.projectId}
+            onCommit={commitProject}
+            label={t("table.column.project")}
+            trigger={
+              <span className="cursor-pointer">
+                {project ? (
+                  <ProjectPill projectId={project.id} projectName={project.name} />
+                ) : (
+                  <span className="text-xs text-[#9f99a3]">—</span>
+                )}
+              </span>
+            }
+          />
         ) : (
-          <span className="text-[#9f99a3]">—</span>
+          <TableCellTooltip
+            label={t("table.column.project")}
+            value={project ? project.name : "—"}
+            disabled={tooltipsDisabled || !project}
+          >
+            <span className="cursor-pointer">
+              {project ? (
+                <ProjectPill projectId={project.id} projectName={project.name} />
+              ) : (
+                <span className="text-xs text-[#9f99a3]">—</span>
+              )}
+            </span>
+          </TableCellTooltip>
+        )}
+      </td>
+
+      <td
+        className={cn("px-3 align-middle", isCompact ? "py-1.5" : "py-2.5")}
+        onClick={openCell("tags")}
+      >
+        {editingCell === "tags" ? (
+          <TagsCellEditor
+            value={tags}
+            onCommit={commitTags}
+            onCancel={cancelEdit}
+            label={t("table.column.tags")}
+            trigger={
+              <span className="cursor-pointer">
+                {tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-1 max-w-[10rem]">
+                    {tags.slice(0, 2).map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center rounded-md bg-black/5 dark:bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-[#525059] dark:text-[#d4d4d4]"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                    {tags.length > 2 ? (
+                      <span className="text-[10px] text-[#9f99a3]">+{tags.length - 2}</span>
+                    ) : null}
+                  </div>
+                ) : (
+                  <span className="text-xs text-[#9f99a3]">—</span>
+                )}
+              </span>
+            }
+          />
+        ) : (
+          <TableCellTooltip
+            label={t("table.column.tags")}
+            value={tags.length > 0 ? tags.map((tag) => `#${tag}`).join(" ") : "—"}
+            disabled={tooltipsDisabled || tags.length === 0}
+          >
+            <span className="cursor-pointer">
+              {tags.length > 0 ? (
+                <div className="flex flex-wrap gap-1 max-w-[10rem]">
+                  {tags.slice(0, 2).map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center rounded-md bg-black/5 dark:bg-white/10 px-1.5 py-0.5 text-[10px] font-medium text-[#525059] dark:text-[#d4d4d4]"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                  {tags.length > 2 ? (
+                    <span className="text-[10px] text-[#9f99a3]">+{tags.length - 2}</span>
+                  ) : null}
+                </div>
+              ) : (
+                <span className="text-xs text-[#9f99a3]">—</span>
+              )}
+            </span>
+          </TableCellTooltip>
+        )}
+      </td>
+
+      <td
+        className={cn(
+          "px-3 align-middle text-center",
+          isCompact ? "py-1.5" : "py-2.5",
+        )}
+        onClick={openCell("priority")}
+      >
+        {editingCell === "priority" ? (
+          <PriorityCellEditor
+            value={priority}
+            onCommit={commitPriority}
+            label={t("table.column.priority")}
+            trigger={
+              <span className="cursor-pointer">
+                {priorityConfig ? (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                    style={{
+                      color: priorityConfig.textColor,
+                      backgroundColor: `${priorityConfig.textColor}1a`,
+                    }}
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: priorityConfig.textColor }}
+                      aria-hidden
+                    />
+                    {t(`priority.${priority}` as Parameters<typeof t>[0])}
+                  </span>
+                ) : (
+                  <span className="text-xs text-[#9f99a3]">—</span>
+                )}
+              </span>
+            }
+          />
+        ) : (
+          <span className="cursor-pointer">
+            {priorityConfig ? (
+              <span
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                style={{
+                  color: priorityConfig.textColor,
+                  backgroundColor: `${priorityConfig.textColor}1a`,
+                }}
+              >
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: priorityConfig.textColor }}
+                  aria-hidden
+                />
+                {t(`priority.${priority}` as Parameters<typeof t>[0])}
+              </span>
+            ) : (
+              <span className="text-xs text-[#9f99a3]">—</span>
+            )}
+          </span>
+        )}
+      </td>
+
+      <td
+        className={cn(
+          "px-3 align-middle text-right text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums",
+          isCompact ? "py-1.5" : "py-2.5",
+        )}
+        onClick={openCell("estimate")}
+      >
+        {editingCell === "estimate" ? (
+          <EstimateCellEditor
+            value={item.estimateMinutes}
+            onCommit={commitEstimate}
+            onCancel={cancelEdit}
+            label={t("table.column.estimate")}
+          />
+        ) : (
+          <span className="cursor-pointer">
+            {estimate || <span className="text-[#9f99a3]">—</span>}
+          </span>
+        )}
+      </td>
+
+      <td
+        className={cn(
+          "px-3 align-middle text-center text-base",
+          isCompact ? "py-1.5" : "py-2.5",
+        )}
+        onClick={openCell("recurring")}
+      >
+        {editingCell === "recurring" ? (
+          <RecurrenceCellEditor
+            value={recurrenceDraft}
+            anchorDate={startDate ?? dueDate ?? anchorDate}
+            onCommit={commitRecurrence}
+            onCancel={cancelEdit}
+            label={t("table.column.recurring")}
+          />
+        ) : (
+          <TableCellTooltip
+            label={t("table.column.recurring")}
+            value={recurrenceType !== "none" ? recurrenceType : "—"}
+          >
+            <span className="cursor-pointer">
+              {recurrenceType !== "none" ? (
+                <Repeat
+                  className="inline-block h-3.5 w-3.5 text-[#7d7880] dark:text-[#a3a3a3]"
+                  aria-label="Recurring"
+                />
+              ) : (
+                <span className="text-[#9f99a3]">—</span>
+              )}
+            </span>
+          </TableCellTooltip>
         )}
       </td>
 
       <td className={cn("px-3 align-middle text-right", isCompact ? "py-1.5" : "py-2.5")}>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpen(item);
-          }}
-          className="inline-flex h-6 w-6 items-center justify-center rounded text-[#9f99a3] hover:text-[#25242a] hover:bg-black/5 dark:hover:text-white dark:hover:bg-white/10"
-          aria-label={t("common.edit")}
-        >
-          <Pencil className="h-3.5 w-3.5" />
-        </button>
+        <div className="inline-flex items-center gap-1">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen(item);
+            }}
+            className="inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded text-[#9f99a3] hover:text-[#25242a] hover:bg-black/5 dark:hover:text-white dark:hover:bg-white/10"
+            aria-label={t("common.edit")}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteItem(item);
+            }}
+            className="inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded text-[#9f99a3] hover:text-red-600 hover:bg-red-500/10 dark:hover:text-red-400 dark:hover:bg-red-400/10"
+            aria-label={t("common.delete")}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </td>
     </tr>
   );
 }
-
