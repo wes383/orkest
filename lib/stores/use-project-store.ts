@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Project } from "../types/item";
+import type { ProjectSortMode } from "../types/all-page";
 import { createClient } from "../supabase/client";
 import { makeUid } from "../all-page-utils";
 import { syncRecord } from "../offline/sync-engine";
@@ -7,6 +8,7 @@ import { syncRecord } from "../offline/sync-engine";
 interface ProjectStoreState {
   projects: Project[];
   isLoaded: boolean;
+  sortMode: ProjectSortMode;
 
   // Actions
   loadProjects: (userId: string) => Promise<void>;
@@ -15,6 +17,7 @@ interface ProjectStoreState {
   deleteProject: (userId: string, projectId: string) => Promise<boolean>;
   reorderProjects: (userId: string, orderedIds: string[]) => Promise<boolean>;
   findProjectByName: (name: string) => Project | undefined;
+  setSortMode: (mode: ProjectSortMode) => void;
   resetStore: () => void;
 
   // Realtime actions
@@ -25,6 +28,7 @@ interface ProjectStoreState {
 export const useProjectStore = create<ProjectStoreState>((set, get) => ({
   projects: [],
   isLoaded: false,
+  sortMode: "default",
 
   async loadProjects(userId: string) {
     try {
@@ -151,8 +155,12 @@ export const useProjectStore = create<ProjectStoreState>((set, get) => ({
     return get().projects.find((p) => p.name.toLowerCase() === normalized);
   },
 
+  setSortMode(mode: ProjectSortMode) {
+    set({ sortMode: mode });
+  },
+
   resetStore() {
-    set({ projects: [], isLoaded: false });
+    set({ projects: [], isLoaded: false, sortMode: "default" });
   },
 
   applyRemoteProjectChange(project) {

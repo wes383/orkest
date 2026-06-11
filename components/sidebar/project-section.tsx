@@ -37,6 +37,8 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
   const { user } = useAuth();
   const router = useRouter();
   const projects = useProjectStore((s) => s.projects);
+  const sortMode = useProjectStore((s) => s.sortMode);
+  const setSortMode = useProjectStore((s) => s.setSortMode);
   const manualItems = useAllPageStore((s) => s.manualItems);
   const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
   const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
@@ -67,7 +69,6 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
     });
   }
 
-  const [sortMode, setSortMode] = useState<ProjectSortMode>("default");
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [modalState, setModalState] = useState<
     | { mode: "closed" }
@@ -252,27 +253,16 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
           </p>
         </button>
         <div className="flex items-center gap-0.5">
-          {selectedIds.length > 0 ? (
-            <button
-              type="button"
-              onClick={clearSelection}
-              className="flex h-6 cursor-pointer items-center justify-center rounded-md px-1.5 text-[10px] font-medium text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
-              title={t("listControls.clear")}
-            >
-              <X className="h-3 w-3" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={toggleSectionCollapsed}
-              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
-              title={isSectionCollapsed ? t("projects.sidebar.expand") : t("projects.sidebar.collapse")}
-            >
-              <ChevronRight
-                className={`h-3.5 w-3.5 transition-transform duration-200 ${isSectionCollapsed ? "" : "rotate-90"}`}
-              />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={toggleSectionCollapsed}
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md text-[#9f99a3] transition-colors hover:bg-black/[0.05] hover:text-[#5f5a63] dark:text-[#737373] dark:hover:bg-white/8 dark:hover:text-[#a3a3a3]"
+            title={isSectionCollapsed ? t("projects.sidebar.expand") : t("projects.sidebar.collapse")}
+          >
+            <ChevronRight
+              className={`h-3.5 w-3.5 transition-transform duration-200 ${isSectionCollapsed ? "" : "rotate-90"}`}
+            />
+          </button>
           <button
             type="button"
             onClick={toggleSortMenu}
@@ -373,10 +363,10 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
                 <button
                   type="button"
                   onClick={() => handleClick(project.id)}
-                  className={`flex w-full cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 pr-10 text-xs font-medium transition-colors text-left ${
+                  className={`flex w-full cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 pr-10 text-xs font-medium transition-colors text-left ${
                     isSelected
-                      ? "border-transparent bg-[#25242a] text-white shadow-sm dark:bg-[#e5e5e5] dark:text-[#111111]"
-                      : "border-transparent bg-black/[0.035] text-[#5f5a63] hover:bg-black/[0.07] dark:bg-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/12"
+                      ? "border-transparent bg-black/[0.14] text-[#25242a] shadow-sm dark:bg-white/22 dark:text-[#f5f5f5]"
+                      : "border-transparent bg-black/[0.025] text-[#5f5a63] hover:bg-black/[0.06] dark:bg-white/5 dark:text-[#a3a3a3] dark:hover:bg-white/10"
                   }`}
                 >
                   <span
@@ -395,7 +385,7 @@ export function ProjectSection({ onSelect }: ProjectSectionProps) {
                     }}
                     className={`flex h-5 w-5 cursor-pointer items-center justify-center rounded-full transition-colors ${
                       isSelected
-                        ? "text-white/70 hover:bg-white/15 hover:text-white"
+                        ? "text-[#5f5a63] hover:bg-black/[0.08] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/15 dark:hover:text-[#f5f5f5]"
                         : "text-[#7d7880] hover:bg-black/[0.07] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
                     }`}
                     title={t("projects.editProject")}

@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";
 import { PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { cn } from "@/lib/utils";
+import { useProjectStore } from "@/lib/stores/use-project-store";
+import { computeProjectsWithStats, sortProjectsWithStats } from "@/lib/projects/project-stats";
+import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import type { ListFilterConfig, ListSortConfig, ListTimeFilterPreset, PriorityFilterValue } from "@/lib/types/all-page";
 import type { Project } from "@/lib/types/item";
 
@@ -100,10 +103,17 @@ export function FilterBar({
   viewMode,
 }: FilterBarProps) {
   const { t } = useI18n();
+  const sortMode = useProjectStore((s) => s.sortMode);
+  const manualItems = useAllPageStore((s) => s.manualItems);
 
   const showTimeFilter = viewMode !== "calendar" && viewMode !== "kanban";
   const showStatusFilter = viewMode !== "kanban";
   const showSort = viewMode === "list" || viewMode === "kanban";
+
+  const sortedProjects = useMemo(() => {
+    const withStats = computeProjectsWithStats(projects, manualItems);
+    return sortProjectsWithStats(withStats, sortMode);
+  }, [projects, manualItems, sortMode]);
 
   const TIME_OPTIONS: Array<{ value: ListTimeFilterPreset; label: string }> = [
     { value: "today", label: t("listControls.today") },
@@ -200,7 +210,7 @@ export function FilterBar({
           onClear={() => onFilterChange({ selectedProjectIds: [] })}
         >
           {(close) => (
-            <div className="max-h-64 overflow-y-auto space-y-0.5">
+            <div className="max-h-64 overflow-y-auto scrollbar-transparent-track space-y-0.5">
               <button
                 type="button"
                 onClick={() => {
@@ -217,7 +227,7 @@ export function FilterBar({
                 {t("listControls.allProjects")}
                 {!filterConfig.selectedProjectIds?.length && <Check className="h-3.5 w-3.5" />}
               </button>
-              {projects.map((project) => {
+              {sortedProjects.map((project) => {
                 const selected = filterConfig.selectedProjectIds?.includes(project.id);
                 return (
                   <button
@@ -339,7 +349,7 @@ export function FilterBar({
           onClear={() => onFilterChange({ selectedTags: [] })}
         >
           {(close) => (
-            <div className="max-h-64 overflow-y-auto space-y-0.5">
+            <div className="max-h-64 overflow-y-auto scrollbar-transparent-track space-y-0.5">
               {sortedTags.length === 0 ? (
                 <p className="px-3 py-2 text-xs text-[#9f99a3]">{t("listControls.noTags")}</p>
               ) : (
