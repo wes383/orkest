@@ -627,7 +627,7 @@ export default function AllPage() {
                       type="button"
                       onClick={toggleSelectAllVisibleListItems}
                       disabled={visibleListItemKeys.length === 0}
-                      className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/8 bg-white px-3 py-1.5 text-[11px] font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
+                      className="flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/8 bg-white px-3 text-[11px] font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
                     >
                       {allVisibleListItemsSelected ? t("common.deselectAll") : t("ai.selectAll")}
                     </button>
@@ -641,7 +641,7 @@ export default function AllPage() {
                       }
                       setIsListSelectionMode(true);
                     }}
-                    className={`flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors ${
+                    className={`flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[11px] font-medium tracking-wide transition-colors ${
                       isListSelectionMode
                         ? "border-black/12 bg-white text-[#25242a] shadow-sm"
                         : "border-black/8 bg-[#f4f0ec]/50 text-[#7d7880] hover:text-[#5f5a63]"
@@ -657,7 +657,7 @@ export default function AllPage() {
               <button
                 type="button"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="shrink-0 cursor-pointer items-center rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/50 dark:bg-white/8 px-3 py-1.5 text-xs font-medium tracking-wide text-[#7d7880] dark:text-[#a3a3a3] transition-colors hover:text-[#25242a] dark:hover:text-[#f5f5f5] flex"
+                className="flex h-9 shrink-0 cursor-pointer items-center whitespace-nowrap rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/50 dark:bg-white/8 px-3 text-xs font-medium tracking-wide text-[#7d7880] dark:text-[#a3a3a3] transition-colors hover:text-[#25242a] dark:hover:text-[#f5f5f5]"
               >
                 {t("common.backToTop")}
               </button>
@@ -672,7 +672,7 @@ export default function AllPage() {
                       type="button"
                       onClick={toggleSelectAllVisibleListItems}
                       disabled={visibleListItemKeys.length === 0}
-                      className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/8 bg-white px-4 py-1.5 text-xs font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
+                      className="flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/8 bg-white px-4 text-xs font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
                     >
                       {allVisibleListItemsSelected ? t("common.deselectAll") : t("ai.selectAll")}
                     </button>
@@ -687,7 +687,7 @@ export default function AllPage() {
                     }
                     setIsListSelectionMode(true);
                   }}
-                  className={`flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-1.5 text-xs font-medium tracking-wide transition-colors ${
+                  className={`flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-4 text-xs font-medium tracking-wide transition-colors ${
                     isListSelectionMode
                       ? "border-black/12 bg-white text-[#25242a] shadow-sm"
                       : "border-black/8 bg-[#f4f0ec]/50 text-[#7d7880] hover:text-[#5f5a63]"
