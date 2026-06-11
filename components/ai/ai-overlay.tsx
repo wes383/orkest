@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Home, MessageCircle, Plus, ArrowUp, Square, Sparkles, Trash2, X, Clock, Mic, Loader2, Brain, Maximize2, Minimize2, PanelRight, PanelBottom } from "lucide-react";
+import { Bot, Home, MessageCircle, Plus, ArrowUp, Square, Sparkles, Trash2, X, Clock, Mic, Loader2, Brain, Maximize2, Minimize2, PanelRight, PanelBottom, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { MarkdownText } from "@/components/ui/markdown-text";
 import { useVoiceInput } from "@/lib/hooks/use-voice-input";
 import { useI18n, addLocaleToPathname } from "@/lib/i18n";
+import { useAiChatContext } from "@/lib/contexts/ai-chat-context";
+import type { AiPanelStyle } from "@/lib/contexts/ai-chat-context";
 
 import type { CandidateItem } from "@/lib/ai/candidate-search";
 import type {
@@ -221,6 +223,28 @@ export function AiOverlay({
   onClose,
 }: AiOverlayProps) {
   const { t, locale } = useI18n();
+  const aiContext = useAiChatContext();
+  const { panelStyle, setPanelStyle, displayMode, setDisplayMode } = aiContext;
+  const [showStyleMenu, setShowStyleMenu] = useState(false);
+  const styleMenuRef = useRef<HTMLDivElement>(null);
+  const styleButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Close style menu on outside click
+  useEffect(() => {
+    if (!showStyleMenu) return;
+    function handleClick(e: MouseEvent) {
+      const target = e.target as Node;
+      if (
+        styleButtonRef.current?.contains(target) ||
+        styleMenuRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setShowStyleMenu(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showStyleMenu]);
   const {
     isExpanded,
     isFullscreen,
@@ -551,8 +575,10 @@ export function AiOverlay({
     );
   }
 
+  const isSidebarMode = displayMode === "sidebar" && isExpanded;
+
   return (
-    <div className="fixed right-6 bottom-6 z-20">
+    <div className={isSidebarMode ? "fixed right-0 top-0 bottom-0 z-20 w-[360px]" : "fixed right-6 bottom-6 z-20"}>
       {/* Expanded rectangular input panel - bottom-aligned with FAB */}
       <div
         ref={dragPanelRef}
@@ -571,21 +597,23 @@ export function AiOverlay({
           backdropFilter: isFullscreen ? "none" : "blur(18px) saturate(140%)",
           WebkitBackdropFilter: isFullscreen ? "none" : "blur(18px) saturate(140%)",
         }}
-        className={`overflow-hidden origin-bottom-right transition-all duration-300 ease-in-out ${
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
           isFullscreen && isExpanded
             ? "fixed inset-0 z-50 rounded-none border-0 shadow-none"
-            : `absolute right-0 bottom-0 rounded-2xl border border-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.35)] dark:border-white/25 dark:shadow-none ${
-                isExpanded
-                  ? isShowingResult
-                    ? "w-130 max-w-[calc(100vw-3rem)] opacity-100 pointer-events-auto scale-100"
-                    : "w-110 max-w-[calc(100vw-3rem)] opacity-100 pointer-events-auto scale-100"
-                  : "w-14 opacity-0 pointer-events-none scale-90"
-              }`
+            : isSidebarMode
+              ? "h-full rounded-none border-l border-black/8 dark:border-white/10 shadow-none"
+              : `origin-bottom-right absolute right-0 bottom-0 rounded-2xl border border-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.35)] dark:border-white/25 dark:shadow-none ${
+                  isExpanded
+                    ? isShowingResult
+                      ? "w-130 max-w-[calc(100vw-3rem)] opacity-100 pointer-events-auto scale-100"
+                      : "w-110 max-w-[calc(100vw-3rem)] opacity-100 pointer-events-auto scale-100"
+                    : "w-14 opacity-0 pointer-events-none scale-90"
+                }`
         }`}
       >
         <div className="grid transition-all duration-300 ease-in-out" style={{ gridTemplateRows: isExpanded ? "1fr" : "0fr" }}>
           <div className="overflow-hidden">
-            <div className="flex flex-col" style={isFullscreen ? { height: "100dvh" } : { maxHeight: isShowingResult ? "82vh" : "80vh" }}>
+            <div className="flex flex-col" style={isFullscreen ? { height: "100dvh" } : isSidebarMode ? { height: "100vh" } : { maxHeight: isShowingResult ? "82vh" : "80vh" }}>
               {!showDragHint && (
               <div className="sticky top-0 z-10 flex items-center justify-between px-4 pt-4 pb-3">
                 <div className="flex items-center gap-2">
@@ -682,23 +710,92 @@ export function AiOverlay({
                       }`}
                       title={t("ai.sidebar.toggle")}
                     >
-                      <PanelBottom className="h-5 w-5 sm:hidden" />
-                      <PanelRight className="hidden sm:inline h-3.5 w-3.5" />
+                      <Clock className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
                     </button>
                   )}
                   {!hideFullscreenToggle && (
-                    <button
-                      type="button"
-                      onClick={toggleFullscreen}
-                      className="flex h-10 w-10 sm:h-6 sm:w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
-                      title={isFullscreen ? t("ai.exitFullscreen") : t("ai.fullscreen")}
-                    >
-                      {isFullscreen ? <Minimize2 className="h-5 w-5 sm:h-3.5 sm:w-3.5" /> : <Maximize2 className="h-5 w-5 sm:h-3.5 sm:w-3.5" />}
-                    </button>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        ref={styleButtonRef}
+                        onClick={() => setShowStyleMenu(!showStyleMenu)}
+                        className="flex h-10 w-10 sm:h-6 sm:w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                        title={t("ai.style.toggle")}
+                      >
+                        {isFullscreen ? (
+                          <Maximize2 className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
+                        ) : panelStyle === "sidebar" ? (
+                          <PanelRight className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
+                        ) : (
+                          <PanelBottom className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
+                        )}
+                      </button>
+                      {showStyleMenu && (
+                        <div
+                          ref={styleMenuRef}
+                          className="absolute right-0 top-full mt-1 z-50 w-40 rounded-xl bg-white p-1 shadow-lg border border-black/8 dark:border-white/10 dark:bg-[#202020] flex flex-col gap-0.5"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPanelStyle("floating");
+                              if (isFullscreen) setIsFullscreen(false);
+                              setShowStyleMenu(false);
+                            }}
+                            className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors ${
+                              panelStyle === "floating" && !isFullscreen
+                                ? "bg-black/[0.06] text-[#25242a] dark:bg-white/10 dark:text-white"
+                                : "text-[#7d7880] hover:bg-black/[0.04] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-white"
+                            }`}
+                          >
+                            <PanelBottom className="h-3.5 w-3.5" />
+                            <span>{t("ai.style.floating")}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPanelStyle("sidebar");
+                              if (isFullscreen) setIsFullscreen(false);
+                              setShowStyleMenu(false);
+                            }}
+                            className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors ${
+                              panelStyle === "sidebar" && !isFullscreen
+                                ? "bg-black/[0.06] text-[#25242a] dark:bg-white/10 dark:text-white"
+                                : "text-[#7d7880] hover:bg-black/[0.04] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-white"
+                            }`}
+                          >
+                            <PanelRight className="h-3.5 w-3.5" />
+                            <span>{t("ai.style.sidebar")}</span>
+                          </button>
+                          <div className="my-1 border-t border-black/6 dark:border-white/10" />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isFullscreen) {
+                                setDisplayMode(panelStyle);
+                                setIsFullscreen(false);
+                              } else {
+                                setDisplayMode("fullscreen");
+                                setIsFullscreen(true);
+                              }
+                              setShowStyleMenu(false);
+                            }}
+                            className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors ${
+                              isFullscreen
+                                ? "bg-black/[0.06] text-[#25242a] dark:bg-white/10 dark:text-white"
+                                : "text-[#7d7880] hover:bg-black/[0.04] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-white"
+                            }`}
+                          >
+                            {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+                            <span>{isFullscreen ? t("ai.exitFullscreen") : t("ai.fullscreen")}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                   <button
                     type="button"
-                    onClick={() => { if (onClose) onClose(); else { if (isFullscreen) setIsFullscreen(false); setExpandedState(false); } }}
+                    onClick={() => { if (onClose) onClose(); else { if (isFullscreen) { setIsFullscreen(false); setDisplayMode(panelStyle); } setExpandedState(false); } }}
                     className="flex h-10 w-10 sm:h-6 sm:w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                     title={onClose ? "Home" : t("ai.sidebar.close")}
                   >

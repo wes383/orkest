@@ -182,6 +182,9 @@ export function SidebarLayout({
   const openComposer = useAllPageStore((s) => s.openComposer);
   const { timerMode, timerState, timeRemainingSeconds, startedAtTimestamp, pausedElapsedSeconds, settings, startTimer, pauseTimer, resumeTimer, resetTimer } = useFocusStore();
 
+  // Check if AI sidebar mode is active
+  const isAiSidebarActive = ai.isExpanded && ai.displayMode === "sidebar";
+
   // Tick every 1s while the timer is running so the sidebar indicator stays live
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -755,7 +758,9 @@ export function SidebarLayout({
       </div>
       <main
         data-sidebar-collapsed={isCollapsed}
-        className={`group/sidebar flex min-h-screen flex-1 ${mobileContentBackground} sm:bg-transparent`}
+        className={`group/sidebar flex min-h-screen flex-1 ${mobileContentBackground} sm:bg-transparent transition-[margin-right] duration-300 ease-in-out ${
+          isAiSidebarActive ? "sm:mr-[360px]" : ""
+        }`}
       >
         <div
           aria-hidden="true"
