@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
 import { useDateLocale, useSettingsStore } from "@/lib/stores/use-settings-store";
-import { canDeleteRecurringSeriesFromDisplayItem, formatDateInput, getAnchorDate, getTimelinePointColor, PRIORITY_CONFIG } from "@/lib/all-page-utils";
+import { canDeleteRecurringSeriesFromDisplayItem, formatDateInput, formatDueDate, getAnchorDate, getTimelinePointColor, PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { cn } from "@/lib/utils";
 import type { DisplayItem } from "@/lib/types/all-page";
 import type { Priority } from "@/lib/types/item";
@@ -31,6 +31,67 @@ function formatEstimate(minutes: number | undefined) {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return mins === 0 ? `${hours}h` : `${hours}h${mins}m`;
+}
+
+const DAY_NAME_KEYS = ["calendar.daySun", "calendar.dayMon", "calendar.dayTue", "calendar.dayWed", "calendar.dayThu", "calendar.dayFri", "calendar.daySat"];
+
+type TranslateFn = (key: string, values?: Record<string, string | number>) => string;
+
+function formatRecurrenceTranslated(item: DisplayItem, t: TranslateFn, formatDueDate: (date: Date) => string): string {
+  const rec = item.recurrence;
+  if (!rec) return "";
+
+  const interval = rec.interval ?? 1;
+  const type = rec.type;
+  const endLabel = rec.count
+    ? ` ${t("recurrence.countTimes", { count: rec.count })}`
+    : rec.endDate
+      ? ` ${t("recurrence.until", { date: formatDueDate(rec.endDate) })}`
+      : "";
+
+  if (type === "daily") {
+    const base = interval === 1 ? t("recurrence.daily") : t("recurrence.dailyInterval", { interval });
+    return base + endLabel;
+  }
+
+  if (type === "weekly") {
+    const days = rec.daysOfWeek;
+    const dayLabels = days
+      ? days.map((d: number) => t(DAY_NAME_KEYS[d] as "calendar.daySun"))
+      : [];
+    if (dayLabels.length > 0) {
+      const dayStr = dayLabels.join(", ");
+      const key = interval === 1 ? "recurrence.weeklyOn" : "recurrence.weeklyOnInterval";
+      return t(key, { days: dayStr, interval }) + endLabel;
+    }
+    const key = interval === 1 ? "recurrence.weekly" : "recurrence.weeklyInterval";
+    return t(key, { interval }) + endLabel;
+  }
+
+  if (type === "monthly") {
+    if (rec.bysetpos && rec.daysOfWeek?.length) {
+      const day = t(DAY_NAME_KEYS[rec.daysOfWeek[0]] as "calendar.daySun");
+      if (rec.bysetpos === -1) {
+        const key = interval === 1 ? "recurrence.monthlyOnLast" : "recurrence.monthlyOnLastInterval";
+        return t(key, { day, interval }) + endLabel;
+      }
+      const ORDINAL_KEYS: Record<number, "recurrence.pos.1st" | "recurrence.pos.2nd" | "recurrence.pos.3rd" | "recurrence.pos.4th" | "recurrence.pos.5th"> = {
+        1: "recurrence.pos.1st", 2: "recurrence.pos.2nd", 3: "recurrence.pos.3rd", 4: "recurrence.pos.4th", 5: "recurrence.pos.5th",
+      };
+      const position = t(ORDINAL_KEYS[rec.bysetpos] ?? "recurrence.pos.1st");
+      const key = interval === 1 ? "recurrence.monthlyOnNth" : "recurrence.monthlyOnNthInterval";
+      return t(key, { position, day, interval }) + endLabel;
+    }
+    const key = interval === 1 ? "recurrence.monthly" : "recurrence.monthlyInterval";
+    return t(key, { interval }) + endLabel;
+  }
+
+  if (type === "yearly") {
+    const key = interval === 1 ? "recurrence.yearly" : "recurrence.yearlyInterval";
+    return t(key, { interval }) + endLabel;
+  }
+
+  return "";
 }
 
 function formatTimeOfDay(date: Date, locale: string, is12h: boolean) {
@@ -565,7 +626,7 @@ export function TableRow({
         ) : (
           <TableCellTooltip
             label={t("table.column.recurring")}
-            value={recurrenceType !== "none" ? recurrenceType : "—"}
+            value={recurrenceType !== "none" ? formatRecurrenceTranslated(item, t as TranslateFn, formatDueDate) : "—"}
           >
             <span className="cursor-pointer">
               {recurrenceType !== "none" ? (
