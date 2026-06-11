@@ -19,8 +19,6 @@ import {
   ListView,
   filterSections,
 } from "@/components/all-page/list-view";
-import { ListControlsButton } from "@/components/all-page/list-controls-button";
-import { TimelineFilterButton } from "@/components/all-page/timeline-filter-button";
 import { CalendarView } from "@/components/all-page/calendar-view";
 import { KanbanView } from "@/components/all-page/kanban/kanban-view";
 import { TableView } from "@/components/all-page/table/table-view";
@@ -31,6 +29,7 @@ import { toItemFromManualRecord, validateItemForm } from "@/lib/all-page-utils";
 import { useI18n } from "@/lib/i18n";
 import { AllPageSkeleton } from "@/components/ui/page-skeletons";
 import { AllPageSearch } from "@/components/all-page/all-page-search";
+import { FilterBar } from "@/components/all-page/filter-bar";
 
 
 function subscribe() {
@@ -520,10 +519,6 @@ export default function AllPage() {
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-18">
 
-        <div className="-mt-4 flex justify-center lg:hidden">
-          <AllPageSearch />
-        </div>
-
         <div
           ref={headerRef}
           className={`-mt-4 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-3 lg:gap-y-4 px-2 lg:px-3 ${
@@ -545,12 +540,12 @@ export default function AllPage() {
               }}
             />
           )}
-          <div className="flex items-center justify-center gap-3 lg:justify-start">
+          <div className="flex items-center justify-center gap-2 lg:justify-start">
             <div ref={viewDropdownRef} className="relative">
               <button
                 type="button"
                 onClick={() => setViewDropdownOpen(!viewDropdownOpen)}
-                className="flex h-9 cursor-pointer items-center gap-2 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] px-4 text-xs font-medium tracking-wide text-[#525059] dark:text-[#d4d4d4] transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                className="flex h-9 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] px-4 text-xs font-medium tracking-wide text-[#525059] dark:text-[#d4d4d4] transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
               >
                 {viewMode === "timeline" && <Clock className="h-3.5 w-3.5" />}
                 {viewMode === "list" && <List className="h-3.5 w-3.5" />}
@@ -588,10 +583,74 @@ export default function AllPage() {
                       </button>
                     ))}
                   </div>
+                  <div className="my-1 border-t border-black/8 dark:border-white/10" />
+                  <div className="space-y-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDensity("default");
+                        setViewDropdownOpen(false);
+                      }}
+                      className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
+                        density === "default"
+                          ? "bg-black/[0.06] dark:bg-white/[0.08] text-[#1a1a1a] dark:text-[#f5f5f5]"
+                          : "text-[#525059] dark:text-[#d4d4d4] hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                      }`}
+                    >
+                      <Maximize2 className="h-3.5 w-3.5" />
+                      {t("settings.density.default")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDensity("compact");
+                        setViewDropdownOpen(false);
+                      }}
+                      className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
+                        density === "compact"
+                          ? "bg-black/[0.06] dark:bg-white/[0.08] text-[#1a1a1a] dark:text-[#f5f5f5]"
+                          : "text-[#525059] dark:text-[#d4d4d4] hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                      }`}
+                    >
+                      <Minimize2 className="h-3.5 w-3.5" />
+                      {t("settings.density.compact")}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
-            <div className="hidden lg:block">
+            <div className="lg:hidden flex items-center gap-2">
+              {viewMode === "list" && (
+                <>
+                  {isListSelectionMode ? (
+                    <button
+                      type="button"
+                      onClick={toggleSelectAllVisibleListItems}
+                      disabled={visibleListItemKeys.length === 0}
+                      className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/8 bg-white px-3 py-1.5 text-[11px] font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      {allVisibleListItemsSelected ? t("common.deselectAll") : t("ai.selectAll")}
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isListSelectionMode) {
+                        clearListSelection();
+                        return;
+                      }
+                      setIsListSelectionMode(true);
+                    }}
+                    className={`flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[11px] font-medium tracking-wide transition-colors ${
+                      isListSelectionMode
+                        ? "border-black/12 bg-white text-[#25242a] shadow-sm"
+                        : "border-black/8 bg-[#f4f0ec]/50 text-[#7d7880] hover:text-[#5f5a63]"
+                    }`}
+                  >
+                    {isListSelectionMode ? t("common.cancel") : t("listControls.select")}
+                  </button>
+                </>
+              )}
               <AllPageSearch />
             </div>
             {showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" && (
@@ -604,22 +663,7 @@ export default function AllPage() {
               </button>
             )}
           </div>
-          <div className="flex justify-center lg:justify-end gap-2 shrink-0">
-            {viewMode !== "calendar" && viewMode !== "list" && (
-              <button
-                type="button"
-                onClick={() => setDensity(density === "compact" ? "default" : "compact")}
-                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-black/8 bg-[#f4f0ec]/50 px-4 py-1.5 text-xs font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#5f5a63] dark:border-white/8 dark:bg-white/8 dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
-                title={density === "compact" ? t("settings.density.default") : t("settings.density.compact")}
-              >
-                {density === "compact" ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
-                )}
-                {density === "compact" ? t("settings.density.compact") : t("settings.density.default")}
-              </button>
-            )}
+          <div className="hidden lg:flex items-center justify-end gap-2 shrink-0">
             {viewMode === "list" && (
               <>
                 {isListSelectionMode ? (
@@ -628,7 +672,7 @@ export default function AllPage() {
                       type="button"
                       onClick={toggleSelectAllVisibleListItems}
                       disabled={visibleListItemKeys.length === 0}
-                      className="flex cursor-pointer items-center gap-1.5 rounded-full border border-black/8 bg-white px-4 py-1.5 text-xs font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
+                      className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/8 bg-white px-4 py-1.5 text-xs font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
                     >
                       {allVisibleListItemsSelected ? t("common.deselectAll") : t("ai.selectAll")}
                     </button>
@@ -643,7 +687,7 @@ export default function AllPage() {
                     }
                     setIsListSelectionMode(true);
                   }}
-                  className={`flex cursor-pointer items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-medium tracking-wide transition-colors ${
+                  className={`flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-1.5 text-xs font-medium tracking-wide transition-colors ${
                     isListSelectionMode
                       ? "border-black/12 bg-white text-[#25242a] shadow-sm"
                       : "border-black/8 bg-[#f4f0ec]/50 text-[#7d7880] hover:text-[#5f5a63]"
@@ -651,91 +695,23 @@ export default function AllPage() {
                 >
                   {isListSelectionMode ? t("common.cancel") : t("listControls.select")}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setDensity(density === "compact" ? "default" : "compact")}
-                  className="flex cursor-pointer items-center gap-1.5 rounded-full border border-black/8 bg-[#f4f0ec]/50 px-4 py-1.5 text-xs font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#5f5a63] dark:border-white/8 dark:bg-white/8 dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
-                  title={density === "compact" ? t("settings.density.default") : t("settings.density.compact")}
-                >
-                  {density === "compact" ? (
-                    <Minimize2 className="h-3.5 w-3.5" />
-                  ) : (
-                    <Maximize2 className="h-3.5 w-3.5" />
-                  )}
-                  {density === "compact" ? t("settings.density.compact") : t("settings.density.default")}
-                </button>
-                <ListControlsButton
-                  filterConfig={listFilterConfig}
-                  sortConfig={listSortConfig}
-                  availableTags={availableListTags}
-                  onFilterChange={setListFilterConfig}
-                  onSortChange={setListSortConfig}
-                />
               </>
             )}
-            {viewMode === "timeline" && (
-              <TimelineFilterButton
-                filterConfig={effectiveTimelineFilter}
-                availableTags={availableListTags}
-                onFilterChange={handleTimelineFilterChange}
-              />
-            )}
-            {viewMode === "calendar" && (
-              <TimelineFilterButton
-                filterConfig={listFilterConfig}
-                availableTags={availableListTags}
-                onFilterChange={setListFilterConfig}
-                showTimeFilter={false}
-                title="Calendar Filter"
-                compact
-              />
-            )}
-            {viewMode === "kanban" && (
-              <ListControlsButton
-                filterConfig={effectiveKanbanFilter}
-                sortConfig={kanbanSortConfig}
-                availableTags={availableListTags}
-                onFilterChange={handleKanbanFilterChange}
-                onSortChange={handleKanbanSortChange}
-                mode="kanban"
-              />
-            )}
-            {viewMode === "table" && (
-              <ListControlsButton
-                filterConfig={listFilterConfig}
-                sortConfig={listSortConfig}
-                availableTags={availableListTags}
-                onFilterChange={setListFilterConfig}
-                onSortChange={setListSortConfig}
-                mode="table"
-              />
-            )}
+            <AllPageSearch />
           </div>
         </div>
 
-        {listFilterConfig.selectedProjectIds && listFilterConfig.selectedProjectIds.length > 0 && (
-          <div className="px-2 lg:px-3 -mt-2 lg:-mt-6 -mb-6">
-            <div className="flex flex-wrap items-center gap-2">
-              {listFilterConfig.selectedProjectIds.map((projectId) => {
-                const project = projects.find((p) => p.id === projectId);
-                return (
-                  <div
-                    key={projectId}
-                    className="inline-flex items-center gap-1.5"
-                  >
-                    <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: project?.color ?? "#a3a3a3" }}
-                    />
-                    <span className="text-base font-medium text-[#25242a] dark:text-[#f5f5f5]">
-                      {project?.name ?? projectId}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <div className="px-2 lg:px-3 -mt-2 lg:-mt-10 -mb-4">
+          <FilterBar
+            filterConfig={listFilterConfig}
+            onFilterChange={setListFilterConfig}
+            sortConfig={listSortConfig}
+            onSortChange={setListSortConfig}
+            projects={projects}
+            availableTags={availableListTags}
+            viewMode={viewMode}
+          />
+        </div>
 
         {(() => {
           if (viewMode === "timeline") {
