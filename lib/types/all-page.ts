@@ -1,7 +1,7 @@
 import type { Item, ItemStatus, Priority, Reminder, OccurrenceNotification } from "./item";
 export type { Reminder, OccurrenceNotification } from "./item";
 
-export type ViewMode = "timeline" | "list" | "calendar" | "kanban";
+export type ViewMode = "timeline" | "list" | "calendar" | "kanban" | "table";
 
 export type KanbanColumnId = "backlog" | "today" | "done";
 

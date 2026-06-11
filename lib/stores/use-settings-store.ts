@@ -8,7 +8,7 @@ export type TimeFormat = "12h" | "24h";
 
 export type Appearance = "light" | "dark" | "system";
 
-export type AllDefaultView = "timeline" | "list" | "calendar" | "kanban";
+export type AllDefaultView = "timeline" | "list" | "calendar" | "kanban" | "table";
 
 export type Density = "default" | "compact";
 
@@ -102,7 +102,13 @@ function isAppearance(value: unknown): value is Appearance {
 }
 
 function isAllDefaultView(value: unknown): value is AllDefaultView {
-  return value === "timeline" || value === "list" || value === "calendar" || value === "kanban";
+  return (
+    value === "timeline" ||
+    value === "list" ||
+    value === "calendar" ||
+    value === "kanban" ||
+    value === "table"
+  );
 }
 
 function isDensity(value: unknown): value is Density {

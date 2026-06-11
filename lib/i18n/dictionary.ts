@@ -220,6 +220,7 @@ const en = {
   "settings.view.list": "List",
   "settings.view.calendar": "Calendar",
   "settings.view.kanban": "Kanban",
+  "settings.view.table": "Table",
   "settings.density": "Display density",
   "settings.density.default": "Default",
   "settings.density.compact": "Compact",
@@ -849,6 +850,39 @@ const en = {
   "projects.error.duplicate": "A project with this name already exists.",
   "projects.error.createFailed": "Failed to create project. Please try again.",
   "projects.error.updateFailed": "Failed to update project. Please try again.",
+  "table.column.status": "Status",
+  "table.column.title": "Title",
+  "table.column.start": "Start",
+  "table.column.end": "End",
+  "table.column.project": "Project",
+  "table.column.tags": "Tags",
+  "table.column.priority": "Priority",
+  "table.column.estimate": "Estimate",
+  "table.column.recurring": "Recurring",
+  "table.column.createdAt": "Created",
+  "table.column.actions": "Actions",
+  "table.quickAdd.placeholder": "New item title — press Enter to add",
+  "table.quickAdd.aria": "Quick add new item",
+  "table.empty.filteredTitle": "No items match these filters",
+  "table.empty.filteredDescription": "Adjust your filters, or add a new item using the row above.",
+  "table.empty.unfilteredTitle": "No items yet",
+  "table.empty.unfilteredDescription": "Add your first item using the row above.",
+  "table.toolbar.sortAsc": "Sort ascending",
+  "table.toolbar.sortDesc": "Sort descending",
+  "table.toolbar.sort": "Sort",
+  "table.toolbar.columns": "Columns",
+  "table.toolbar.select": "Select",
+  "table.toolbar.create": "New item",
+  "table.filteredCount": "{count, plural, =0 {No items} one {# item} other {# items}}",
+  "table.addRow": "Add",
+  "table.estimate.none": "—",
+  "table.recurring.dot": "↻",
+  "table.row.aria": "Open item details",
+  "table.batch.selected": "{count, plural, one {# selected} other {# selected}}",
+  "table.batch.complete": "Mark complete",
+  "table.batch.undo": "Mark active",
+  "table.batch.delete": "Delete",
+  "table.batch.cancel": "Cancel",
 };
 
 type Dictionary = Record<keyof typeof en, string>;
@@ -1701,6 +1735,36 @@ const zh: Dictionary = {
   "projects.error.duplicate": "已存在同名项目。",
   "projects.error.createFailed": "创建项目失败，请重试。",
   "projects.error.updateFailed": "更新项目失败，请重试。",
+  "table.column.title": "标题",
+  "table.column.start": "开始",
+  "table.column.end": "结束",
+  "table.column.project": "项目",
+  "table.column.tags": "标签",
+  "table.column.priority": "优先级",
+  "table.column.estimate": "预计",
+  "table.column.recurring": "重复",
+  "table.column.createdAt": "创建于",
+  "table.column.actions": "操作",
+  "table.quickAdd.placeholder": "新项目标题 — 按回车添加",
+  "table.quickAdd.aria": "快速添加新项目",
+  "table.empty.filteredTitle": "没有符合筛选条件的项目",
+  "table.empty.filteredDescription": "调整筛选条件，或使用上方的行添加新项目。",
+  "table.empty.unfilteredTitle": "暂无项目",
+  "table.empty.unfilteredDescription": "使用上方的行添加第一个项目。",
+  "table.toolbar.sortAsc": "升序排列",
+  "table.toolbar.sortDesc": "降序排列",
+  "table.toolbar.sort": "排序",
+  "table.toolbar.columns": "列",
+  "table.toolbar.select": "选择",
+  "table.toolbar.create": "新建项目",
+  "table.filteredCount": "{count, plural, =0 {无项目} other {共 # 项}}",
+  "table.addRow": "添加",
+  "table.recurring.dot": "↻",
+  "table.row.aria": "打开项目详情",
+  "table.batch.complete": "标记为完成",
+  "table.batch.undo": "标记为进行中",
+  "table.batch.delete": "删除",
+  "table.batch.cancel": "取消",
 };
 
 const es: Dictionary = {
@@ -1916,6 +1980,7 @@ const es: Dictionary = {
   "settings.view.list": "Lista",
   "settings.view.calendar": "Calendario",
   "settings.view.kanban": "Tablero",
+  "settings.view.table": "Tabla",
   "settings.density": "Densidad de visualización",
   "settings.density.default": "Predeterminado",
   "settings.density.compact": "Compacto",
@@ -2730,6 +2795,7 @@ const fr: Dictionary = {
   "settings.view.list": "Liste",
   "settings.view.calendar": "Calendrier",
   "settings.view.kanban": "Kanban",
+  "settings.view.table": "Table",
   "settings.density": "Densité d'affichage",
   "settings.density.default": "Par défaut",
   "settings.density.compact": "Compact",
@@ -3544,6 +3610,7 @@ const de: Dictionary = {
   "settings.view.list": "Liste",
   "settings.view.calendar": "Kalender",
   "settings.view.kanban": "Kanban",
+  "settings.view.table": "Table",
   "settings.density": "Anzeigedichte",
   "settings.density.default": "Standard",
   "settings.density.compact": "Kompakt",
@@ -4358,6 +4425,7 @@ const ja: Dictionary = {
   "settings.view.list": "リスト",
   "settings.view.calendar": "カレンダー",
   "settings.view.kanban": "カンバン",
+  "settings.view.table": "テーブル",
   "settings.density": "表示密度",
   "settings.density.default": "デフォルト",
   "settings.density.compact": "コンパクト",
@@ -5168,6 +5236,7 @@ const pt: Dictionary = {
   "settings.view.list": "Lista",
   "settings.view.calendar": "Calendário",
   "settings.view.kanban": "Kanban",
+  "settings.view.table": "Table",
   "settings.density": "Densidade de exibição",
   "settings.density.default": "Padrão",
   "settings.density.compact": "Compacto",
@@ -5785,5 +5854,95 @@ export function translate(
 ): string {
   const template = getDictionary(locale)[key] ?? en[key] ?? key;
   if (!values) return template;
-  return template.replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? `{${name}}`));
+  return formatIcuTemplate(template, values, locale);
+}
+
+// Resolves ICU-style placeholders inside a string.
+// Supports {name} simple substitution and {name, plural, =N {…} one {…} other {…}}.
+function formatIcuTemplate(
+  template: string,
+  values: Record<string, string | number>,
+  locale: Locale,
+): string {
+  // Handle ICU plural/select blocks first; the regex only matches well-formed
+  // blocks, so any literal braces without commas are left to the fallback pass.
+  const pluralRules = new Intl.PluralRules(locale);
+  const result = template.replace(
+    /\{(\w+),\s*plural\s*,([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/g,
+    (_, name: string, body: string) => {
+      const value = values[name];
+      if (value === undefined || value === null || Number.isNaN(value)) {
+        return `{${name}}`;
+      }
+      const numericValue = typeof value === "number" ? value : Number(value);
+      const category =
+        Number.isFinite(numericValue) ? pluralRules.select(numericValue) : "other";
+      const branches = parseIcuBranches(body);
+      const branch = pickIcuBranch(branches, numericValue, category) ?? "";
+      // Resolve any nested {placeholders} inside the branch text, then
+      // expand the ICU `#` shorthand to the actual numeric value.
+      return formatIcuTemplate(branch, values, locale).replace(/#/g, String(numericValue));
+    },
+  );
+  return result.replace(/\{(\w+)\}/g, (_, name: string) =>
+    String(values[name] ?? `{${name}}`),
+  );
+}
+
+type IcuBranch = { key: string; value: string };
+
+function parseIcuBranches(body: string): IcuBranch[] {
+  const branches: IcuBranch[] = [];
+  let cursor = 0;
+  while (cursor < body.length) {
+    // Skip whitespace and commas between branches.
+    while (cursor < body.length && /[\s,]/.test(body[cursor] ?? "")) cursor += 1;
+    if (cursor >= body.length) break;
+
+    // Read the branch key (e.g. "=0", "one", "other").
+    const keyStart = cursor;
+    while (cursor < body.length && /\S/.test(body[cursor] ?? "") && body[cursor] !== "{") {
+      cursor += 1;
+    }
+    const key = body.slice(keyStart, cursor).trim();
+    if (!key) break;
+
+    // Skip whitespace before the opening brace.
+    while (cursor < body.length && /\s/.test(body[cursor] ?? "")) cursor += 1;
+    if (body[cursor] !== "{") break;
+
+    // Find the matching closing brace, allowing one level of nesting.
+    const openIndex = cursor;
+    let depth = 0;
+    let closeIndex = -1;
+    for (let i = openIndex; i < body.length; i += 1) {
+      const ch = body[i];
+      if (ch === "{") depth += 1;
+      else if (ch === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          closeIndex = i;
+          break;
+        }
+      }
+    }
+    if (closeIndex === -1) break;
+    const value = body.slice(openIndex + 1, closeIndex);
+    branches.push({ key, value });
+    cursor = closeIndex + 1;
+  }
+  return branches;
+}
+
+function pickIcuBranch(
+  branches: IcuBranch[],
+  numericValue: number,
+  category: Intl.LDMLPluralRule,
+): string | undefined {
+  // Exact matches (=0, =1, etc.) win over category matches.
+  const exact = branches.find((b) => b.key.startsWith("=") && Number(b.key.slice(1)) === numericValue);
+  if (exact) return exact.value;
+  const match = branches.find((b) => b.key === category);
+  if (match) return match.value;
+  return branches.find((b) => b.key === "other")?.value;
 }

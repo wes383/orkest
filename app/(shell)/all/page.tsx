@@ -23,6 +23,7 @@ import { ListControlsButton } from "@/components/all-page/list-controls-button";
 import { TimelineFilterButton } from "@/components/all-page/timeline-filter-button";
 import { CalendarView } from "@/components/all-page/calendar-view";
 import { KanbanView } from "@/components/all-page/kanban/kanban-view";
+import { TableView } from "@/components/all-page/table/table-view";
 import { useAuth } from "@/lib/auth/auth-provider";
 import type { Section, ListFilterConfig, ListSortConfig } from "@/lib/types/all-page";
 import type { AiBatchPreviewItem } from "@/lib/ai/chat-types";
@@ -98,7 +99,7 @@ export default function AllPage() {
     }, 2000);
   }, []);
 
-  const clearFiltersAndScrollTo = useCallback((itemId: string) => {
+  const clearListFilters = useCallback(() => {
     setListFilterConfig({
       status: "all",
       selectedTags: [],
@@ -106,13 +107,17 @@ export default function AllPage() {
       searchQuery: "",
       timePreset: "none",
     });
+  }, [setListFilterConfig]);
+
+  const clearFiltersAndScrollTo = useCallback((itemId: string) => {
+    clearListFilters();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const el = document.querySelector(`[data-item-id="${itemId}"]`);
         if (el) highlightAndScroll(el);
       });
     });
-  }, [setListFilterConfig, highlightAndScroll]);
+  }, [clearListFilters, highlightAndScroll]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -151,11 +156,11 @@ export default function AllPage() {
   void dateFormatRegion;
   const density = useSettingsStore((s) => s.density);
   const setDensity = useSettingsStore((s) => s.setDensity);
-  const [viewMode, setViewModeState] = useState<"timeline" | "list" | "calendar" | "kanban">(allDefaultView);
-  const setViewMode = useCallback((mode: "timeline" | "list" | "calendar" | "kanban") => {
+  const [viewMode, setViewModeState] = useState<"timeline" | "list" | "calendar" | "kanban" | "table">(allDefaultView);
+  const setViewMode = useCallback((mode: "timeline" | "list" | "calendar" | "kanban" | "table") => {
     setViewModeState(mode);
   }, []);
-  const setViewModeWithScroll = useCallback((mode: "timeline" | "list" | "calendar" | "kanban") => {
+  const setViewModeWithScroll = useCallback((mode: "timeline" | "list" | "calendar" | "kanban" | "table") => {
     setViewModeState(mode);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -526,13 +531,13 @@ export default function AllPage() {
             />
           )}
           <div className="flex items-center justify-center gap-3 lg:justify-start">
-            <div className="relative grid grid-cols-4 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5 shrink-0">
+            <div className="relative grid grid-cols-5 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5 shrink-0">
               {/* Sliding background */}
               <div
                 className="absolute top-0.5 bottom-0.5 rounded-full bg-[#ffffff] shadow-sm transition-all duration-300 ease-in-out dark:bg-[#d4d4d4]"
                 style={{
-                  left: `calc(2px + ${viewMode === "timeline" ? 0 : viewMode === "list" ? 1 : viewMode === "calendar" ? 2 : 3} * (100% - 4px) / 4)`,
-                  width: "calc((100% - 4px) / 4)",
+                  left: `calc(2px + ${viewMode === "timeline" ? 0 : viewMode === "list" ? 1 : viewMode === "calendar" ? 2 : viewMode === "kanban" ? 3 : 4} * (100% - 4px) / 5)`,
+                  width: "calc((100% - 4px) / 5)",
                 }}
               />
               <button
@@ -578,6 +583,17 @@ export default function AllPage() {
                 }`}
               >
                 {t("settings.view.kanban")}
+              </button>
+              <button
+                type="button"
+                onClick={() => (showStickyHeader ? setViewModeWithScroll : setViewMode)("table")}
+                className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-5 py-1.5 text-xs font-medium tracking-wide transition-colors ${
+                  viewMode === "table"
+                    ? "text-[#1a1a1a] dark:text-[#000000]"
+                    : "text-[#7d7880] hover:text-[#5f5a63] dark:text-[#a3a3a3] dark:hover:text-[#d4d4d4]"
+                }`}
+              >
+                {t("settings.view.table")}
               </button>
             </div>
             <div className="hidden lg:block">
@@ -689,40 +705,72 @@ export default function AllPage() {
                 mode="kanban"
               />
             )}
+            {viewMode === "table" && (
+              <ListControlsButton
+                filterConfig={listFilterConfig}
+                sortConfig={listSortConfig}
+                availableTags={availableListTags}
+                onFilterChange={setListFilterConfig}
+                onSortChange={setListSortConfig}
+                mode="table"
+              />
+            )}
           </div>
         </div>
 
-        {viewMode === "timeline" ? (
-          <SectionList
-            sections={filteredTimelineSections}
-            onSwitchToList={() => {
-              setViewMode("list");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
-        ) : viewMode === "list" ? (
-          <ListView
-            sections={sections}
-            sortConfig={listSortConfig}
-            filterConfig={listFilterConfig}
-            isSelectionMode={isListSelectionMode}
-            selectedIds={listSelectedIds}
-            onSelectionModeChange={setIsListSelectionMode}
-            onSelectedIdsChange={setListSelectedIds}
-          />
-        ) : viewMode === "kanban" ? (
-          <KanbanView
-            sections={sections}
-            filterConfig={effectiveKanbanFilter}
-            sortConfig={kanbanSortConfig}
-          />
-        ) : (
-          <CalendarView
-            sections={sections}
-            filterConfig={listFilterConfig}
-            onNavigateRef={calendarNavigateRef}
-          />
-        )}
+        {(() => {
+          if (viewMode === "timeline") {
+            return (
+              <SectionList
+                sections={filteredTimelineSections}
+                onSwitchToList={() => {
+                  setViewMode("list");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
+            );
+          }
+          if (viewMode === "list") {
+            return (
+              <ListView
+                sections={sections}
+                sortConfig={listSortConfig}
+                filterConfig={listFilterConfig}
+                isSelectionMode={isListSelectionMode}
+                selectedIds={listSelectedIds}
+                onSelectionModeChange={setIsListSelectionMode}
+                onSelectedIdsChange={setListSelectedIds}
+              />
+            );
+          }
+          if (viewMode === "kanban") {
+            return (
+              <KanbanView
+                sections={sections}
+                filterConfig={effectiveKanbanFilter}
+                sortConfig={kanbanSortConfig}
+              />
+            );
+          }
+          if (viewMode === "table") {
+            return (
+              <TableView
+                sections={sections}
+                filterConfig={listFilterConfig}
+                selectedIds={listSelectedIds}
+                onSelectedIdsChange={setListSelectedIds}
+                onClearFilters={clearListFilters}
+              />
+            );
+          }
+          return (
+            <CalendarView
+              sections={sections}
+              filterConfig={listFilterConfig}
+              onNavigateRef={calendarNavigateRef}
+            />
+          );
+        })()}
       </div>
 
       <AiOverlay

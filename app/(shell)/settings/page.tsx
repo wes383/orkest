@@ -2,6 +2,7 @@
 "use client";
 
 import { BookOpen, Brain, Camera, Calendar, CalendarDays, ChevronDown, Clock, CreditCard, Download, Eye, EyeOff, Film, Languages, LayoutGrid, LayoutList, List, LogOut, Monitor, Moon, Sun, Timer, User, Trash2, BarChart3, Sparkles, Quote, Bug, LifeBuoy, MessageSquare, CheckCircle, RefreshCw, Keyboard } from "lucide-react";
+import { Table2 as TableIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";

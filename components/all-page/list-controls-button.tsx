@@ -28,7 +28,7 @@ interface ListControlsButtonProps {
   availableTags: string[];
   onFilterChange: (update: Partial<ListFilterConfig>) => void;
   onSortChange: (update: Partial<ListSortConfig>) => void;
-  mode?: "list" | "kanban";
+  mode?: "list" | "kanban" | "table";
 }
 
 function getActiveFilterCount(config: ListFilterConfig, includeTime: boolean) {
@@ -58,7 +58,8 @@ export function ListControlsButton({
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   useScrollLock(open);
-  const showTimeFilter = mode === "list";
+  const showTimeFilter = mode === "list" || mode === "table";
+  const hideSort = mode === "table";
   const activeFilterCount = getActiveFilterCount(filterConfig, showTimeFilter);
   const sortedTags = useMemo(
     () => [...availableTags].sort((a, b) => a.localeCompare(b)),
@@ -155,7 +156,7 @@ export function ListControlsButton({
               </button>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)]">
+            <div className={hideSort ? "grid gap-5" : "grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)]"}>
               <section className="min-w-0">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <p className="text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase dark:text-[#737373]">
@@ -392,6 +393,7 @@ export function ListControlsButton({
                 />
               </section>
 
+              {hideSort ? null : (
               <section className="min-w-0 border-t border-black/8 pt-4 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-5 dark:border-white/10">
                 <p className="mb-3 text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase dark:text-[#737373]">
                   {t("listControls.sort")}
@@ -562,6 +564,7 @@ export function ListControlsButton({
                   </>
                 )}
               </section>
+              )}
             </div>
             </div>
           </div>
