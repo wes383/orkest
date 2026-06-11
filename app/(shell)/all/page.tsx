@@ -104,6 +104,7 @@ export default function AllPage() {
       status: "all",
       selectedTags: [],
       selectedPriorities: [],
+      selectedProjectIds: [],
       searchQuery: "",
       timePreset: "none",
     });

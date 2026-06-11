@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { CheckCircle, Circle, Pencil, Repeat, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
 import { useDateLocale, useSettingsStore } from "@/lib/stores/use-settings-store";
-import { formatDateInput, getAnchorDate, getTimelinePointColor, PRIORITY_CONFIG } from "@/lib/all-page-utils";
+import { canDeleteRecurringSeriesFromDisplayItem, formatDateInput, getAnchorDate, getTimelinePointColor, PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { cn } from "@/lib/utils";
 import type { DisplayItem } from "@/lib/types/all-page";
 import type { Priority } from "@/lib/types/item";
@@ -88,6 +89,7 @@ export function TableRow({
   const isCompleted = item.status === "completed";
   const anchorDate = getAnchorDate(item);
   const [editingCell, setEditingCell] = useState<EditableCell | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const tooltipsDisabled = editingCell !== null;
 
   const dateFormatter = useMemo(
@@ -596,7 +598,11 @@ export function TableRow({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              handleDeleteItem(item);
+              if (canDeleteRecurringSeriesFromDisplayItem(item)) {
+                setDeleteDialogOpen(true);
+              } else {
+                handleDeleteItem(item, item.isRecurringInstance ? "single" : "series");
+              }
             }}
             className="inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded text-[#9f99a3] hover:text-red-600 hover:bg-red-500/10 dark:hover:text-red-400 dark:hover:bg-red-400/10"
             aria-label={t("common.delete")}
@@ -605,6 +611,62 @@ export function TableRow({
           </button>
         </div>
       </td>
+      {deleteDialogOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
+            onClick={() => setDeleteDialogOpen(false)}
+          >
+            <div
+              className="w-72 rounded-3xl border border-black/5 bg-white p-0 shadow-[0_24px_64px_rgba(28,24,35,0.16)] dark:border-white/10 dark:bg-[#1a1a1a]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sr-only" role="dialog" aria-label={t("recurrence.deleteTitle")} />
+              <div className="px-6 pt-6 pb-2">
+                <p className="text-base font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("recurrence.deleteTitle")}</p>
+                <p className="mt-1 text-xs text-[#9f99a3]">{t("recurrence.deleteSubtitle")}</p>
+              </div>
+              <div className="space-y-0.5 px-2 pb-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleDeleteItem(item, "single");
+                    setDeleteDialogOpen(false);
+                  }}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.03]"
+                >
+                  <Trash2 className="h-4 w-4 shrink-0 text-red-400" />
+                  <div>
+                    <p className="text-sm font-medium text-[#25242a] dark:text-[#f5f5f5]">{t("recurrence.deleteThisOccurrence")}</p>
+                    <p className="text-[11px] text-[#9f99a3]">{t("recurrence.deleteThisOccurrenceDesc")}</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleDeleteItem(item, "series");
+                    setDeleteDialogOpen(false);
+                  }}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.03]"
+                >
+                  <Trash2 className="h-4 w-4 shrink-0 text-red-400" />
+                  <div>
+                    <p className="text-sm font-medium text-[#25242a] dark:text-[#f5f5f5]">{t("recurrence.deleteEntireSeries")}</p>
+                    <p className="text-[11px] text-[#9f99a3]">{t("recurrence.deleteEntireSeriesDesc")}</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteDialogOpen(false)}
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-[#7d7880] transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.03]"
+                >
+                  {t("itemForm.cancel")}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </tr>
   );
 }

@@ -44,7 +44,7 @@ export function ProjectPill({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${className}`}
+      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${className}`}
       style={{
         borderColor: withAlpha(color, 0.22),
         backgroundColor: withAlpha(color, 0.11),
