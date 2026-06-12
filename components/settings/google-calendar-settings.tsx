@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown, Brain } from "lucide-react";
+import { Calendar, Unlink, AlertCircle, ExternalLink, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -220,18 +220,13 @@ export function GoogleCalendarSettings() {
 
       {status?.connected && (
         <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#25242a]/8 dark:bg-white/10">
-              <Brain className="h-4 w-4 text-[#25242a] dark:text-[#f5f5f5]" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-[#25242a] dark:text-[#f5f5f5]">
-                {t("settings.googleCalendar.aiProcessing")}
-              </p>
-              <p className="text-xs text-[#9f99a3]">
-                {t("settings.googleCalendar.aiProcessingDesc")}
-              </p>
-            </div>
+          <div>
+            <p className="text-sm font-medium text-[#25242a] dark:text-[#f5f5f5]">
+              {t("settings.googleCalendar.aiProcessing")}
+            </p>
+            <p className="text-xs text-[#9f99a3]">
+              {t("settings.googleCalendar.aiProcessingDesc")}
+            </p>
           </div>
           <label className="flex cursor-pointer items-center">
             <div className="relative shrink-0">

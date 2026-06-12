@@ -198,15 +198,7 @@ export default function SettingsPage() {
 
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showShortcutsSection, setShowShortcutsSection] = useState(false);
-  const [showGoogleCalendar, setShowGoogleCalendar] = useState(false);
 
-  // Auto-show Google Calendar section if user has connected
-  useEffect(() => {
-    fetch("/api/google-calendar/calendars")
-      .then((res) => res.ok ? res.json() : null)
-      .then((data) => { if (data?.connected) setShowGoogleCalendar(true); })
-      .catch(() => {});
-  }, []);
 
   // Feedback States
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
@@ -1324,6 +1316,11 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* Google Calendar */}
+      <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
+        <GoogleCalendarSettings />
+      </div>
+
       {/* Keyboard Shortcuts */}
       <div className="mt-4 rounded-2xl border border-black/8 bg-white dark:border-white/10 dark:bg-[#181818]">
         <button
@@ -1428,24 +1425,6 @@ export default function SettingsPage() {
           </button>
         </div>
       </div>
-
-      {/* Google Calendar (hidden behind "More options" button) */}
-      {!showGoogleCalendar && (
-        <div className="mt-4 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setShowGoogleCalendar(true)}
-            className="cursor-pointer rounded-full px-4 py-2 text-xs text-[#9b95a0] transition-colors hover:text-[#6d6770] dark:hover:text-[#a3a3a3]"
-          >
-            {t("common.comingSoon")}
-          </button>
-        </div>
-      )}
-      {showGoogleCalendar && (
-        <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
-          <GoogleCalendarSettings />
-        </div>
-      )}
 
       <div className="mt-4 rounded-2xl border border-black/8 bg-white p-6 dark:border-white/10 dark:bg-[#181818]">
         <div className="flex items-center gap-3 mb-2">
