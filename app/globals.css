@@ -80,6 +80,7 @@ body[data-scroll-locked] {
   --removed-body-scroll-bar-size: 0px;
 }
 
+html.ai-chat-fullscreen,
 html:has([data-radix-dialog-overlay]) {
   scrollbar-gutter: auto;
 }

@@ -458,11 +458,15 @@ export function AiOverlay({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isExpanded, isFullscreen, showHistory, showMemories, setExpandedState, setIsFullscreen, setShowHistory, setShowMemories]);
 
-  // Hide body scrollbar when fullscreen
+  // Hide body scrollbar and remove scrollbar-gutter placeholder when fullscreen
   useEffect(() => {
     if (isFullscreen && isExpanded) {
       document.body.style.overflow = "hidden";
-      return () => { document.body.style.overflow = ""; };
+      document.documentElement.classList.add("ai-chat-fullscreen");
+      return () => {
+        document.body.style.overflow = "";
+        document.documentElement.classList.remove("ai-chat-fullscreen");
+      };
     }
   }, [isFullscreen, isExpanded]);
 
