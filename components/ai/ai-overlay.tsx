@@ -297,6 +297,28 @@ export function AiOverlay({
     resizeAiInput,
   } = ai;
 
+  // --- Mobile detection & fullscreen enforcement ---
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile && isExpanded && !isFullscreen) {
+      setIsFullscreen(true);
+      setDisplayMode("fullscreen");
+    }
+  }, [isMobile, isExpanded, isFullscreen, setIsFullscreen, setDisplayMode]);
+
+  const effectiveHideFullscreenToggle = hideFullscreenToggle || isMobile;
+
   const toolMatch = aiInput.match(/^\/([\w-]+)(\s+)/);
   const matchedToolName = toolMatch ? toolMatch[1] : null;
   const isValidTool = matchedToolName ? SLASH_TOOLS.some(t => t.name === matchedToolName) : false;
@@ -713,7 +735,7 @@ export function AiOverlay({
                       <Clock className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
                     </button>
                   )}
-                  {!hideFullscreenToggle && (
+                  {!effectiveHideFullscreenToggle && (
                     <div className="relative">
                       <button
                         type="button"
