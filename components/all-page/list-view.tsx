@@ -239,52 +239,54 @@ function BatchActionBar({
 
   return (
     <div
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.15)] bg-white/50 dark:bg-[#1e1e1e]/80 dark:border-white/10 backdrop-blur-[18px] saturate-150"
+      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-5 py-3 rounded-2xl border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.15)] bg-white/50 dark:bg-[#1e1e1e]/80 dark:border-white/10 backdrop-blur-[18px] saturate-150"
     >
-      <span className="text-sm font-medium text-[#525059] dark:text-[#d4d4d4] mr-1">
+      <span className="w-full text-center sm:w-auto sm:text-left text-sm font-medium text-[#525059] dark:text-[#d4d4d4] sm:mr-1">
         {selectedCount} {t("batch.selected")}
       </span>
-      {allActive && (
+      <div className="flex items-center gap-2 sm:gap-3">
+        {allActive && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onComplete}
+            className="h-8 gap-1.5 text-xs border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-800/50 dark:text-green-400 dark:hover:bg-green-950/40 dark:hover:text-green-300"
+          >
+            <CheckCircle className="h-3.5 w-3.5" />
+            {t("batch.complete")}
+          </Button>
+        )}
+        {allCompleted && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onUndoComplete}
+            className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+          >
+            <Circle className="h-3.5 w-3.5" />
+            {t("batch.undo")}
+          </Button>
+        )}
         <Button
           size="sm"
           variant="outline"
-          onClick={onComplete}
-          className="h-8 gap-1.5 text-xs border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-800/50 dark:text-green-400 dark:hover:bg-green-950/40 dark:hover:text-green-300"
+          onClick={onDelete}
+          className="h-8 gap-1.5 text-xs border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
         >
-          <CheckCircle className="h-3.5 w-3.5" />
-          {t("batch.complete")}
+          <Trash2 className="h-3.5 w-3.5" />
+          {t("common.delete")}
         </Button>
-      )}
-      {allCompleted && (
+        <div className="w-px h-5 bg-black/10 dark:bg-white/15 mx-0.5 sm:mx-1" />
         <Button
           size="sm"
-          variant="outline"
-          onClick={onUndoComplete}
-          className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+          variant="ghost"
+          onClick={onCancel}
+          className="h-8 gap-1 text-xs text-[#7d7880] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#d4d4d4]"
         >
-          <Circle className="h-3.5 w-3.5" />
-          {t("batch.undo")}
+          <X className="h-3.5 w-3.5" />
+          {t("common.cancel")}
         </Button>
-      )}
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={onDelete}
-        className="h-8 gap-1.5 text-xs border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
-      >
-        <Trash2 className="h-3.5 w-3.5" />
-        {t("common.delete")}
-      </Button>
-      <div className="w-px h-5 bg-black/10 dark:bg-white/15 mx-1" />
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={onCancel}
-        className="h-8 gap-1 text-xs text-[#7d7880] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#d4d4d4]"
-      >
-        <X className="h-3.5 w-3.5" />
-        {t("common.cancel")}
-      </Button>
+      </div>
     </div>
   );
 }

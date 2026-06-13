@@ -651,7 +651,7 @@ export default function AllPage() {
                   </button>
                 </>
               )}
-              <AllPageSearch />
+              {!showStickyHeader && <AllPageSearch />}
             </div>
             {showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" && (
               <button
