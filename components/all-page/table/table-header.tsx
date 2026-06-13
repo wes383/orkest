@@ -18,8 +18,8 @@ type ColumnDef = {
 const COLUMNS: ColumnDef[] = [
   { key: "checkbox", labelKey: "", width: "w-10", align: "center" },
   { key: "title", labelKey: "table.column.title", sortable: true },
-  { key: "start", labelKey: "table.column.start", width: "w-36", sortable: true },
-  { key: "end", labelKey: "table.column.end", width: "w-36", sortable: true },
+  { key: "start", labelKey: "table.column.start", width: "w-44", sortable: true },
+  { key: "end", labelKey: "table.column.end", width: "w-44", sortable: true },
   { key: "project", labelKey: "table.column.project", width: "w-36", sortable: true },
   { key: "tags", labelKey: "table.column.tags", width: "w-40" },
   { key: "priority", labelKey: "table.column.priority", width: "w-24", align: "center", sortable: true },
