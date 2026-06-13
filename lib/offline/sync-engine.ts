@@ -183,8 +183,8 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
       }).catch((err) => console.error("[SyncEngine] cancel existing reminders failed:", err));
     }
 
-    // Schedule new reminders if the updated record has them
-    if (record.reminders?.length && record.startDate) {
+    // Schedule new reminders if the updated record has them (skip deleted items)
+    if (record.reminders?.length && record.startDate && !record.deletedAt) {
       void fetch("/api/reminders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

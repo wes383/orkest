@@ -41,6 +41,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing itemId or reminders" }, { status: 400 });
   }
 
+  // Verify the item exists and is not deleted
+  const { data: item } = await supabase
+    .from("items")
+    .select("id, deleted_at")
+    .eq("id", itemId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!item || item.deleted_at) {
+    return NextResponse.json({ error: "Item not found or deleted" }, { status: 404 });
+  }
+
   const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : "en";
 

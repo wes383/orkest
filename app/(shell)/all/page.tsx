@@ -517,7 +517,7 @@ export default function AllPage() {
         setSelectedItem(null);
       }}
     >
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-18">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-18 min-w-0">
 
         <div
           ref={headerRef}

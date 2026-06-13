@@ -220,7 +220,7 @@ export function TableView({
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-black/8 bg-white/40 dark:border-white/8 dark:bg-white/[0.04]">
-        <table className="w-full border-collapse text-sm">
+        <table className="w-full min-w-[640px] border-collapse text-sm">
           <TableHeader
             sort={tableSort}
             onSortChange={setTableSort}

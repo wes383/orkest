@@ -1114,7 +1114,8 @@ export const useAllPageStore = create<AllPageState>()(
         }
 
         updatedItems[itemIndex] = updated;
-        syncRecord("update", "items", updated.id, updated);
+        const syncType = updated.deletedAt ? "delete" : "update";
+        syncRecord(syncType, "items", updated.id, updated);
       }
 
       const sections = computeSections(updatedItems);
