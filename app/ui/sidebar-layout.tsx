@@ -131,7 +131,13 @@ export function SidebarLayout({
 
   const switchTab = useCallback(
     (href: string) => {
-      if (href === activeTab && !isSettingsPage && !isTrashPage && !isProjectsPage) return;
+      const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+      if (href === activeTab && !isSettingsPage && !isTrashPage && !isProjectsPage) {
+        if (isMobile) {
+          setIsCollapsed(true);
+        }
+        return;
+      }
       setActiveTab(href);
       setMountedTabs((prev) => {
         if (prev.has(href)) return prev;
@@ -144,8 +150,11 @@ export function SidebarLayout({
       } else {
         window.history.pushState(null, "", addLocaleToPathname(href, locale));
       }
+      if (isMobile) {
+        setIsCollapsed(true);
+      }
     },
-    [activeTab, isSettingsPage, isTrashPage, isProjectsPage, locale, router],
+    [activeTab, isSettingsPage, isTrashPage, isProjectsPage, locale, router, setIsCollapsed],
   );
 
   // Handle browser back/forward navigation
@@ -390,7 +399,7 @@ export function SidebarLayout({
       <div className={`fixed inset-x-0 top-0 z-30 h-16 sm:hidden transition-opacity duration-300 ${ai.isFullscreen ? "opacity-0 pointer-events-none" : ""}`}>
         <div
           className={`absolute inset-y-0 left-0 bg-sidebar transition-[width] duration-200 ease-in-out ${
-            isCollapsed ? "w-0" : "w-40"
+            isCollapsed ? "w-0" : "w-72"
           }`}
         />
         <div
@@ -411,19 +420,26 @@ export function SidebarLayout({
       >
         {toggleButton}
       </div>
+      {/* Mobile backdrop overlay */}
+      <div
+        className={`fixed inset-0 z-35 bg-black/40 backdrop-blur-sm transition-opacity duration-200 sm:hidden ${
+          isCollapsed ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
+        }`}
+        onClick={() => setIsCollapsed(true)}
+      />
       <aside
-        className={`fixed left-0 z-20 overflow-hidden bg-sidebar transition-[width] duration-200 top-16 bottom-0 sm:inset-y-0 sm:top-0 ${
-          isCollapsed ? "w-0" : "w-40 sm:w-64"
+        className={`fixed left-0 z-40 sm:z-20 overflow-hidden bg-sidebar transition-[width] duration-200 inset-y-0 ${
+          isCollapsed ? "w-0" : "w-72 sm:w-64 shadow-xl sm:shadow-none"
         }`}
       >
         <div
-          className={`absolute inset-y-0 left-0 w-40 px-4 py-6 pt-6 sm:w-64 sm:px-5 sm:pt-8 transition-[opacity,transform] duration-200 flex flex-col ${
+          className={`absolute inset-y-0 left-0 w-72 px-4 py-6 pt-6 sm:w-64 sm:px-5 sm:pt-8 transition-[opacity,transform] duration-200 flex flex-col ${
             isCollapsed
               ? "pointer-events-none translate-x-0 opacity-0"
               : "translate-x-0 opacity-100"
           }`}
         >
-          <div className="mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <button
               type="button"
               onClick={() => switchTab("/")}
@@ -499,6 +515,14 @@ export function SidebarLayout({
                 </g>
               </svg>
             </button>
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(true)}
+              className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl text-black transition-colors hover:bg-black/[0.035] dark:text-[#f5f5f5] dark:hover:bg-white/8 sm:hidden"
+              aria-label={t("nav.collapseSidebar")}
+            >
+              <TogglePanelIcon isCollapsed={isCollapsed} />
+            </button>
           </div>
           <nav className="flex flex-col gap-2">
             {items.map((item) => {
@@ -551,6 +575,7 @@ export function SidebarLayout({
             return (
               <ProjectSection
                 onSelect={(projectId) => {
+                  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
                   if (isProjectsPage) {
                     router.push(addLocaleToPathname(`/all?project=${projectId}`, locale));
                     setActiveTab("/all");
@@ -560,6 +585,9 @@ export function SidebarLayout({
                       next.add("/all");
                       return next;
                     });
+                    if (isMobile) {
+                      setIsCollapsed(true);
+                    }
                     return;
                   }
                   if (activeTab !== "/all") {
@@ -570,6 +598,9 @@ export function SidebarLayout({
                       next.add("/all");
                       return next;
                     });
+                  }
+                  if (isMobile) {
+                    setIsCollapsed(true);
                   }
                 }}
               />
@@ -612,7 +643,7 @@ export function SidebarLayout({
       {!isCollapsed && showUserMenu && user && (
         <div
           ref={expandedMenuRef}
-          className="fixed z-50 w-40 sm:w-52 rounded-xl bg-sidebar p-1.5 shadow-lg border border-black/8 dark:border-white/10 flex flex-col gap-1"
+          className="fixed z-50 w-52 rounded-xl bg-sidebar p-1.5 shadow-lg border border-black/8 dark:border-white/10 flex flex-col gap-1"
           style={{
             bottom: `calc(100vh - ${(userMenuAnchorRef.current?.getBoundingClientRect().top ?? 0) - 4}px)`,
             left: isCollapsed ? '0px' : (userMenuAnchorRef.current?.getBoundingClientRect().left ?? 0) + 'px',
@@ -638,6 +669,9 @@ export function SidebarLayout({
             onClick={() => {
               router.push(addLocaleToPathname("/settings", locale));
               setShowUserMenu(false);
+              if (typeof window !== "undefined" && window.innerWidth < 640) {
+                setIsCollapsed(true);
+              }
             }}
             className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition-colors ${
               isSettingsPage
@@ -770,7 +804,7 @@ export function SidebarLayout({
         <div
           aria-hidden="true"
           className={`shrink-0 transition-[width] duration-300 ease-in-out ${
-            isCollapsed ? "w-0" : "w-40 sm:w-64"
+            isCollapsed ? "w-0" : "w-0 sm:w-64"
           }`}
         />
         <div className={`min-h-screen min-w-0 flex-1 pt-16 sm:pt-0 ${mobileContentBackground} sm:bg-transparent`}>
