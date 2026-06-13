@@ -35,12 +35,22 @@ interface ToastMessage {
   undoAction: () => void;
 }
 
-type CalendarMode = "month" | "week" | "day";
+export type CalendarMode = "month" | "week" | "day";
+
+export type CalendarNavState = {
+  mode: CalendarMode;
+  title: string;
+  onPrev: () => void;
+  onNext: () => void;
+  onToday: () => void;
+  onSetMode: (m: CalendarMode) => void;
+};
 
 type CalendarViewProps = {
   sections: Section[];
   filterConfig: ListFilterConfig;
   onNavigateRef?: React.MutableRefObject<((direction: -1 | 1) => void) | null>;
+  onNavStateChange?: (state: CalendarNavState) => void;
 };
 
 const CALENDAR_DRAG_MIME = "application/x-orkest-calendar-item";
@@ -428,7 +438,7 @@ function CalendarEvent({
   );
 }
 
-export function CalendarView({ sections, filterConfig, onNavigateRef }: CalendarViewProps) {
+export function CalendarView({ sections, filterConfig, onNavigateRef, onNavStateChange }: CalendarViewProps) {
   const { t } = useI18n();
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -593,6 +603,7 @@ export function CalendarView({ sections, filterConfig, onNavigateRef }: Calendar
     }
   }, [onNavigateRef, moveCursor]);
 
+
   function goToday() {
     const today = startOfDay(new Date());
     setCursorDate(today);
@@ -664,6 +675,20 @@ export function CalendarView({ sections, filterConfig, onNavigateRef }: Calendar
       : mode === "week"
         ? `${getShortDateFormatter().format(range.start)} - ${getShortDateFormatter().format(range.end)}`
         : getWeekdayDateFormatter().format(cursorDate);
+
+  useEffect(() => {
+    if (onNavStateChange) {
+      onNavStateChange({
+        mode,
+        title,
+        onPrev: () => moveCursor(-1),
+        onNext: () => moveCursor(1),
+        onToday: goToday,
+        onSetMode: setMode,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, title, moveCursor]);
 
   return (
     <div className="space-y-6">

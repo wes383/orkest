@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useSyncExternalStore, useState, useMemo, useRef } from "react";
-import { Maximize2, Minimize2, Clock, List, Calendar, LayoutGrid, Table2, ChevronDown } from "lucide-react";
+import { Maximize2, Minimize2, Clock, List, Calendar, LayoutGrid, Table2, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useKeyboardShortcuts } from "@/lib/hooks/use-keyboard-shortcuts";
 
@@ -19,7 +19,7 @@ import {
   ListView,
   filterSections,
 } from "@/components/all-page/list-view";
-import { CalendarView } from "@/components/all-page/calendar-view";
+import { CalendarView, type CalendarNavState } from "@/components/all-page/calendar-view";
 import { KanbanView } from "@/components/all-page/kanban/kanban-view";
 import { TableView } from "@/components/all-page/table/table-view";
 import { useAuth } from "@/lib/auth/auth-provider";
@@ -166,6 +166,10 @@ export default function AllPage() {
   }, []);
 
   const calendarNavigateRef = useRef<((direction: -1 | 1) => void) | null>(null);
+  const [calendarNavState, setCalendarNavState] = useState<CalendarNavState | null>(null);
+  const handleCalendarNavStateChange = useCallback((state: CalendarNavState) => {
+    setCalendarNavState(state);
+  }, []);
 
   useKeyboardShortcuts([
     {
@@ -375,7 +379,7 @@ export default function AllPage() {
 
       requestAnimationFrame(() => {
         const currentScrollY = window.scrollY;
-        const scrollThreshold = 200;
+        const scrollThreshold = viewMode === "calendar" ? 300 : 200;
         const deadZone = 30;
 
         if (currentScrollY > scrollThreshold) {
@@ -402,7 +406,7 @@ export default function AllPage() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [viewMode]);
 
   // Close view dropdown when clicking outside
   useEffect(() => {
@@ -522,17 +526,19 @@ export default function AllPage() {
         <div
           ref={headerRef}
           className={`-mt-4 mb-[-3.5rem] flex flex-col gap-7 lg:mb-0 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-3 lg:gap-y-4 px-2 lg:px-3 ${
-            showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban"
+            showStickyHeader && (viewMode === "calendar"
+              ? `sticky top-3 z-30 mx-auto -mb-3 w-fit max-w-[calc(100%-1.5rem)] rounded-full px-2 py-1.5 gap-3 lg:mx-auto lg:-mb-4 lg:px-3 lg:py-2 lg:gap-3`
+              : viewMode !== "kanban"
               ? `sticky top-3 z-30 mx-auto -mb-3 w-fit max-w-[calc(100%-1.5rem)] rounded-2xl px-2 py-1.5 gap-3 lg:mx-0 lg:w-auto lg:max-w-none lg:-mb-4 lg:px-3 lg:py-2 lg:gap-3 ${
                   isHeaderWrapped ? "lg:rounded-2xl" : "lg:rounded-full"
                 }`
-              : ""
+              : "")
           }`}
         >
-          {showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" && (
+          {showStickyHeader && viewMode !== "kanban" && (
             <div
-              className={`absolute inset-0 -z-10 rounded-2xl border border-black/8 dark:border-white/10 shadow-lg bg-white/55 dark:bg-[#1e1e1e]/70 ${
-                isHeaderWrapped ? "lg:rounded-2xl" : "lg:rounded-full"
+              className={`absolute inset-0 -z-10 border border-black/8 dark:border-white/10 shadow-lg bg-white/55 dark:bg-[#1e1e1e]/70 ${
+                viewMode === "calendar" ? "rounded-full" : isHeaderWrapped ? "rounded-2xl" : "rounded-full"
               }`}
               style={{
                 backdropFilter: "blur(18px) saturate(140%)",
@@ -540,8 +546,8 @@ export default function AllPage() {
               }}
             />
           )}
-          <div className="flex items-center justify-center gap-2 lg:justify-start">
-            <div ref={viewDropdownRef} className="relative">
+          <div className={`flex items-center justify-center lg:justify-start ${showStickyHeader && viewMode === "calendar" ? "gap-0" : "gap-2"}`}>
+            <div ref={viewDropdownRef} className={`relative ${showStickyHeader && viewMode === "calendar" ? "hidden" : ""}`}>
               <button
                 type="button"
                 onClick={() => setViewDropdownOpen(!viewDropdownOpen)}
@@ -653,6 +659,41 @@ export default function AllPage() {
               )}
               {!showStickyHeader && <AllPageSearch />}
             </div>
+            {/* Calendar sticky nav bar */}
+            {showStickyHeader && viewMode === "calendar" && calendarNavState && (
+              <div className="flex items-center gap-1.5">
+                {/* Prev */}
+                <button
+                  type="button"
+                  onClick={calendarNavState.onPrev}
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/50 dark:bg-[#2a2a2a] text-[#7d7880] dark:text-[#a3a3a3] transition-colors hover:text-[#25242a] dark:hover:text-[#f5f5f5]"
+                  aria-label="Previous"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                {/* Title */}
+                <span className="whitespace-nowrap text-xs font-semibold text-[#25242a] dark:text-[#f5f5f5] min-w-[5rem] text-center">
+                  {calendarNavState.title}
+                </span>
+                {/* Next */}
+                <button
+                  type="button"
+                  onClick={calendarNavState.onNext}
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/50 dark:bg-[#2a2a2a] text-[#7d7880] dark:text-[#a3a3a3] transition-colors hover:text-[#25242a] dark:hover:text-[#f5f5f5]"
+                  aria-label="Next"
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+                {/* Today */}
+                <button
+                  type="button"
+                  onClick={calendarNavState.onToday}
+                  className="flex h-7 cursor-pointer items-center whitespace-nowrap rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/50 dark:bg-[#2a2a2a] px-2.5 text-[11px] font-medium text-[#7d7880] dark:text-[#a3a3a3] transition-colors hover:text-[#25242a] dark:hover:text-[#f5f5f5]"
+                >
+                  {t("listControls.today")}
+                </button>
+              </div>
+            )}
             {showStickyHeader && viewMode !== "calendar" && viewMode !== "kanban" && (
               <button
                 type="button"
@@ -663,7 +704,7 @@ export default function AllPage() {
               </button>
             )}
           </div>
-          <div className="hidden lg:flex items-center justify-end gap-2 shrink-0">
+          <div className={`items-center justify-end gap-2 shrink-0 ${showStickyHeader && viewMode === "calendar" ? "hidden" : "hidden lg:flex"}`}>
             {viewMode === "list" && (
               <>
                 {isListSelectionMode ? (
@@ -763,6 +804,7 @@ export default function AllPage() {
               sections={sections}
               filterConfig={listFilterConfig}
               onNavigateRef={calendarNavigateRef}
+              onNavStateChange={handleCalendarNavStateChange}
             />
           );
         })()}
