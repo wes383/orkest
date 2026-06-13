@@ -128,10 +128,20 @@ function getDateKey(date: Date) {
   return formatDateInput(date);
 }
 
+function getWeeksInMonth(cursor: Date) {
+  const firstDay = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const lastDay = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+  const gridStart = startOfWeek(firstDay);
+  const gridEnd = startOfWeek(lastDay);
+  const diffDays = Math.round((gridEnd.getTime() - gridStart.getTime()) / 86400000);
+  return (diffDays / 7) + 1;
+}
+
 function getCalendarRange(mode: CalendarMode, cursor: Date) {
   if (mode === "month") {
     const start = startOfMonthGrid(cursor);
-    return { start, end: endOfDay(addDays(start, 41)) };
+    const weeks = getWeeksInMonth(cursor);
+    return { start, end: endOfDay(addDays(start, weeks * 7 - 1)) };
   }
 
   if (mode === "week") {
@@ -830,7 +840,8 @@ function MonthCalendar({
   const { t } = useI18n();
   const cells = useMemo(() => {
     const start = startOfMonthGrid(cursorDate);
-    return Array.from({ length: 42 }, (_, index) => addDays(start, index));
+    const weeks = getWeeksInMonth(cursorDate);
+    return Array.from({ length: weeks * 7 }, (_, index) => addDays(start, index));
   }, [cursorDate]);
 
   const startDay = useSettingsStore((s) => s.weekStartDay);
@@ -1212,7 +1223,7 @@ const EventPopover = ({
       </div>
       <div className="max-h-[calc(100vh-6rem)] overflow-y-auto p-3">
           <div className="rounded-xl bg-white dark:bg-[#282828]">
-            <ItemCard item={popover.item} disableLeadingBleed forceDateIfNotToday compactActions disableHover ignoreDensity onAction={onClose} />
+            <ItemCard item={popover.item} disableLeadingBleed forceDateIfNotToday compactActions disableHover onAction={onClose} />
         </div>
       </div>
     </div>
