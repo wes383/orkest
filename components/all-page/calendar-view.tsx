@@ -430,6 +430,15 @@ function CalendarEvent({
 
 export function CalendarView({ sections, filterConfig, onNavigateRef }: CalendarViewProps) {
   const { t } = useI18n();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const [mode, setMode] = useState<CalendarMode>("month");
   const [cursorDate, setCursorDate] = useState(() => startOfDay(new Date()));
   const [selectedDate, setSelectedDate] = useState(() => startOfDay(new Date()));
@@ -711,6 +720,7 @@ export function CalendarView({ sections, filterConfig, onNavigateRef }: Calendar
             onOpenAdd={handleOpenAdd}
             onDragOver={allowDrop}
             onDrop={handleDrop}
+            isMobile={isMobile}
           />
         ) : mode === "week" ? (
           <TimeGrid
@@ -779,6 +789,7 @@ function MonthCalendar({
   onOpenAdd,
   onDragOver,
   onDrop,
+  isMobile,
 }: {
   cursorDate: Date;
   selectedDate: Date;
@@ -789,6 +800,7 @@ function MonthCalendar({
   onOpenAdd: (date: Date, time: string | undefined, x: number, y: number) => void;
   onDragOver: (event: DragEvent<HTMLElement>) => void;
   onDrop: (event: DragEvent<HTMLElement>, date: Date, time?: string) => void;
+  isMobile: boolean;
 }) {
   const { t } = useI18n();
   const cells = useMemo(() => {
@@ -809,7 +821,7 @@ function MonthCalendar({
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-7">
+      <div className="grid grid-cols-7">
         {cells.map((date) => {
           const key = getDateKey(date);
           const items = itemsByDate.get(key) ?? [];
@@ -823,37 +835,72 @@ function MonthCalendar({
               onDrop={(event) => onDrop(event, date)}
               onClick={(event) => {
                 if ((event.target as HTMLElement).closest("button")) return;
-                onOpenAdd(date, undefined, event.clientX, event.clientY);
+                if (isMobile && items.length > 0) {
+                  onOpenMore(items, date, event.clientX, event.clientY);
+                } else {
+                  onOpenAdd(date, undefined, event.clientX, event.clientY);
+                }
               }}
-              className={`min-h-32 cursor-pointer border-b border-black/8 p-2 transition-colors sm:border-r ${
+              className={`min-h-16 sm:min-h-32 cursor-pointer border-b border-r border-black/8 p-1 sm:p-2 transition-colors ${
                 isOutsideMonth ? "bg-white/35" : "bg-white/70"
               }`}
             >
               <button
                 type="button"
                 onClick={() => onEnterDayView(date)}
-                className={`mb-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-sm font-semibold transition-colors ${
+                className={`mb-1 sm:mb-2 flex h-6 w-6 sm:h-7 sm:w-7 cursor-pointer items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-colors ${
                   today ? "bg-[#25242a] text-white hover:bg-[#3a3840]" : selected ? "bg-white text-[#25242a] hover:bg-black/4" : "text-[#5f5a63] hover:bg-black/4"
                 }`}
               >
                 {date.getDate()}
               </button>
-              <div className="space-y-1">
-                {items.slice(0, MAX_MONTH_EVENTS).map((item) => (
-                  <CalendarEvent key={getDisplayItemKey(item)} item={item} compact onOpen={onOpenItem} />
-                ))}
-                {items.length > MAX_MONTH_EVENTS ? (
+              <div className="flex flex-wrap gap-0.5 justify-center sm:block sm:space-y-1">
+                {isMobile ? (
                   <button
                     type="button"
                     onClick={(event) => {
                       event.stopPropagation();
-                      onOpenMore(items, date, event.clientX, event.clientY);
+                      if (items.length > 0) onOpenMore(items, date, event.clientX, event.clientY);
                     }}
-                    className="w-full cursor-pointer rounded-lg px-2 py-1 text-left text-xs font-medium text-[#7d7880] hover:bg-black/3"
+                    className="flex flex-wrap gap-0.5 justify-center w-full cursor-pointer"
+                    aria-label={`${items.length} events`}
                   >
-                    +{items.length - MAX_MONTH_EVENTS} {t("calendar.more")}
+                    {items.slice(0, 4).map((item) => {
+                      const priorityConfig = item.priority ? PRIORITY_CONFIG[item.priority] : null;
+                      const priorityColor = priorityConfig?.textColor ?? "#5f5a63";
+                      return (
+                        <span
+                          key={getDisplayItemKey(item)}
+                          className="h-1.5 w-1.5 rounded-full shrink-0"
+                          style={{ backgroundColor: priorityColor }}
+                        />
+                      );
+                    })}
+                    {items.length > 4 && (
+                      <span className="text-[8px] font-semibold text-[#9f99a3] leading-none mt-0.5">
+                        +{items.length - 4}
+                      </span>
+                    )}
                   </button>
-                ) : null}
+                ) : (
+                  <>
+                    {items.slice(0, MAX_MONTH_EVENTS).map((item) => (
+                      <CalendarEvent key={getDisplayItemKey(item)} item={item} compact onOpen={onOpenItem} />
+                    ))}
+                    {items.length > MAX_MONTH_EVENTS ? (
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onOpenMore(items, date, event.clientX, event.clientY);
+                        }}
+                        className="w-full cursor-pointer rounded-lg px-2 py-1 text-left text-xs font-medium text-[#7d7880] hover:bg-black/3"
+                      >
+                        +{items.length - MAX_MONTH_EVENTS} {t("calendar.more")}
+                      </button>
+                    ) : null}
+                  </>
+                )}
               </div>
             </section>
           );
@@ -908,7 +955,7 @@ function TimeGrid({
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-black/8 bg-white/55 shadow-sm">
-      <div className={`min-w-190 ${mode === "day" ? "sm:min-w-0" : ""}`}>
+      <div className={mode === "week" ? "min-w-190" : "w-full min-w-0"}>
         <div className={`grid border-b border-black/8 bg-[#f4f0ec]/55 ${mode === "week" ? "grid-cols-[72px_repeat(7,minmax(96px,1fr))]" : "grid-cols-[72px_minmax(0,1fr)]"}`}>
           <div className="px-2 py-2 text-[11px] font-semibold tracking-[0.14em] text-[#8c8691] uppercase">{t("calendar.allDay")}</div>
           {days.map((day) => {
@@ -1101,13 +1148,16 @@ const EventPopover = ({
   const viewportW = typeof window !== "undefined" ? window.innerWidth : 1024;
   const viewportH = typeof window !== "undefined" ? window.innerHeight : 768;
 
+  const isMobileSize = viewportW < 640;
+  const cardWidth = isMobileSize ? viewportW - 2 * OFFSET : CARD_WIDTH;
+
   const flipUp = popover.y + 300 > viewportH - OFFSET;
 
   let left = popover.x + OFFSET;
   let top = flipUp ? popover.y - OFFSET : popover.y + OFFSET;
 
-  if (left + CARD_WIDTH > viewportW - OFFSET) {
-    left = popover.x - CARD_WIDTH - OFFSET;
+  if (left + cardWidth > viewportW - OFFSET) {
+    left = popover.x - cardWidth - OFFSET;
   }
   if (left < OFFSET) {
     left = OFFSET;
@@ -1120,7 +1170,7 @@ const EventPopover = ({
   return (
     <div
       ref={ref}
-      className="fixed z-50 w-[420px] max-h-[calc(100vh-2rem)] overflow-hidden rounded-2xl border border-black/8 bg-white dark:bg-[#202020] dark:border-white/10 shadow-[0_18px_55px_rgba(0,0,0,0.16)]"
+      className="fixed z-50 w-[calc(100vw-24px)] sm:w-[420px] max-h-[calc(100vh-2rem)] overflow-hidden rounded-2xl border border-black/8 bg-white dark:bg-[#202020] dark:border-white/10 shadow-[0_18px_55px_rgba(0,0,0,0.16)]"
       style={{ top, left, transform: flipUp ? "translateY(-100%)" : undefined }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -1163,13 +1213,16 @@ const MorePopover = ({
   const viewportW = typeof window !== "undefined" ? window.innerWidth : 1024;
   const viewportH = typeof window !== "undefined" ? window.innerHeight : 768;
 
+  const isMobileSize = viewportW < 640;
+  const cardWidth = isMobileSize ? viewportW - 2 * OFFSET : CARD_WIDTH;
+
   const flipUp = popover.y + 300 > viewportH - OFFSET;
 
   let left = popover.x + OFFSET;
   let top = flipUp ? popover.y - OFFSET : popover.y + OFFSET;
 
-  if (left + CARD_WIDTH > viewportW - OFFSET) {
-    left = popover.x - CARD_WIDTH - OFFSET;
+  if (left + cardWidth > viewportW - OFFSET) {
+    left = popover.x - cardWidth - OFFSET;
   }
   if (left < OFFSET) {
     left = OFFSET;
@@ -1182,7 +1235,7 @@ const MorePopover = ({
   return (
     <div
       ref={ref}
-      className="fixed z-40 w-[360px] max-h-[calc(100vh-2rem)] overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_18px_55px_rgba(0,0,0,0.16)]"
+      className="fixed z-40 w-[calc(100vw-24px)] sm:w-[360px] max-h-[calc(100vh-2rem)] overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_18px_55px_rgba(0,0,0,0.16)]"
       style={{ top, left, transform: flipUp ? "translateY(-100%)" : undefined }}
       onClick={(e) => e.stopPropagation()}
     >
