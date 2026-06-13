@@ -27,6 +27,7 @@ import { formatCountdown, formatStopwatch } from "@/lib/focus-page-utils";
 import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts-help";
 import { CommandPalette } from "@/components/command-palette";
 import { QuickAddBar } from "@/components/quick-add-bar";
+import { Tooltip } from "@/components/ui/tooltip";
 import { addLocaleToPathname, stripLocaleFromPathname, useI18n } from "@/lib/i18n";
 import {
   parseSidebarCollapsedPreference,
@@ -679,20 +680,22 @@ export function SidebarLayout({
             {items.map((item) => {
               const isActive = activeTab === item.href && !isSettingsPage;
               const Icon = item.icon;
+              const label = t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus");
               return (
-                <button
-                  key={item.href}
-                  type="button"
-                  onClick={() => switchTab(item.href)}
-                  className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl transition-colors ${
-                    isActive
-                      ? "bg-black/[0.035] text-black dark:bg-white/10 dark:text-[#f5f5f5]"
-                      : "text-[#7d7880] hover:bg-black/[0.035] hover:text-black dark:text-[#8a8a8a] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
-                  }`}
-                  aria-label={t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus")}
-                >
-                  <Icon className="h-5 w-5" strokeWidth={2} style={{ shapeRendering: "geometricPrecision" }} />
-                </button>
+                <Tooltip key={item.href} content={label} side="right">
+                  <button
+                    type="button"
+                    onClick={() => switchTab(item.href)}
+                    className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl transition-colors ${
+                      isActive
+                        ? "bg-black/[0.035] text-black dark:bg-white/10 dark:text-[#f5f5f5]"
+                        : "text-[#7d7880] hover:bg-black/[0.035] hover:text-black dark:text-[#8a8a8a] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+                    }`}
+                    aria-label={label}
+                  >
+                    <Icon className="h-5 w-5" strokeWidth={2} style={{ shapeRendering: "geometricPrecision" }} />
+                  </button>
+                </Tooltip>
               );
             })}
           </nav>
@@ -701,23 +704,25 @@ export function SidebarLayout({
           <div className="mt-auto flex flex-col items-center gap-0 pt-2" ref={collapsedMenuRef}>
             {user && (
               <>
-                <button
-                  type="button"
-                  onClick={() => setShowUserMenu((prev) => !prev)}
-                  className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl transition-colors hover:bg-black/[0.035] dark:hover:bg-white/8"
-                >
-                  {userAvatar ? (
-                    <img
-                      src={userAvatar}
-                      alt={userName}
-                      className="h-7 w-7 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 dark:bg-white/10">
-                      <User className="h-3.5 w-3.5 text-[#7d7880] dark:text-[#8a8a8a]" />
-                    </div>
-                  )}
-                </button>
+                <Tooltip content={userName || t("nav.settings")} side="right" disabled={showUserMenu}>
+                  <button
+                    type="button"
+                    onClick={() => setShowUserMenu((prev) => !prev)}
+                    className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl transition-colors hover:bg-black/[0.035] dark:hover:bg-white/8"
+                  >
+                    {userAvatar ? (
+                      <img
+                        src={userAvatar}
+                        alt={userName}
+                        className="h-7 w-7 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 dark:bg-white/10">
+                        <User className="h-3.5 w-3.5 text-[#7d7880] dark:text-[#8a8a8a]" />
+                      </div>
+                    )}
+                  </button>
+                </Tooltip>
                 {showUserMenu && (
                   <div className="absolute left-full bottom-4 ml-1 w-32 rounded-xl bg-sidebar p-1.5 shadow-lg border border-black/8 dark:border-white/10 flex flex-col gap-1">
                     <button
