@@ -39,7 +39,9 @@ function FilterDropdown({
   align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
+  const [offset, setOffset] = useState<{ left?: number; right?: number }>({});
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -50,6 +52,44 @@ function FilterDropdown({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  // After the menu mounts, clamp its position so it never extends past the
+  // viewport edges. Without this, a right-aligned menu attached to a button
+  // on the left side of a narrow viewport would overflow off-screen.
+  useEffect(() => {
+    if (!open) {
+      setOffset({});
+      return;
+    }
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    function clamp() {
+      const menuEl = menuRef.current;
+      const parentEl = ref.current;
+      if (!menuEl || !parentEl) return;
+      const rect = menuEl.getBoundingClientRect();
+      const parentRect = parentEl.getBoundingClientRect();
+      const margin = 8;
+      const viewportWidth = window.innerWidth;
+      const next: { left?: number; right?: number } = {};
+      if (rect.left < margin) {
+        next.left = margin - parentRect.left;
+      }
+      if (rect.right > viewportWidth - margin) {
+        next.right = parentRect.right - (viewportWidth - margin);
+      }
+      setOffset(next);
+    }
+
+    clamp();
+    window.addEventListener("resize", clamp);
+    window.addEventListener("scroll", clamp, true);
+    return () => {
+      window.removeEventListener("resize", clamp);
+      window.removeEventListener("scroll", clamp, true);
+    };
   }, [open]);
 
   return (
@@ -82,10 +122,17 @@ function FilterDropdown({
         )}
       </button>
       {open && (
-        <div className={cn(
-          "absolute top-full z-50 mt-1 min-w-[12rem] rounded-2xl border border-black/8 dark:border-white/10 bg-white dark:bg-[#202020] p-1.5 shadow-[0_20px_45px_rgba(28,24,35,0.10)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.45)]",
-          align === "right" ? "right-0" : "left-0"
-        )}>
+        <div
+          ref={menuRef}
+          style={{
+            ...(offset.left !== undefined ? { left: offset.left } : null),
+            ...(offset.right !== undefined ? { right: offset.right } : null),
+          }}
+          className={cn(
+            "absolute top-full z-50 mt-1 min-w-[12rem] rounded-2xl border border-black/8 dark:border-white/10 bg-white dark:bg-[#202020] p-1.5 shadow-[0_20px_45px_rgba(28,24,35,0.10)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.45)]",
+            align === "right" ? "right-0" : "left-0"
+          )}
+        >
           {children(() => setOpen(false))}
         </div>
       )}
