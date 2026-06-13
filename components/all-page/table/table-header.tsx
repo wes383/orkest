@@ -59,7 +59,7 @@ export function TableHeader({
               key={col.key}
               scope="col"
               className={cn(
-                "px-3 py-2 align-middle text-[10px] font-semibold uppercase tracking-[0.12em] text-[#7d7880] dark:text-[#a3a3a3]",
+                "px-3 py-2 align-middle text-[10px] font-semibold uppercase tracking-[0.12em] text-[#7d7880] dark:text-[#a3a3a3] whitespace-nowrap",
                 col.width,
                 align === "right" && "text-right",
                 align === "center" && "text-center",

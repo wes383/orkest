@@ -500,7 +500,7 @@ export function TableRow({
 
       <td
         className={cn(
-          "px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums",
+          "px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums whitespace-nowrap",
           isCompact ? "py-1.5" : "py-2.5",
         )}
         onClick={openCell("start")}
@@ -530,7 +530,7 @@ export function TableRow({
 
       <td
         className={cn(
-          "px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums",
+          "px-3 align-middle text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums whitespace-nowrap",
           isCompact ? "py-1.5" : "py-2.5",
         )}
         onClick={openCell("end")}
