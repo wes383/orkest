@@ -23,9 +23,8 @@ const COLUMNS: ColumnDef[] = [
   { key: "project", labelKey: "table.column.project", width: "w-36", sortable: true },
   { key: "tags", labelKey: "table.column.tags", width: "w-40" },
   { key: "priority", labelKey: "table.column.priority", width: "w-24", align: "center", sortable: true },
-  { key: "estimate", labelKey: "table.column.estimate", width: "w-20", align: "right", sortable: true },
   { key: "recurring", labelKey: "table.column.recurring", width: "w-20", align: "center", sortable: true },
-  { key: "actions", labelKey: "table.column.actions", width: "w-16", align: "right" },
+  { key: "actions", labelKey: "table.column.actions", width: "w-24", align: "right" },
 ];
 
 export function TableHeader({

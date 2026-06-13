@@ -230,7 +230,7 @@ export function TableView({
           <tbody>
             {sortedItems.length === 0 ? (
               <tr>
-                <td colSpan={10} className="p-0">
+                <td colSpan={9} className="p-0">
                   <TableEmptyState
                     isFiltered={isFiltered}
                     onClearFilters={onClearFilters}

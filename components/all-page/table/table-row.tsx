@@ -2,20 +2,19 @@
 
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { CheckCircle, Circle, Pencil, Repeat, Trash2 } from "lucide-react";
+import { CheckCircle, Circle, Info, Pencil, Repeat, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
 import { useDateLocale, useSettingsStore } from "@/lib/stores/use-settings-store";
 import { canDeleteRecurringSeriesFromDisplayItem, formatDateInput, formatDueDate, getAnchorDate, getTimelinePointColor, PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { cn } from "@/lib/utils";
-import type { DisplayItem } from "@/lib/types/all-page";
+import type { DisplayItem, ManualItemRecord, Reminder } from "@/lib/types/all-page";
 import type { Priority } from "@/lib/types/item";
 import { ProjectPill } from "@/components/projects/project-pill";
 
 import {
   DateCellEditor,
-  EstimateCellEditor,
   PriorityCellEditor,
   ProjectCellEditor,
   RecurrenceCellEditor,
@@ -24,6 +23,7 @@ import {
   type RecurrenceValue,
 } from "./table-cell-editors";
 import { TableCellTooltip } from "./table-cell-tooltip";
+import { ExtraDetailsTooltip } from "./table-extra-details-tooltip";
 
 function formatEstimate(minutes: number | undefined) {
   if (minutes === undefined) return "";
@@ -33,9 +33,42 @@ function formatEstimate(minutes: number | undefined) {
   return mins === 0 ? `${hours}h` : `${hours}h${mins}m`;
 }
 
-const DAY_NAME_KEYS = ["calendar.daySun", "calendar.dayMon", "calendar.dayTue", "calendar.dayWed", "calendar.dayThu", "calendar.dayFri", "calendar.daySat"];
-
 type TranslateFn = (key: string, values?: Record<string, string | number>) => string;
+
+function getBrowserTimezone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+  } catch {
+    return "";
+  }
+}
+
+function formatReminder(reminder: Reminder, t: TranslateFn, isAllDay: boolean): string {
+  if (isAllDay) {
+    const minutes = reminder.minutesBefore;
+    const days = reminder.dayOffset ?? Math.floor(minutes / 1440);
+    const time = reminder.triggerTime ?? "09:00";
+    if (days === 0) return t("reminder.sameDayAt", { time });
+    if (days >= 7 && days % 7 === 0) {
+      return t("reminder.timeWeekAt", { weeks: days / 7, time });
+    }
+    return t("reminder.timeDayAt", { days, time });
+  }
+  const minutes = reminder.minutesBefore;
+  if (minutes < 60) return t("reminder.timeMin", { minutes });
+  if (minutes < 1440) {
+    const hours = Math.floor(minutes / 60);
+    return t("reminder.timeHour", { hours });
+  }
+  if (minutes < 10080) {
+    const days = Math.floor(minutes / 1440);
+    return t("reminder.timeDay", { days });
+  }
+  const weeks = Math.floor(minutes / 10080);
+  return t("reminder.timeWeek", { weeks });
+}
+
+const DAY_NAME_KEYS = ["calendar.daySun", "calendar.dayMon", "calendar.dayTue", "calendar.dayWed", "calendar.dayThu", "calendar.dayFri", "calendar.daySat"];
 
 function formatRecurrenceTranslated(item: DisplayItem, t: TranslateFn, formatDueDate: (date: Date) => string): string {
   const rec = item.recurrence;
@@ -120,7 +153,7 @@ function toInputTime(date: Date | undefined, locale: string, is12h: boolean) {
   return `${String(hour).padStart(2, "0")}:${minute}`;
 }
 
-type EditableCell = "title" | "start" | "end" | "project" | "tags" | "priority" | "estimate" | "recurring";
+type EditableCell = "title" | "start" | "end" | "project" | "tags" | "priority" | "recurring";
 
 export function TableRow({
   item,
@@ -146,6 +179,7 @@ export function TableRow({
   const is12h = timeFormat === "12h";
   const patchManualItem = useAllPageStore((s) => s.patchManualItem);
   const handleDeleteItem = useAllPageStore((s) => s.handleDeleteItem);
+  const manualItems = useAllPageStore((s) => s.manualItems);
 
   const isCompleted = item.status === "completed";
   const anchorDate = getAnchorDate(item);
@@ -200,7 +234,6 @@ export function TableRow({
       }
     : undefined;
   const recurrenceType = recurrence?.type ?? "none";
-  const estimate = formatEstimate(item.estimateMinutes);
   const startDate = item.time.start;
   const endDate = item.time.end;
   const dueDate = item.time.due;
@@ -233,11 +266,6 @@ export function TableRow({
 
   function commitProject(next: string | undefined) {
     patchManualItem(item.id, { projectId: next });
-    setEditingCell(null);
-  }
-
-  function commitEstimate(next: number | undefined) {
-    patchManualItem(item.id, { estimateMinutes: next });
     setEditingCell(null);
   }
 
@@ -289,6 +317,105 @@ export function TableRow({
   function cancelEdit() {
     setEditingCell(null);
   }
+
+  // Build the list of detail rows shown in the hover tooltip on the actions
+  // column's info icon. Each row is omitted when the item has no value for
+  // that field. The timezone is only shown when it differs from the browser.
+  const subtasks: ManualItemRecord[] = useMemo(
+    () => manualItems.filter((r) => r.parentId === item.id && !r.deletedAt),
+    [manualItems, item.id],
+  );
+  const extraDetailRows = useMemo(() => {
+    const rows: Array<{ label: string; value: React.ReactNode }> = [];
+
+    if (subtasks.length > 0) {
+      const completed = subtasks.filter((s) => s.status === "completed").length;
+      const list = subtasks.map((s) => {
+        const done = s.status === "completed";
+        return (
+          <div
+            key={s.id}
+            className={cn(
+              "flex items-center gap-1.5",
+              done && "line-through text-[#9f99a3]",
+            )}
+          >
+            {done ? (
+              <CheckCircle className="h-3 w-3 shrink-0 text-green-500" />
+            ) : (
+              <Circle className="h-3 w-3 shrink-0 text-[#9f99a3]" />
+            )}
+            <span className="truncate">{s.title || "—"}</span>
+          </div>
+        );
+      });
+      rows.push({
+        label: t("itemForm.subtasks"),
+        value: (
+          <div className="space-y-1">
+            {list}
+            <div className="text-[10px] text-[#9f99a3]">
+              {t("subtasks.progress", { completed, total: subtasks.length })}
+            </div>
+          </div>
+        ),
+      });
+    }
+
+    const itemTimezone = item.time.timezone;
+    const browserTimezone = getBrowserTimezone();
+    if (itemTimezone && itemTimezone !== browserTimezone) {
+      rows.push({
+        label: t("itemForm.timezone"),
+        value: itemTimezone,
+      });
+    }
+
+    if (dueDate) {
+      rows.push({
+        label: t("itemForm.dueDate"),
+        value: formatDueDate(dueDate),
+      });
+    }
+
+    const estimateLabel = formatEstimate(item.estimateMinutes);
+    if (estimateLabel) {
+      rows.push({
+        label: t("itemForm.estimatedDuration"),
+        value: estimateLabel,
+      });
+    }
+
+    const reminders = item.reminders ?? [];
+    if (reminders.length > 0) {
+      rows.push({
+        label: t("itemForm.reminders"),
+        value: (
+          <ul className="space-y-0.5">
+            {reminders.map((r) => (
+              <li key={r.id} className="flex items-center gap-1.5">
+                <span>• {formatReminder(r, t as TranslateFn, allDay)}</span>
+                <span className="text-[#9f99a3]">
+                  ({r.method === "email"
+                    ? t("reminder.methodEmail")
+                    : t("reminder.methodPush")})
+                </span>
+              </li>
+            ))}
+          </ul>
+        ),
+      });
+    }
+
+    if (item.description && item.description.trim()) {
+      rows.push({
+        label: t("itemForm.notes"),
+        value: item.description,
+      });
+    }
+
+    return rows;
+  }, [subtasks, item.time.timezone, dueDate, item.estimateMinutes, item.reminders, item.description, t, allDay]);
 
   return (
     <tr
@@ -589,27 +716,6 @@ export function TableRow({
 
       <td
         className={cn(
-          "px-3 align-middle text-right text-xs text-[#525059] dark:text-[#d4d4d4] tabular-nums",
-          isCompact ? "py-1.5" : "py-2.5",
-        )}
-        onClick={openCell("estimate")}
-      >
-        {editingCell === "estimate" ? (
-          <EstimateCellEditor
-            value={item.estimateMinutes}
-            onCommit={commitEstimate}
-            onCancel={cancelEdit}
-            label={t("table.column.estimate")}
-          />
-        ) : (
-          <span className="cursor-pointer">
-            {estimate || <span className="text-[#9f99a3]">—</span>}
-          </span>
-        )}
-      </td>
-
-      <td
-        className={cn(
           "px-3 align-middle text-center text-base",
           isCompact ? "py-1.5" : "py-2.5",
         )}
@@ -644,6 +750,18 @@ export function TableRow({
 
       <td className={cn("px-3 align-middle text-right", isCompact ? "py-1.5" : "py-2.5")}>
         <div className="inline-flex items-center gap-1">
+          {extraDetailRows.length > 0 && (
+            <ExtraDetailsTooltip rows={extraDetailRows} disabled={tooltipsDisabled}>
+              <span
+                role="img"
+                aria-label={t("common.moreInfo")}
+                data-testid="row-info-icon"
+                className="inline-flex h-6 w-6 cursor-default items-center justify-center rounded text-[#9f99a3] hover:text-[#25242a] hover:bg-black/5 dark:hover:text-white dark:hover:bg-white/10"
+              >
+                <Info className="h-3.5 w-3.5" />
+              </span>
+            </ExtraDetailsTooltip>
+          )}
           <button
             type="button"
             onClick={(e) => {
