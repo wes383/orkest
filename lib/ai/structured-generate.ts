@@ -23,10 +23,15 @@ interface StructuredGenerateResult<T> {
 }
 
 /**
- * Generate structured output using AI SDK's generateObject with Zod schema.
- * Falls back through the model list on quota exhaustion.
- * On structured parse failure, retries once with a simplified prompt.
+ * Strip markdown code fences (``` or ```json) that some models (e.g. gemma)
+ * wrap around JSON output. Returns the inner JSON string or null if no fence
+ * is detected.
  */
+function stripMarkdownCodeFence(text: string): string | null {
+  const match = text.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?\s*```\s*$/);
+  return match ? match[1].trim() : null;
+}
+
 export async function structuredGenerate<T extends z.ZodType>(
   options: StructuredGenerateOptions<T>,
 ): Promise<StructuredGenerateResult<z.infer<T>>> {
@@ -46,6 +51,9 @@ export async function structuredGenerate<T extends z.ZodType>(
         prompt: prompt + jsonHint,
         system,
         maxOutputTokens,
+        // Some models (e.g. gemma) wrap JSON in ```json ... ``` fences even when
+        // asked for structured output. Strip the fence so the SDK can re-parse.
+        experimental_repairText: async ({ text }) => stripMarkdownCodeFence(text),
       });
       // Record successful usage
       await recordAiUsage(userId ?? null, feature, { model: modelName, status: "success" }).catch(() => {});
