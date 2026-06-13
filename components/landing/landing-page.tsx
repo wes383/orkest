@@ -98,18 +98,16 @@ function Header() {
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center px-6">
-        <div className="flex-1">
-          <Link
-            href={addLocaleToPathname("/", locale)}
-            className="flex items-center gap-2.5 text-[#25242a] dark:text-[#f5f5f5]"
-          >
-            <Logo className="h-7 w-7" />
-            <span className="font-display text-lg font-semibold tracking-tight">
-              Orkest
-            </span>
-          </Link>
-        </div>
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
+        <Link
+          href={addLocaleToPathname("/", locale)}
+          className="flex shrink-0 items-center gap-2.5 text-[#25242a] dark:text-[#f5f5f5]"
+        >
+          <Logo className="h-7 w-7" />
+          <span className="font-display text-lg font-semibold tracking-tight">
+            Orkest
+          </span>
+        </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           <a
@@ -138,13 +136,13 @@ function Header() {
           </Link>
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-3">
+        <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3">
           {mounted ? (
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="cursor-pointer h-9 w-9 rounded-full text-[#6d6770] hover:text-[#25242a] hover:bg-[#f4f0ec]/60 dark:text-[#a3a3a3] dark:hover:text-[#f5f5f5] dark:hover:bg-white/[0.05]"
+              className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9 shrink-0 rounded-full text-[#6d6770] hover:text-[#25242a] hover:bg-[#f4f0ec]/60 dark:text-[#a3a3a3] dark:hover:text-[#f5f5f5] dark:hover:bg-white/[0.05]"
               aria-label="Toggle theme"
             >
               {appearance === "dark" ? (
@@ -154,7 +152,7 @@ function Header() {
               )}
             </Button>
           ) : (
-            <div className="h-9 w-9" />
+            <div className="h-8 w-8 sm:h-9 sm:w-9 shrink-0" />
           )}
 
           <Link
@@ -163,8 +161,10 @@ function Header() {
           >
             {t("auth.signIn")}
           </Link>
-          <Link href={appHref}>
-            <Button size="sm">{t("landing.header.getStarted")}</Button>
+          <Link href={appHref} className="shrink-0">
+            <Button size="sm" className="whitespace-nowrap">
+              {t("landing.header.getStarted")}
+            </Button>
           </Link>
         </div>
       </div>
@@ -405,7 +405,7 @@ function Cta() {
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#fcfbfa] text-[#171717] dark:bg-[#101010] dark:text-[#f5f5f5]">
+    <div className="min-h-screen overflow-x-hidden bg-[#fcfbfa] text-[#171717] dark:bg-[#101010] dark:text-[#f5f5f5]">
       <Header />
       <main>
         <Hero />

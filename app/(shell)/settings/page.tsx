@@ -670,7 +670,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="px-6 py-8 max-w-4xl mx-auto dark:text-[#f5f5f5]">
+    <div className="px-4 py-8 max-w-4xl mx-auto dark:text-[#f5f5f5]">
       <div className="mb-6">
         <h1 className="font-display text-3xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">{t("settings.title")}</h1>
       </div>

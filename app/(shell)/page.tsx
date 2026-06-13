@@ -149,7 +149,7 @@ export default function TodayPage() {
 
   return (
     <section
-      className="relative min-h-screen bg-[#fcfbfa] px-8 py-8 text-[#2b2a30] transition-[padding] duration-300 ease-in-out sm:px-14 lg:px-14 lg:py-12 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24"
+      className="relative min-h-screen bg-[#fcfbfa] px-4 py-8 text-[#2b2a30] transition-[padding] duration-300 ease-in-out sm:px-14 lg:px-14 lg:py-12 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24"
       onClick={() => setSelectedItem(null)}
     >
       <div
@@ -159,7 +159,7 @@ export default function TodayPage() {
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 lg:gap-10">
 
         {dailyDigestEnabled && (
-        <div className="flex items-center justify-between px-2 lg:px-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-2 lg:px-3">
           <div className="relative grid grid-cols-2 rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] p-0.5">
             {/* Sliding background */}
             <div
@@ -192,7 +192,7 @@ export default function TodayPage() {
               {t("digest.view.timeline")}
             </button>
           </div>
-          <p className="shrink-0 rounded-full bg-[#e8e6ea] px-3 py-1 text-sm font-medium text-[#6f6a72]">
+          <p className="hidden sm:block shrink-0 rounded-full bg-[#e8e6ea] px-3 py-1 text-sm font-medium text-[#6f6a72]">
             {todayView.dateLabel}
           </p>
         </div>

@@ -29,25 +29,25 @@ export function DailyDigestCard({ viewModel }: { viewModel: TodayViewModel }) {
         </h2>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 gap-3">
-        <div className="rounded-2xl border border-black/8 bg-white/75 px-4 py-3 dark:border-white/10 dark:bg-[#202020]/75">
-          <p className="text-[11px] font-semibold tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
+      <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="rounded-2xl border border-black/8 bg-white/75 px-2.5 py-2 sm:px-4 sm:py-3 dark:border-white/10 dark:bg-[#202020]/75">
+          <p className="text-[11px] font-semibold tracking-[0.08em] sm:tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
             {t("today.left")}
           </p>
           <p className="mt-1 text-2xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">
             {taskSummary.remainingTasks}
           </p>
         </div>
-        <div className="rounded-2xl border border-black/8 bg-white/75 px-4 py-3 dark:border-white/10 dark:bg-[#202020]/75">
-          <p className="text-[11px] font-semibold tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
+        <div className="rounded-2xl border border-black/8 bg-white/75 px-2.5 py-2 sm:px-4 sm:py-3 dark:border-white/10 dark:bg-[#202020]/75">
+          <p className="text-[11px] font-semibold tracking-[0.08em] sm:tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
             {t("today.done")}
           </p>
           <p className="mt-1 text-2xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">
             {taskSummary.completedTasks}
           </p>
         </div>
-        <div className="rounded-2xl border border-black/8 bg-white/75 px-4 py-3 dark:border-white/10 dark:bg-[#202020]/75">
-          <p className="text-[11px] font-semibold tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
+        <div className="rounded-2xl border border-black/8 bg-white/75 px-2.5 py-2 sm:px-4 sm:py-3 dark:border-white/10 dark:bg-[#202020]/75">
+          <p className="text-[11px] font-semibold tracking-[0.08em] sm:tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
             {t("today.overdue")}
           </p>
           <p className="mt-1 text-2xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">
@@ -60,7 +60,7 @@ export function DailyDigestCard({ viewModel }: { viewModel: TodayViewModel }) {
         <div className="mt-4 flex items-start gap-2">
           <Play className="h-4 w-4 shrink-0 mt-0.5 text-blue-500 dark:text-blue-400" />
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
+            <p className="text-[11px] font-semibold tracking-[0.08em] sm:tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
               {t("digest.summary.inProgress")}
             </p>
             {taskSummary.inProgressTasks.map((task, index) => (
@@ -79,7 +79,7 @@ export function DailyDigestCard({ viewModel }: { viewModel: TodayViewModel }) {
         <div className="mt-3 flex items-start gap-2">
           <Clock className="h-4 w-4 shrink-0 mt-0.5 text-[#8c8691] dark:text-[#a09ba5]" />
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
+            <p className="text-[11px] font-semibold tracking-[0.08em] sm:tracking-[0.18em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
               {t("digest.summary.nextUp")}
             </p>
             <p className="text-sm font-medium text-[#25242a] dark:text-[#f5f5f5] truncate">

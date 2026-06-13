@@ -158,9 +158,6 @@ export function GoogleCalendarSettings() {
               <h3 className="text-sm font-semibold text-[#25242a] dark:text-[#f5f5f5]">
                 {t("settings.googleCalendar.title")}
               </h3>
-              <span className="inline-flex items-center rounded-md bg-[#25242a]/8 px-1.5 py-0.5 text-[10px] font-semibold text-[#25242a]/60 dark:bg-white/10 dark:text-[#d4d4d4]/60">
-                Beta
-              </span>
             </div>
             <p className="text-xs text-[#9f99a3]">
               {status?.connected

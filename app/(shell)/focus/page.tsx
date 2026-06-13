@@ -92,7 +92,7 @@ export default function FocusPage() {
 
   return (
     <section
-      className="relative min-h-screen bg-[#fcfbfa] dark:bg-[#101010] px-8 py-8 text-[#2b2a30] dark:text-[#d4d4d4] transition-[padding] duration-300 ease-in-out sm:px-14 lg:px-14 lg:py-12 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24"
+      className="relative min-h-screen bg-[#fcfbfa] dark:bg-[#101010] px-4 py-8 text-[#2b2a30] dark:text-[#d4d4d4] transition-[padding] duration-300 ease-in-out sm:px-14 lg:px-14 lg:py-12 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24"
       onClick={() => setSelectedItem(null)}
     >
       <div
@@ -109,7 +109,7 @@ export default function FocusPage() {
             <TimerControls />
           </div>
 
-          <div className="flex w-full flex-col gap-6 sm:w-96 lg:pt-10">
+          <div className="flex w-full flex-col gap-6 sm:w-96 sm:max-w-96 lg:pt-10">
             <TaskSelector items={todayItems} />
             <FocusTaskCard />
           </div>

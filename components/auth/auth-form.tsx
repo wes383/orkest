@@ -266,7 +266,7 @@ export function AuthForm() {
               {isSignUp && !awaitingCode && (
                 <div
                   className={`overflow-hidden transition-all duration-200 ease-out ${
-                    !allChecksMet && (passwordFocused || password.length > 0) ? "max-h-24 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"
+                    !allChecksMet && (passwordFocused || password.length > 0) ? "max-h-40 opacity-100 mt-3" : "max-h-0 opacity-0 mt-0"
                   }`}
                 >
                   <div className="space-y-2">
