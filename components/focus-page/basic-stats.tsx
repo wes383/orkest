@@ -38,7 +38,7 @@ export function BasicStats({ sessions, allSessions }: { sessions: FocusSession[]
   ];
 
   return (
-    <div className="grid grid-cols-6 gap-2">
+    <div className="grid grid-cols-3 md:grid-cols-6 gap-x-2 gap-y-4 md:gap-y-2">
       {items.map(({ label, value }) => (
         <div key={label} className="text-center">
           <p className="text-[11px] font-semibold tracking-[0.12em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
