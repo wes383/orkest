@@ -198,7 +198,7 @@ export function ProjectsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
-      <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">
             {t("projects.title")}
@@ -207,7 +207,7 @@ export function ProjectsPage() {
             {t("projects.subtitle")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={toggleSortMenu}
@@ -339,7 +339,7 @@ export function ProjectsPage() {
                     </p>
                   </div>
                   {user ? (
-                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                    <div className="flex items-center gap-1 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
                       <button
                         type="button"
                         onClick={(e) => {

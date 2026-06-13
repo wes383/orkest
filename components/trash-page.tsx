@@ -189,14 +189,14 @@ export function TrashPage() {
 
   return (
     <div className="px-6 py-8 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="font-display text-3xl font-semibold text-[#25242a] dark:text-[#e8e6ea]">{t("trash.title")}</h1>
           <p className="mt-1 text-sm text-[#6a6570] dark:text-[#a09ba5]">
             {t("trash.itemCount", { count: deletedItems.length })}{deletedItems.length !== 1 && t("trash.itemCountPlural") ? t("trash.itemCountPlural") : ""} · {t("trash.autoDeleteHint")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {selectedItems.size > 0 && (
             <>
               <button
@@ -263,8 +263,8 @@ export function TrashPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-black/8 dark:border-white/10 bg-white/75 dark:bg-[#202020] overflow-hidden">
-        <div className="flex items-center gap-4 px-4 py-3 border-b border-black/6 dark:border-white/10 bg-[#fcfbfa] dark:bg-[#181818]">
+      <div className="rounded-2xl border border-black/8 dark:border-white/10 bg-white/75 dark:bg-[#202020] overflow-x-auto">
+        <div className="flex items-center gap-4 px-4 py-3 border-b border-black/6 dark:border-white/10 bg-[#fcfbfa] dark:bg-[#181818] min-w-[700px]">
           <input
             type="checkbox"
             checked={selectedItems.size === deletedItems.length}
@@ -293,7 +293,7 @@ export function TrashPage() {
           return (
             <div
               key={item.id}
-              className="flex items-center gap-4 px-4 py-3 border-b border-black/4 dark:border-white/5 last:border-0 hover:bg-[#fcfbfa] dark:hover:bg-[#181818] transition-colors"
+              className="flex items-center gap-4 px-4 py-3 border-b border-black/4 dark:border-white/5 last:border-0 hover:bg-[#fcfbfa] dark:hover:bg-[#181818] transition-colors min-w-[700px]"
             >
               <input
                 type="checkbox"
