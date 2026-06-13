@@ -191,7 +191,7 @@ export function TableView({
   }, [selectedItems, handleBatchDelete, clearSelection]);
 
   return (
-    <div className="space-y-3">
+    <div className="w-full min-w-0 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-xs text-[#7d7880] dark:text-[#a3a3a3]">
@@ -219,7 +219,7 @@ export function TableView({
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-black/8 bg-white/40 dark:border-white/8 dark:bg-white/[0.04]">
+      <div className="overflow-x-auto scrollbar-transparent-track rounded-2xl border border-black/8 bg-white/40 dark:border-white/8 dark:bg-white/[0.04]">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <TableHeader
             sort={tableSort}

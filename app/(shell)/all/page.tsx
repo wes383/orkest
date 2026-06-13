@@ -508,7 +508,7 @@ export default function AllPage() {
 
   return (
     <section
-      className="min-h-screen bg-[#fcfbfa] px-8 py-8 text-[#2b2a30] transition-[padding] duration-300 ease-in-out sm:px-14 lg:py-12 lg:pr-14 lg:pl-14 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32"
+      className="min-h-screen w-full max-w-full min-w-0 bg-[#fcfbfa] px-8 py-8 text-[#2b2a30] transition-[padding] duration-300 ease-in-out sm:px-14 lg:py-12 lg:pr-14 lg:pl-14 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32"
       onClick={() => {
         if (isComposerOpen) {
           return;

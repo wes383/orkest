@@ -797,7 +797,7 @@ export function SidebarLayout({
       </div>
       <main
         data-sidebar-collapsed={isCollapsed}
-        className={`group/sidebar flex min-h-screen flex-1 ${mobileContentBackground} sm:bg-transparent transition-[margin-right] duration-300 ease-in-out ${
+        className={`group/sidebar flex min-h-screen min-w-0 flex-1 ${mobileContentBackground} sm:bg-transparent transition-[margin-right] duration-300 ease-in-out ${
           isAiSidebarActive ? "sm:mr-[360px]" : ""
         }`}
       >
