@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Inter, JetBrains_Mono, Manrope, Noto_Sans_SC, Noto_Sans_JP } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
@@ -10,6 +10,7 @@ import { SyncEngineProvider } from "@/lib/offline/sync-engine-provider";
 import { ThemeProvider } from "@/lib/theme/theme-provider";
 import { LocaleProvider } from "@/lib/i18n";
 import { OneSignalProvider } from "@/components/onesignal-provider";
+import { ServiceWorkerProvider } from "@/components/service-worker-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -96,15 +97,25 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [
       { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/logo.svg" },
+      { url: "/icons/icon-512.png" },
     ],
   },
   category: "productivity",
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0f" },
+  ],
 };
 
 const themeScript = `
@@ -134,6 +145,7 @@ export default function RootLayout({
           <LocaleProvider>
             <AuthProvider>
               <OneSignalProvider />
+              <ServiceWorkerProvider />
               <RealtimeProvider>
                 <SyncEngineProvider>
                   {children}

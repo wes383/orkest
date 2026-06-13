@@ -43,7 +43,7 @@ function localizedRewrite(request: NextRequest, pathname: string, locale: Locale
 }
 
 export async function proxy(request: NextRequest) {
-  // Serve OneSignal Service Worker directly to avoid locale redirect
+  // Serve Service Workers directly to avoid locale redirect
   if (request.nextUrl.pathname === "/OneSignalSDKWorker.js") {
     return new NextResponse(
       `importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");`,
@@ -137,6 +137,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|opengraph-image|twitter-image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|xml|mp3|wav|ogg|html)$).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico|opengraph-image|twitter-image|manifest\\.webmanifest|orkest-sw\\.js|OneSignalSDKWorker\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|xml|mp3|wav|ogg|html)$).*)",
   ],
 };

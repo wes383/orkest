@@ -8,17 +8,18 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 
 | License | Count |
 |---------|-------|
-| MIT | 587 |
-| Apache-2.0 | 131 |
-| ISC | 29 |
+| MIT | 588 |
+| Apache-2.0 | 132 |
+| ISC | 30 |
 | BSD-3-Clause | 17 |
 | BSD-2-Clause | 10 |
 | MIT-0 | 3 |
 | MPL-2.0 | 3 |
+| Apache-2.0 AND LGPL-3.0-or-later | 2 |
 | CC0-1.0 | 2 |
 | BlueOak-1.0.0 | 2 |
 | (Apache-2.0 AND BSD-3-Clause) | 1 |
-| Apache-2.0 AND LGPL-3.0-or-later | 1 |
+| Apache-2.0 AND LGPL-3.0-or-later AND MIT | 1 |
 | Python-2.0 | 1 |
 | CC-BY-4.0 | 1 |
 | (AFL-2.1 OR BSD-3-Clause) | 1 |
@@ -59,6 +60,7 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 | @csstools/css-tokenizer | 4.0.0 | [csstools/postcss-plugins](https://github.com/csstools/postcss-plugins) |
 | @emnapi/core | 1.10.0 | [toyobayashi/emnapi](https://github.com/toyobayashi/emnapi) |
 | @emnapi/runtime | 1.10.0 | [toyobayashi/emnapi](https://github.com/toyobayashi/emnapi) |
+| @emnapi/runtime | 1.11.1 | [toyobayashi/emnapi](https://github.com/toyobayashi/emnapi) |
 | @emnapi/wasi-threads | 1.2.1 | [toyobayashi/emnapi](https://github.com/toyobayashi/emnapi) |
 | @epic-web/invariant | 1.0.0 | [epicweb-dev/invariant](https://github.com/epicweb-dev/invariant) |
 | @eslint-community/eslint-utils | 4.9.1 | [eslint-community/eslint-utils](https://github.com/eslint-community/eslint-utils) |
@@ -751,6 +753,7 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 | schema-dts | 2.0.0 | [google/schema-dts](https://github.com/google/schema-dts) |
 | schema-dts-lib | 1.0.0 | [google/schema-dts](https://github.com/google/schema-dts) |
 | sharp | 0.34.5 | [lovell/sharp](https://github.com/lovell/sharp) |
+| sharp | 0.35.1 | [lovell/sharp](https://github.com/lovell/sharp) |
 | typescript | 5.9.3 | [microsoft/TypeScript](https://github.com/microsoft/TypeScript) |
 | xml-name-validator | 5.0.0 | [jsdom/xml-name-validator](https://github.com/jsdom/xml-name-validator) |
 
@@ -780,6 +783,7 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 | saxes | 6.0.0 | [lddubeau/saxes](https://github.com/lddubeau/saxes) |
 | semver | 6.3.1 | [npm/node-semver](https://github.com/npm/node-semver) |
 | semver | 7.7.4 | [npm/node-semver](https://github.com/npm/node-semver) |
+| semver | 7.8.4 | [npm/node-semver](https://github.com/npm/node-semver) |
 | siginfo | 2.0.0 | [emilbayes/siginfo](https://github.com/emilbayes/siginfo) |
 | temporal-spec | 0.2.4 | [fullcalendar/temporal-polyfill](https://github.com/fullcalendar/temporal-polyfill) |
 | which | 2.0.2 | [isaacs/node-which](https://github.com/isaacs/node-which) |
@@ -841,6 +845,13 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 | lightningcss | 1.32.0 | [parcel-bundler/lightningcss](https://github.com/parcel-bundler/lightningcss) |
 | lightningcss-win32-x64-msvc | 1.32.0 | [parcel-bundler/lightningcss](https://github.com/parcel-bundler/lightningcss) |
 
+## Apache-2.0 AND LGPL-3.0-or-later
+
+| Package | Version | Repository |
+|---------|---------|------------|
+| @img/sharp-win32-x64 | 0.34.5 | [lovell/sharp](https://github.com/lovell/sharp) |
+| @img/sharp-win32-x64 | 0.35.1 | [lovell/sharp](https://github.com/lovell/sharp) |
+
 ## CC0-1.0
 
 | Package | Version | Repository |
@@ -861,11 +872,11 @@ Orkest is built on top of many excellent open-source projects. We are grateful t
 |---------|---------|------------|
 | @bufbuild/protobuf | 2.12.0 | [bufbuild/protobuf-es](https://github.com/bufbuild/protobuf-es) |
 
-## Apache-2.0 AND LGPL-3.0-or-later
+## Apache-2.0 AND LGPL-3.0-or-later AND MIT
 
 | Package | Version | Repository |
 |---------|---------|------------|
-| @img/sharp-win32-x64 | 0.34.5 | [lovell/sharp](https://github.com/lovell/sharp) |
+| @img/sharp-wasm32 | 0.35.1 | [lovell/sharp](https://github.com/lovell/sharp) |
 
 ## Python-2.0
 
