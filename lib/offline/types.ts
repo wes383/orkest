@@ -1,4 +1,4 @@
-export type SyncTable = "items" | "projects";
+export type SyncTable = "items" | "projects" | "progresses" | "progress_tasks";
 
 export type SyncOperationType = "create" | "update" | "delete";
 

@@ -295,6 +295,104 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
     return true;
   }
 
+  if (op.table === "progresses") {
+    const payload = { ...(op.payload as Record<string, unknown>) };
+    delete payload.id;
+
+    if (op.type === "delete") {
+      const { error } = await supabase.from("progresses").delete().eq("id", op.recordId);
+      if (error) {
+        console.error("[SyncEngine] delete progress failed:", error);
+        return false;
+      }
+      return true;
+    }
+
+    if (op.type === "create") {
+      const insertPayload: Database["public"]["Tables"]["progresses"]["Insert"] = {
+        user_id: payload.user_id as string,
+        name: payload.name as string,
+        description: (payload.description ?? null) as string | null,
+        goal_value: Number(payload.goal_value),
+        goal_unit: (payload.goal_unit as string) ?? "tasks",
+        tracking_mode: ((payload.tracking_mode as "count" | "percentage" | "manual") ?? "count"),
+        manual_value: Number(payload.manual_value ?? 0),
+        color: (payload.color ?? null) as string | null,
+        status: (payload.status as "active" | "completed" | "archived") ?? "active",
+        target_date: (payload.target_date ?? null) as string | null,
+        sort_order: (payload.sort_order as number | null) ?? null,
+        ai_context: (payload.ai_context as Database["public"]["Tables"]["progresses"]["Insert"]["ai_context"]) ?? null,
+        created_at: payload.created_at as string,
+        updated_at: payload.updated_at as string,
+      };
+      const { error } = await supabase.from("progresses").insert({ id: op.recordId, ...insertPayload });
+      if (error) {
+        console.error("[SyncEngine] create progress failed:", error);
+        return false;
+      }
+      return true;
+    }
+
+    // update
+    const updatePayload: Database["public"]["Tables"]["progresses"]["Update"] = {};
+    for (const key of Object.keys(payload)) {
+      const value = payload[key];
+      if (value !== undefined) {
+        (updatePayload as Record<string, unknown>)[key] = value;
+      }
+    }
+    const { error } = await supabase.from("progresses").update(updatePayload).eq("id", op.recordId);
+    if (error) {
+      console.error("[SyncEngine] update progress failed:", error);
+      return false;
+    }
+    return true;
+  }
+
+  if (op.table === "progress_tasks") {
+    const payload = { ...(op.payload as Record<string, unknown>) };
+    delete payload.id;
+
+    if (op.type === "delete") {
+      const { error } = await supabase.from("progress_tasks").delete().eq("id", op.recordId);
+      if (error) {
+        console.error("[SyncEngine] delete progress_task failed:", error);
+        return false;
+      }
+      return true;
+    }
+
+    if (op.type === "create") {
+      const insertPayload: Database["public"]["Tables"]["progress_tasks"]["Insert"] = {
+        progress_id: payload.progress_id as string,
+        item_id: payload.item_id as string,
+        weight: Number(payload.weight ?? 1),
+        added_at: (payload.added_at as string) ?? new Date().toISOString(),
+      };
+      const { error } = await supabase.from("progress_tasks").insert({ id: op.recordId, ...insertPayload });
+      if (error) {
+        console.error("[SyncEngine] create progress_task failed:", error);
+        return false;
+      }
+      return true;
+    }
+
+    // update: weight only
+    const updatePayload: Database["public"]["Tables"]["progress_tasks"]["Update"] = {};
+    for (const key of Object.keys(payload)) {
+      const value = payload[key];
+      if (value !== undefined) {
+        (updatePayload as Record<string, unknown>)[key] = value;
+      }
+    }
+    const { error } = await supabase.from("progress_tasks").update(updatePayload).eq("id", op.recordId);
+    if (error) {
+      console.error("[SyncEngine] update progress_task failed:", error);
+      return false;
+    }
+    return true;
+  }
+
   return false;
 }
 
@@ -392,7 +490,7 @@ export function scheduleSync(): void {
 
 export function syncRecord(
   type: SyncOperation["type"],
-  table: "items" | "projects",
+  table: "items" | "projects" | "progresses" | "progress_tasks",
   recordId: string,
   payload: Record<string, unknown>,
 ): void {
