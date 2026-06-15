@@ -70,7 +70,7 @@ export function ProgressListPage() {
     () =>
       showCompleted
         ? progressWithStats
-        : progressWithStats.filter((p) => p.status !== "completed"),
+        : progressWithStats.filter((p) => p.percent < 100),
     [progressWithStats, showCompleted],
   );
 
@@ -298,7 +298,7 @@ export function ProgressListPage() {
                       }
                     }}
                     className={`group relative flex cursor-pointer items-stretch gap-4 overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-5 text-left shadow-sm transition-all hover:border-black/15 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5f5a63] sm:gap-6 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/20 dark:hover:bg-white/[0.06] dark:focus-visible:ring-[#a3a3a3] ${
-                      progress.status === "completed"
+                      progress.percent >= 100
                         ? "bg-emerald-50/70 hover:bg-emerald-50 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/15"
                         : ""
                     } ${sortMode === "default" && index === draggedIndex ? "opacity-30" : ""}`}
