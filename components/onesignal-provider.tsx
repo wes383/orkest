@@ -63,6 +63,13 @@ export function OneSignalProvider() {
             await OneSignal.init({
               appId: "${ONESIGNAL_APP_ID}",
               notifyButton: { enable: false },
+              // Reuse our orkest-sw.js as the OneSignal service worker so that
+              // a single SW handles both push notifications and caching.
+              // Without this, OneSignal registers /OneSignalSDKWorker.js
+              // alongside our /orkest-sw.js (both at scope "/") and they fight
+              // for the controller, breaking OneSignal's postMessage channel
+              // ("[WM] No SW registration for postMessage").
+              serviceWorkerPath: "/orkest-sw.js",
             });
           });
         `}

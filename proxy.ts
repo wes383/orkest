@@ -43,21 +43,9 @@ function localizedRewrite(request: NextRequest, pathname: string, locale: Locale
 }
 
 export async function proxy(request: NextRequest) {
-  // Serve Service Workers directly to avoid locale redirect
-  if (request.nextUrl.pathname === "/OneSignalSDKWorker.js") {
-    return new NextResponse(
-      `importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");`,
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/javascript",
-          "Cache-Control": "public, max-age=0, must-revalidate",
-          "Service-Worker-Allowed": "/",
-        },
-      },
-    );
-  }
-
+  // OneSignal reuses /orkest-sw.js as its service worker (see
+  // components/onesignal-provider.tsx), so we no longer need to serve
+  // /OneSignalSDKWorker.js here.
   const pathnameLocale = getLocaleFromPathname(request.nextUrl.pathname);
   const locale = pathnameLocale ?? resolveRequestLocale(request);
 
@@ -137,6 +125,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon\\.ico|opengraph-image|twitter-image|manifest\\.webmanifest|orkest-sw\\.js|OneSignalSDKWorker\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|xml|mp3|wav|ogg|html)$).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico|opengraph-image|twitter-image|manifest\\.webmanifest|orkest-sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|xml|mp3|wav|ogg|html)$).*)",
   ],
 };

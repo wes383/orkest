@@ -35,7 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const locale = useSettingsStore((s) => s.locale);
-  const supabase = createClient();
+  // createClient() returns a fresh object on every call, so depending on
+  // supabase.auth in effects would re-run them on every render. Pin the
+  // client to a stable ref so auth listeners aren't re-subscribed in a loop.
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  if (!supabaseRef.current) supabaseRef.current = createClient();
+  const supabase = supabaseRef.current;
 
   const loadedUserIdRef = useRef<string | null>(null);
 
