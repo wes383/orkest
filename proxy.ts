@@ -125,6 +125,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon\\.ico|opengraph-image|twitter-image|manifest\\.webmanifest|orkest-sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|xml|mp3|wav|ogg|html)$).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico|opengraph-image|twitter-image|manifest\\.webmanifest|orkest-sw\\.js|OneSignalSDKWorker\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|xml|mp3|wav|ogg|html)$).*)",
   ],
 };

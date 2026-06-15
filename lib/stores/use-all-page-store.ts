@@ -553,6 +553,8 @@ export const useAllPageStore = create<AllPageState>()(
   },
 
   loadItemsFromCloud: async (userId: string) => {
+    // Prevent concurrent loads (e.g. when multiple effects fire on mount)
+    if (get().isSyncing) return;
     set({ isSyncing: true });
     try {
       const supabase = createClient();
