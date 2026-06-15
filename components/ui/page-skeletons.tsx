@@ -333,3 +333,48 @@ export function SettingsPageSkeleton() {
     </div>
   );
 }
+
+export function ProgressPageSkeleton() {
+  return (
+    <section className="relative min-h-screen bg-[#fcfbfa] px-4 py-8 text-[#2b2a30] transition-[padding] duration-300 ease-in-out sm:px-14 lg:px-14 lg:py-12 group-data-[sidebar-collapsed=true]/sidebar:lg:pl-32 group-data-[sidebar-collapsed=true]/sidebar:lg:pr-24 dark:bg-[#101010] dark:text-[#d4d4d4]">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#fcfbfa] via-[#fcfbfa]/70 to-[#fcfbfa]/0 dark:from-[#101010] dark:via-[#101010]/70 dark:to-[#101010]/0 sm:hidden"
+      />
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 lg:gap-10">
+        <header className="flex flex-col gap-3 px-2 lg:flex-row lg:items-end lg:justify-end lg:px-3">
+          <div className="flex items-center gap-2 lg:shrink-0">
+            <Skeleton className="h-9 w-28 rounded-full" />
+            <Skeleton className="h-9 w-32 rounded-full" />
+          </div>
+        </header>
+
+        <ul className="flex flex-col gap-3 px-2 lg:px-3">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <li
+              key={index}
+              className="flex items-stretch gap-4 overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-5 sm:gap-6 dark:border-white/10 dark:bg-white/[0.04]"
+            >
+              <Skeleton className="self-center hidden h-[calc(100%-0.5rem)] w-1 shrink-0 rounded-full sm:block" />
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-2/5 rounded-full" />
+                  <Skeleton className="h-3 w-3/5 rounded-full" />
+                </div>
+                <Skeleton className="h-1.5 w-full rounded-full" />
+                <div className="flex justify-between">
+                  <Skeleton className="h-3 w-12 rounded-full" />
+                  <Skeleton className="h-3 w-16 rounded-full" />
+                </div>
+              </div>
+              <div className="hidden shrink-0 flex-col items-end gap-2 sm:flex">
+                <Skeleton className="h-3 w-20 rounded-full" />
+                <Skeleton className="h-3 w-14 rounded-full" />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}

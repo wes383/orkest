@@ -92,12 +92,23 @@ export type AiChatProjectContext = {
   color?: string;
 };
 
-export type AiPageContext = "all" | "today" | "focus" | "projects";
+export type AiChatProgressContext = {
+  id: string;
+  name: string;
+  goalValue: number;
+  goalUnit: string;
+  trackingMode: "count" | "percentage" | "manual";
+  status: "active" | "completed" | "archived";
+  color?: string;
+};
+
+export type AiPageContext = "all" | "today" | "focus" | "projects" | "progress";
 
 export type AiChatContext = {
   items: AiChatItemContext[];
   selectedItems: AiChatItemContext[];
   projects: AiChatProjectContext[];
+  progresses?: AiChatProgressContext[];
   today: string; // YYYY-MM-DD in user's local timezone
   currentTime: string; // HH:mm in user's local timezone
   timezone: string; // IANA timezone identifier, e.g. "Asia/Shanghai"
@@ -213,6 +224,65 @@ export type AiProposedAction =
       /** Number of tasks that would be unlinked as a result of this deletion. */
       unlinkedTaskCount: number;
       reason?: string;
+    }
+  | {
+      id: string;
+      type: "create_progress";
+      title: string;
+      progressId?: string;
+      name: string;
+      description?: string;
+      goalValue: number;
+      goalUnit: string;
+      trackingMode: "count" | "percentage" | "manual";
+      color?: string;
+      reason?: string;
+    }
+  | {
+      id: string;
+      type: "update_progress";
+      title: string;
+      progressId: string;
+      beforeName: string;
+      patch: {
+        name?: string;
+        description?: string;
+        goalValue?: number;
+        goalUnit?: string;
+        trackingMode?: "count" | "percentage" | "manual";
+        color?: string;
+      };
+      reason?: string;
+    }
+  | {
+      id: string;
+      type: "delete_progress";
+      title: string;
+      progressId: string;
+      progressName: string;
+      /** Number of task links that would be removed as a result. */
+      unlinkedTaskCount: number;
+      reason?: string;
+    }
+  | {
+      id: string;
+      type: "bind_progress_tasks";
+      title: string;
+      progressId: string;
+      progressName: string;
+      itemIds: string[];
+      itemTitles: string[];
+      reason?: string;
+    }
+  | {
+      id: string;
+      type: "unbind_progress_tasks";
+      title: string;
+      progressId: string;
+      progressName: string;
+      itemIds: string[];
+      itemTitles: string[];
+      reason?: string;
     };
 
 export type AiToolResult = {
@@ -237,7 +307,16 @@ export type OrkestAIMessage = UIMessage<
 
 export type AiBatchPreviewItem = {
   id: string;
-  kind: "create" | "update" | "delete" | "delete_project";
+  kind:
+    | "create"
+    | "update"
+    | "delete"
+    | "delete_project"
+    | "create_progress"
+    | "update_progress"
+    | "delete_progress"
+    | "bind_progress_tasks"
+    | "unbind_progress_tasks";
   selected: boolean;
   formState: ItemFormState;
   targetItemId?: string;
@@ -247,6 +326,33 @@ export type AiBatchPreviewItem = {
   projectName?: string;
   /** For delete_project: number of tasks that will be unlinked. */
   unlinkedTaskCount?: number;
+  /** For progress actions: the progress ID. */
+  progressId?: string;
+  /** For progress actions: the progress name, for display. */
+  progressName?: string;
+  /** For create_progress: goal value. */
+  progressGoalValue?: number;
+  /** For create_progress: goal unit. */
+  progressGoalUnit?: string;
+  /** For create_progress: tracking mode. */
+  progressTrackingMode?: "count" | "percentage" | "manual";
+  /** For create_progress: optional color. */
+  progressColor?: string;
+  /** For create_progress: optional description. */
+  progressDescription?: string;
+  /** For update_progress: fields to patch. */
+  progressPatch?: {
+    name?: string;
+    description?: string;
+    goalValue?: number;
+    goalUnit?: string;
+    trackingMode?: "count" | "percentage" | "manual";
+    color?: string;
+  };
+  /** For bind/unbind: item IDs. */
+  progressItemIds?: string[];
+  /** For bind/unbind: item titles. */
+  progressItemTitles?: string[];
   originalForm?: ItemFormState | null;
   autoSelected?: boolean;
   reason?: string;
@@ -648,6 +754,66 @@ export function convertProposedActionsToBatchPreview(actions: AiProposedAction[]
         projectId: action.projectId,
         projectName: action.projectName,
         unlinkedTaskCount: action.unlinkedTaskCount,
+        reason: action.reason,
+      });
+    } else if (action.type === "create_progress") {
+      nextBatch.push({
+        id: action.id,
+        kind: "create_progress",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        progressName: action.name,
+        progressGoalValue: action.goalValue,
+        progressGoalUnit: action.goalUnit,
+        progressTrackingMode: action.trackingMode,
+        progressColor: action.color,
+        progressDescription: action.description,
+        reason: action.reason,
+      });
+    } else if (action.type === "update_progress") {
+      nextBatch.push({
+        id: action.id,
+        kind: "update_progress",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        progressId: action.progressId,
+        progressName: action.beforeName,
+        progressPatch: action.patch,
+        reason: action.reason,
+      });
+    } else if (action.type === "delete_progress") {
+      nextBatch.push({
+        id: action.id,
+        kind: "delete_progress",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        progressId: action.progressId,
+        progressName: action.progressName,
+        unlinkedTaskCount: action.unlinkedTaskCount,
+        reason: action.reason,
+      });
+    } else if (action.type === "bind_progress_tasks") {
+      nextBatch.push({
+        id: action.id,
+        kind: "bind_progress_tasks",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        progressId: action.progressId,
+        progressName: action.progressName,
+        progressItemIds: action.itemIds,
+        progressItemTitles: action.itemTitles,
+        reason: action.reason,
+      });
+    } else if (action.type === "unbind_progress_tasks") {
+      nextBatch.push({
+        id: action.id,
+        kind: "unbind_progress_tasks",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        progressId: action.progressId,
+        progressName: action.progressName,
+        progressItemIds: action.itemIds,
+        progressItemTitles: action.itemTitles,
         reason: action.reason,
       });
     }

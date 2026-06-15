@@ -10,6 +10,22 @@ import { createClient } from "../supabase/client";
 import { makeUid } from "../all-page-utils";
 import { syncRecord } from "../offline/sync-engine";
 
+function progressUpdateToRow(updates: ProgressUpdate): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (updates.name !== undefined) row.name = updates.name;
+  if (updates.description !== undefined) row.description = updates.description;
+  if (updates.goalValue !== undefined) row.goal_value = updates.goalValue;
+  if (updates.goalUnit !== undefined) row.goal_unit = updates.goalUnit;
+  if (updates.trackingMode !== undefined) row.tracking_mode = updates.trackingMode;
+  if (updates.manualValue !== undefined) row.manual_value = updates.manualValue;
+  if (updates.color !== undefined) row.color = updates.color;
+  if (updates.status !== undefined) row.status = updates.status;
+  if (updates.targetDate !== undefined) row.target_date = updates.targetDate;
+  if (updates.sortOrder !== undefined) row.sort_order = updates.sortOrder;
+  if (updates.aiContext !== undefined) row.ai_context = updates.aiContext;
+  return row;
+}
+
 interface ProgressStoreState {
   progresses: Progress[];
   links: ProgressTaskLink[];
@@ -81,7 +97,7 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
     set({ progresses, isLoaded: true });
   },
 
-  async loadLinks(userId) {
+  async loadLinks(_userId) {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("progress_tasks")
@@ -154,7 +170,7 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       ),
     }));
     syncRecord("update", "progresses", progressId, {
-      ...updates,
+      ...progressUpdateToRow(updates),
       user_id: userId,
       updated_at: new Date().toISOString(),
     });

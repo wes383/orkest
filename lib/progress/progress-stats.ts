@@ -107,9 +107,12 @@ function computeCurrentAndPercent(
     return { currentValue: pct, percent: pct };
   }
 
-  // `count` mode (default)
+  // `count` mode: the "goal" is the number of currently bound tasks, not the
+  // stored `goalValue` (which was captured at create time and can go stale as
+  // the user binds/unbinds items). Always derive both `currentValue` and
+  // `percent` from the live bucket so the UI stays in sync.
   const current = bucket.completed;
-  const pct = goalValue > 0 ? clampPercent((current / goalValue) * 100) : 0;
+  const pct = bucket.bound > 0 ? clampPercent((current / bucket.bound) * 100) : 0;
   return { currentValue: current, percent: pct };
 }
 
@@ -146,7 +149,12 @@ export function summarizeProgress(progress: ProgressWithStats): {
   remaining: number;
   isStale: boolean;
 } {
-  const remaining = Math.max(progress.goalValue - progress.currentValue, 0);
+  // For count/percentage the "goal" is derived from live bound tasks; for
+  // manual mode we still rely on the stored `goalValue`.
+  const effectiveGoal =
+    progress.trackingMode === "count" ? progress.boundTaskCount : progress.goalValue;
+  const remaining =
+    progress.trackingMode === "percentage" ? 0 : Math.max(effectiveGoal - progress.currentValue, 0);
   const isStale = progress.status === "active" && progress.percent < 1 && progress.total === 0;
   return { status: progress.status, remaining, isStale };
 }

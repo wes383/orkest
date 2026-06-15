@@ -98,9 +98,10 @@ interface AllPageState {
   handleBatchMoveToProject: (items: DisplayItem[], projectId: string | null) => void;
 
   // Undo
-  undoToast: { label: string } | null;
+  undoToast: { label: string; undoAction?: () => void } | null;
   undo: () => void;
   dismissUndoToast: () => void;
+  showUndoToast: (label: string, undoAction: () => void) => void;
 
   // Trash operations
   restoreItem: (itemId: string) => void;
@@ -215,7 +216,7 @@ const initialState = {
   aiMode: "create" as AiMode,
   aiTargetItem: null,
   listFilterConfig: defaultListFilterConfig,
-  undoToast: null as { label: string } | null,
+  undoToast: null as { label: string; undoAction?: () => void } | null,
 };
 
 export const useAllPageStore = create<AllPageState>()(
@@ -594,6 +595,12 @@ export const useAllPageStore = create<AllPageState>()(
   },
 
   undo: () => {
+    const { undoToast } = get();
+    if (undoToast?.undoAction) {
+      undoToast.undoAction();
+      set({ undoToast: null });
+      return;
+    }
     if (_undoStack.length === 0) return;
     const snapshot = _undoStack.pop()!;
     if (_undoTimerRef) { clearTimeout(_undoTimerRef); _undoTimerRef = null; }
@@ -613,6 +620,12 @@ export const useAllPageStore = create<AllPageState>()(
     _undoStack.length = 0;
     if (_undoTimerRef) { clearTimeout(_undoTimerRef); _undoTimerRef = null; }
     set({ undoToast: null });
+  },
+
+  showUndoToast: (label, undoAction) => {
+    if (_undoTimerRef) clearTimeout(_undoTimerRef);
+    set({ undoToast: { label, undoAction } });
+    _undoTimerRef = setTimeout(() => set({ undoToast: null }), 5000);
   },
 
   handleCreateItem: (formOverride) => {

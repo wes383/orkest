@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { ArrowDownAZ, BarChart3, Folder, GripVertical, List, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowDownAZ, ArrowUpDown, BarChart3, ChevronDown, Folder, GripVertical, List, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
@@ -207,33 +207,40 @@ export function ProjectsPage() {
             {t("projects.subtitle")}
           </p>
         </div>
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-1.5">
           <button
             type="button"
             onClick={toggleSortMenu}
             ref={sortBtnRef}
-            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-black/8 px-3 text-sm text-[#7d7880] transition-colors hover:bg-black/[0.05] hover:text-[#25242a] dark:border-white/10 dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+            className={`flex h-7 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-colors ${
+              showSortMenu
+                ? "border-black/12 bg-white text-[#25242a] dark:border-white/12 dark:bg-[#2a2a2a] dark:text-[#f5f5f5]"
+                : "border-black/8 bg-transparent text-[#7d7880] hover:bg-black/[0.04] dark:border-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/[0.06]"
+            }`}
           >
-            {sortMode === "default" ? (
-              <GripVertical className="h-3.5 w-3.5" />
-            ) : sortMode === "alpha" ? (
-              <ArrowDownAZ className="h-3.5 w-3.5" />
-            ) : sortMode === "frequency" ? (
-              <BarChart3 className="h-3.5 w-3.5" />
-            ) : (
-              <List className="h-3.5 w-3.5" />
-            )}
-            <span>{sortMode === "default" ? t("projects.sort.default") : sortMode === "alpha" ? t("projects.sort.alpha") : sortMode === "frequency" ? t("projects.sort.frequency") : t("projects.sort.recent")}</span>
+            <ArrowUpDown className="h-3 w-3" />
+            <span className="max-w-[6rem] truncate">
+              {sortMode === "default"
+                ? t("projects.sort.default")
+                : sortMode === "alpha"
+                  ? t("projects.sort.alpha")
+                  : sortMode === "frequency"
+                    ? t("projects.sort.frequency")
+                    : t("projects.sort.recent")}
+            </span>
+            <ChevronDown
+              className={`h-3 w-3 transition-transform ${showSortMenu ? "rotate-180" : ""}`}
+            />
           </button>
           {user ? (
-            <Button
+            <button
               type="button"
               onClick={() => setCreateOpen(true)}
-              className="h-9 gap-1.5 px-4 text-sm"
+              className="flex h-7 cursor-pointer items-center gap-1.5 rounded-full border border-black/8 bg-transparent px-2.5 text-[11px] font-medium text-[#7d7880] transition-colors hover:bg-black/[0.04] dark:border-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/[0.06]"
             >
-              <Plus className="h-4 w-4" />
-              {t("projects.newProject")}
-            </Button>
+              <Plus className="h-3 w-3" />
+              <span>{t("projects.newProject")}</span>
+            </button>
           ) : null}
         </div>
       </div>
@@ -321,12 +328,12 @@ export function ProjectsPage() {
                 }}
                 className={`group relative cursor-pointer overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-5 text-left shadow-sm transition-all hover:border-black/15 hover:bg-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5f5a63] dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/20 dark:hover:bg-white/[0.06] dark:focus-visible:ring-[#a3a3a3] ${index === draggedIndex ? "opacity-30" : ""}`}
               >
-                <span
-                  aria-hidden="true"
-                  className="absolute top-0 left-0 right-0 h-1"
-                  style={{ backgroundColor: color }}
-                />
                 <div className="flex items-start justify-between gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="mt-2 h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: color }}
+                  />
                   <div className="min-w-0 flex-1">
                     <h3 className="truncate font-display text-xl font-medium text-[#25242a] dark:text-[#f5f5f5]">
                       {project.name}

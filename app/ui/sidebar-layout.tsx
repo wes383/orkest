@@ -6,6 +6,7 @@ import {
   Sun,
   Target,
   Trash2,
+  TrendingUp,
   User,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -40,6 +41,7 @@ const items = [
   { href: "/", label: "Today", icon: Sun },
   { href: "/all", label: "All", icon: ClipboardList },
   { href: "/focus", label: "Focus", icon: Target },
+  { href: "/progress", label: "Progress", icon: TrendingUp },
 ];
 
 const TAB_COMPONENTS: Record<string, () => ReactNode> = {
@@ -115,9 +117,12 @@ export function SidebarLayout({
   const isTrashPage = localPathname === "/trash";
   const isAiChatPage = localPathname === "/chat";
   const isProjectsPage = localPathname === "/projects";
+  const isProgressPage =
+    localPathname === "/progress" || localPathname.startsWith("/progress/");
 
   const [activeTab, setActiveTab] = useState(() => {
     if (localPathname === "/trash") return "/trash";
+    if (isProgressPage) return "/progress";
     const match = items.find((item) => item.href === localPathname);
     return match ? match.href : "/";
   });
@@ -126,13 +131,26 @@ export function SidebarLayout({
   const [mountedTabs, setMountedTabs] = useState<Set<string>>(() => {
     const initial = new Set([activeTab]);
     if (pathname === "/trash") initial.add("/trash");
+    if (isProgressPage) initial.add("/progress");
     return initial;
   });
 
   const switchTab = useCallback(
     (href: string) => {
       const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
-      if (href === activeTab && !isSettingsPage && !isTrashPage && !isProjectsPage) {
+      const isSpecialTarget =
+        href === "/settings" ||
+        href === "/projects" ||
+        href.startsWith("/projects/") ||
+        href === "/progress" ||
+        href.startsWith("/progress/");
+      if (
+        href === activeTab &&
+        !isSettingsPage &&
+        !isTrashPage &&
+        !isProjectsPage &&
+        !isProgressPage
+      ) {
         if (isMobile) {
           setIsCollapsed(true);
         }
@@ -145,7 +163,7 @@ export function SidebarLayout({
         next.add(href);
         return next;
       });
-      if ((isSettingsPage || isProjectsPage) && href !== "/trash") {
+      if (isSpecialTarget) {
         router.push(addLocaleToPathname(href, locale));
       } else {
         window.history.pushState(null, "", addLocaleToPathname(href, locale));
@@ -154,7 +172,7 @@ export function SidebarLayout({
         setIsCollapsed(true);
       }
     },
-    [activeTab, isSettingsPage, isTrashPage, isProjectsPage, locale, router, setIsCollapsed],
+    [activeTab, isSettingsPage, isTrashPage, isProjectsPage, isProgressPage, locale, router, setIsCollapsed],
   );
 
   // Handle browser back/forward navigation
@@ -322,7 +340,8 @@ export function SidebarLayout({
     { key: "1", alt: true, handler: () => switchTab("/") },
     { key: "2", alt: true, handler: () => switchTab("/all") },
     { key: "3", alt: true, handler: () => switchTab("/focus") },
-    { key: "4", alt: true, handler: () => switchTab("/trash") },
+    { key: "4", alt: true, handler: () => switchTab("/progress") },
+    { key: "5", alt: true, handler: () => switchTab("/trash") },
     { key: ",", alt: true, handler: () => router.push(addLocaleToPathname("/settings", locale)) },
     { key: "b", alt: true, handler: () => setIsCollapsed((c) => !c), allowInput: true },
     {
@@ -526,7 +545,8 @@ export function SidebarLayout({
           </div>
           <nav className="flex flex-col gap-2">
             {items.map((item) => {
-              const isActive = activeTab === item.href && !isSettingsPage;
+              const isActive =
+                activeTab === item.href && !isSettingsPage && !isProjectsPage && !isProgressPage;
               const Icon = item.icon;
 
               return (
@@ -539,14 +559,14 @@ export function SidebarLayout({
                       ? "bg-black/[0.035] text-black dark:bg-white/10 dark:text-[#f5f5f5]"
                       : "text-black hover:bg-black/[0.035] hover:text-black dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
                   }`}
-                  aria-label={t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus")}
+                  aria-label={t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus" | "nav.progress")}
                 >
                   <Icon
                     className={iconClassName}
                     strokeWidth={2}
                     style={{ shapeRendering: "geometricPrecision" }}
                   />
-                  <span>{t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus")}</span>
+                  <span>{t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus" | "nav.progress")}</span>
                   {item.href === "/focus" && showSidebarTimer && (
                     <span
                       className={`ml-auto flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-normal tabular-nums ${
@@ -712,9 +732,10 @@ export function SidebarLayout({
           {/* Nav icons */}
           <nav className="flex flex-col gap-2">
             {items.map((item) => {
-              const isActive = activeTab === item.href && !isSettingsPage;
+              const isActive =
+                activeTab === item.href && !isSettingsPage && !isProjectsPage && !isProgressPage;
               const Icon = item.icon;
-              const label = t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus");
+              const label = t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus" | "nav.progress");
               return (
                 <Tooltip key={item.href} content={label} side="right">
                   <button
@@ -813,6 +834,8 @@ export function SidebarLayout({
           ) : isSettingsPage ? (
             children
           ) : isProjectsPage ? (
+            children
+          ) : isProgressPage ? (
             children
           ) : isTrashPage ? (
             mountedTabs.has("/trash") && <TrashPage />

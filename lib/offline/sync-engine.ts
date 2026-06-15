@@ -337,7 +337,10 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
     const updatePayload: Database["public"]["Tables"]["progresses"]["Update"] = {};
     for (const key of Object.keys(payload)) {
       const value = payload[key];
-      if (value !== undefined) {
+      if (value === undefined) continue;
+      // Only forward keys that exist in the Update type. Camel-cased keys
+      // would otherwise reach PostgREST and trigger PGRST204 errors.
+      if (key in updatePayload) {
         (updatePayload as Record<string, unknown>)[key] = value;
       }
     }

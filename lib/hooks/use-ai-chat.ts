@@ -9,6 +9,7 @@ import { useScrollLock } from "@/lib/hooks/use-scroll-lock";
 import { useAiChatHistory } from "@/lib/hooks/use-ai-chat-history";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
+import { useProgressStore } from "@/lib/stores/use-progress-store";
 import { useSettingsStore } from "@/lib/stores/use-settings-store";
 import { useFocusStore } from "@/lib/stores/use-focus-store";
 import { getWeekStartDay } from "@/lib/stores/use-settings-store";
@@ -65,8 +66,16 @@ export function useAiChat(config: UseAiChatConfig) {
   } = config;
 
   const projects = useProjectStore((s) => s.projects);
+  const progresses = useProgressStore((s) => s.progresses);
   const { locale, t } = useI18n();
   const loadProjects = useProjectStore((s) => s.loadProjects);
+  const loadProgresses = useProgressStore((s) => s.loadProgresses);
+  const loadLinks = useProgressStore((s) => s.loadLinks);
+  const createProgress = useProgressStore((s) => s.createProgress);
+  const updateProgress = useProgressStore((s) => s.updateProgress);
+  const deleteProgress = useProgressStore((s) => s.deleteProgress);
+  const bindProgressTasks = useProgressStore((s) => s.bindTasks);
+  const unbindProgressTask = useProgressStore((s) => s.unbindTask);
   const sleepStart = useSettingsStore((s) => s.sleepStart);
   const sleepEnd = useSettingsStore((s) => s.sleepEnd);
   const bufferMinutes = useSettingsStore((s) => s.bufferMinutes);
@@ -137,7 +146,11 @@ export function useAiChat(config: UseAiChatConfig) {
     if (userId && projects.length === 0) {
       loadProjects(userId);
     }
-  }, [userId, projects.length, loadProjects]);
+    if (userId && progresses.length === 0) {
+      loadProgresses(userId);
+      loadLinks(userId);
+    }
+  }, [userId, projects.length, progresses.length, loadProjects, loadProgresses, loadLinks]);
 
   // --- State ---
   const [isExpanded, setIsExpanded] = useState(false);
@@ -183,6 +196,15 @@ export function useAiChat(config: UseAiChatConfig) {
         name: project.name,
         color: project.color,
       })),
+      progresses: progresses.map((progress) => ({
+        id: progress.id,
+        name: progress.name,
+        goalValue: progress.goalValue,
+        goalUnit: progress.goalUnit,
+        trackingMode: progress.trackingMode,
+        status: progress.status,
+        color: progress.color,
+      })),
       today: nowInTz.format("YYYY-MM-DD"),
       currentTime: nowInTz.format("HH:mm"),
       timezone: tz,
@@ -203,7 +225,7 @@ export function useAiChat(config: UseAiChatConfig) {
       language: LOCALE_AI_NAMES[locale],
       weekStartDay: getWeekStartDay(),
     };
-  }, [candidateItems, aiTargetItems, projects, sleepStart, sleepEnd, bufferMinutes, focusSessions, pageContext, username, locale]);
+  }, [candidateItems, aiTargetItems, projects, progresses, sleepStart, sleepEnd, bufferMinutes, focusSessions, pageContext, username, locale]);
 
   // --- Chat History ---
   const {
@@ -466,7 +488,7 @@ export function useAiChat(config: UseAiChatConfig) {
       const context = buildAiChatContext();
       if (preferredTool) context.preferredTool = preferredTool;
       void sendAiMessage(
-        { text: messageText } as any,
+        { text: messageText },
         { body: { context } },
       );
 
@@ -549,7 +571,7 @@ export function useAiChat(config: UseAiChatConfig) {
     openComposerWithForm(item.formState);
   }, [aiLoading, aiBatchPreview, aiTargetItems, aiAnswer, aiError, setExpandedState, setComposerSubmitOverride, openComposerWithForm]);
 
-  const handleConfirmAiPreview = useCallback(() => {
+  const handleConfirmAiPreview = useCallback(async () => {
     if (aiBatchPreview.length === 0 || aiLoading) return;
 
     const selectedDrafts = aiBatchPreview.filter((item) => item.selected);
@@ -585,6 +607,32 @@ export function useAiChat(config: UseAiChatConfig) {
       )
       .map((item) => item.projectId);
 
+    const createProgresses = selectedDrafts.filter((item) => item.kind === "create_progress");
+    const updateProgresses = selectedDrafts
+      .filter((item): item is AiBatchPreviewItem & { progressId: string } =>
+        item.kind === "update_progress" && typeof item.progressId === "string"
+      )
+      .map((item) => ({ progressId: item.progressId, patch: item.progressPatch ?? {} }));
+    const deleteProgresses = selectedDrafts
+      .filter((item): item is AiBatchPreviewItem & { progressId: string } =>
+        item.kind === "delete_progress" && typeof item.progressId === "string"
+      )
+      .map((item) => item.progressId);
+    const bindTasksList = selectedDrafts
+      .filter((item): item is AiBatchPreviewItem & { progressId: string; progressItemIds: string[] } =>
+        item.kind === "bind_progress_tasks" &&
+        typeof item.progressId === "string" &&
+        Array.isArray(item.progressItemIds)
+      )
+      .map((item) => ({ progressId: item.progressId, itemIds: item.progressItemIds }));
+    const unbindTasksList = selectedDrafts
+      .filter((item): item is AiBatchPreviewItem & { progressId: string; progressItemIds: string[] } =>
+        item.kind === "unbind_progress_tasks" &&
+        typeof item.progressId === "string" &&
+        Array.isArray(item.progressItemIds)
+      )
+      .map((item) => ({ progressId: item.progressId, itemIds: item.progressItemIds }));
+
     if (updateItems.length > 0) {
       applyAiUpdates(updateItems);
     }
@@ -615,10 +663,78 @@ export function useAiChat(config: UseAiChatConfig) {
       }
     }
 
+    if (createProgresses.length > 0) {
+      if (!userId) {
+        setAiError(t("ai.missingUser"));
+        return;
+      }
+      for (const item of createProgresses) {
+        if (typeof item.progressGoalValue !== "number" || !item.progressName) continue;
+        await createProgress(userId, {
+          name: item.progressName,
+          description: item.progressDescription,
+          goalValue: item.progressGoalValue,
+          goalUnit: item.progressGoalUnit ?? "tasks",
+          trackingMode: item.progressTrackingMode ?? "count",
+          color: item.progressColor,
+        });
+      }
+    }
+
+    if (updateProgresses.length > 0) {
+      if (!userId) {
+        setAiError(t("ai.missingUser"));
+        return;
+      }
+      for (const { progressId, patch } of updateProgresses) {
+        const result = await updateProgress(userId, progressId, patch);
+        if (!result) {
+          setAiError(t("ai.progress.updateFailed"));
+          return;
+        }
+      }
+    }
+
+    if (deleteProgresses.length > 0) {
+      if (!userId) {
+        setAiError(t("ai.missingUser"));
+        return;
+      }
+      for (const progressId of deleteProgresses) {
+        const ok = await deleteProgress(userId, progressId);
+        if (!ok) {
+          setAiError(t("ai.progress.deleteFailed"));
+          return;
+        }
+      }
+    }
+
+    if (bindTasksList.length > 0) {
+      if (!userId) {
+        setAiError(t("ai.missingUser"));
+        return;
+      }
+      for (const { progressId, itemIds } of bindTasksList) {
+        await bindProgressTasks(userId, progressId, itemIds);
+      }
+    }
+
+    if (unbindTasksList.length > 0) {
+      if (!userId) {
+        setAiError(t("ai.missingUser"));
+        return;
+      }
+      for (const { progressId, itemIds } of unbindTasksList) {
+        for (const itemId of itemIds) {
+          await unbindProgressTask(userId, progressId, itemId);
+        }
+      }
+    }
+
     setAiBatchPreview([]);
     setAiTargetItems([]);
     setAiError(null);
-  }, [aiBatchPreview, aiLoading, manualItems, toItemFromManualRecord, applyAiUpdates, handleCreateItems, handleBatchDelete, handleDeleteProject, userId, t]);
+  }, [aiBatchPreview, aiLoading, manualItems, toItemFromManualRecord, applyAiUpdates, handleCreateItems, handleBatchDelete, handleDeleteProject, createProgress, updateProgress, deleteProgress, bindProgressTasks, unbindProgressTask, userId, t]);
 
   const applyDroppedItem = useCallback((item: CandidateItem) => {
     setAiTargetItems((current) => {

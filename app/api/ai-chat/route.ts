@@ -167,6 +167,15 @@ const chatContextSchema = z.object({
   items: z.array(itemContextSchema).default([]),
   selectedItems: z.array(itemContextSchema).default([]),
   projects: z.array(z.object({ id: z.string(), name: z.string(), color: z.string().optional() })).default([]),
+  progresses: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    goalValue: z.number(),
+    goalUnit: z.string(),
+    trackingMode: z.enum(["count", "percentage", "manual"]),
+    status: z.enum(["active", "completed", "archived"]),
+    color: z.string().optional(),
+  })).default([]),
   today: z.string().default(() => {
     const n = new Date();
     return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`;
@@ -2774,6 +2783,246 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         return {
           message: summaryParts,
           briefing: statsData,
+        };
+      },
+    }),
+    listProgresses: tool({
+      description: "REQUIRED entry point for resolving any progressId. ALWAYS call this FIRST when the user mentions a progress tracker by name, or any identifier other than a UUID. The result includes each progress's canonical UUID, current goal, and tracking mode. Do NOT guess the progressId; an invalid id will fail.",
+      inputSchema: z.object({}),
+      execute: async (): Promise<AiToolResult> => {
+        const progresses = context.progresses ?? [];
+        if (progresses.length === 0) {
+          return { message: "No progresses found. The user hasn't created any progress trackers yet." };
+        }
+        const list = progresses.map((p) => {
+          return `- ${p.name} (goal: ${p.goalValue} ${p.goalUnit}, mode: ${p.trackingMode}, status: ${p.status}) | id=${p.id}`;
+        }).join("\n");
+        return {
+          message: `Found ${progresses.length} progress tracker(s):\n${list}\n\nUse the exact id (UUID) shown above when calling progress tools.`,
+        };
+      },
+    }),
+    createProgress: tool({
+      description: "Create a new progress tracker. Use when the user wants to track progress towards a goal, set up a counter, percentage, or manual progress.",
+      inputSchema: z.object({
+        name: z.string().describe("The progress tracker name."),
+        description: z.string().optional().describe("Optional description."),
+        goalValue: z.number().describe("The numeric target (e.g. 10 for 10 tasks, 100 for 100%)."),
+        goalUnit: z.string().default("tasks").describe("The unit of measurement (e.g. 'tasks', '%', 'pages', 'miles')."),
+        trackingMode: z.enum(["count", "percentage", "manual"]).default("count").describe("How progress is computed."),
+        color: z.string().optional().describe("Optional color (hex)."),
+        reason: z.string().optional(),
+      }),
+      execute: async ({ name, description, goalValue, goalUnit, trackingMode, color, reason }): Promise<AiToolResult> => {
+        const existing = (context.progresses ?? []).find(
+          (p) => p.name.toLowerCase() === name.toLowerCase(),
+        );
+        if (existing) {
+          return { message: `Progress "${name}" already exists.` };
+        }
+        if (goalValue <= 0) {
+          return { message: "goalValue must be a positive number." };
+        }
+        const actionId = makeActionId("create-progress");
+        return {
+          message: `Prepared to create progress "${name}" with goal ${goalValue} ${goalUnit}.`,
+          proposedActions: [{
+            id: actionId,
+            type: "create_progress",
+            title: `Create progress "${name}"`,
+            name,
+            description,
+            goalValue,
+            goalUnit,
+            trackingMode,
+            color,
+            reason,
+          }],
+        };
+      },
+    }),
+    updateProgress: tool({
+      description: "Update a progress tracker's name, description, goal, tracking mode, or color. You MUST pass a progressId from the context.progresses list (UUID). If the user refers to a progress by name, call listProgresses first.",
+      inputSchema: z.object({
+        progressId: z.string().describe("The progress ID."),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        goalValue: z.number().optional().describe("New goal value (must be > 0)."),
+        goalUnit: z.string().optional(),
+        trackingMode: z.enum(["count", "percentage", "manual"]).optional(),
+        color: z.string().optional(),
+        reason: z.string().optional(),
+      }),
+      execute: async ({ progressId, name, description, goalValue, goalUnit, trackingMode, color, reason }): Promise<AiToolResult> => {
+        const progress = (context.progresses ?? []).find((p) => p.id === progressId);
+        if (!progress) {
+          return { message: "Progress not found." };
+        }
+        const patch: { name?: string; description?: string; goalValue?: number; goalUnit?: string; trackingMode?: "count" | "percentage" | "manual"; color?: string } = {};
+        if (name !== undefined) patch.name = name;
+        if (description !== undefined) patch.description = description;
+        if (goalValue !== undefined) {
+          if (goalValue <= 0) return { message: "goalValue must be a positive number." };
+          patch.goalValue = goalValue;
+        }
+        if (goalUnit !== undefined) patch.goalUnit = goalUnit;
+        if (trackingMode !== undefined) patch.trackingMode = trackingMode;
+        if (color !== undefined) patch.color = color;
+        if (Object.keys(patch).length === 0) {
+          return { message: "No changes specified." };
+        }
+        const actionId = makeActionId("update-progress");
+        return {
+          message: `Prepared to update progress "${progress.name}".`,
+          proposedActions: [{
+            id: actionId,
+            type: "update_progress",
+            title: `Update progress "${progress.name}"`,
+            progressId: progress.id,
+            beforeName: progress.name,
+            patch,
+            reason,
+          }],
+        };
+      },
+    }),
+    deleteProgress: tool({
+      description: "Prepare a reviewable delete proposal for a progress tracker. The progress is only removed after the user confirms in the preview UI. Bound tasks will be unlinked, not deleted. You MUST pass a progressId from the context.progresses list (UUID).",
+      inputSchema: z.object({
+        progressId: z.string().describe("The progress ID."),
+        reason: z.string().optional(),
+      }),
+      execute: async ({ progressId, reason }): Promise<AiToolResult> => {
+        const progress = (context.progresses ?? []).find((p) => p.id === progressId);
+        if (!progress) {
+          return { message: "Progress not found." };
+        }
+        const actionId = makeActionId("delete-progress");
+        return {
+          message: `Prepared to delete progress "${progress.name}".`,
+          proposedActions: [{
+            id: actionId,
+            type: "delete_progress",
+            title: `Delete progress "${progress.name}"`,
+            progressId: progress.id,
+            progressName: progress.name,
+            unlinkedTaskCount: 0,
+            reason,
+          }],
+        };
+      },
+    }),
+    bindProgressTasks: tool({
+      description: "Bind (link) one or more tasks to a progress tracker. Bound tasks contribute to the progress count. You MUST pass a progressId from context.progresses. For itemIds, use searchItems first to obtain the canonical UUIDs.",
+      inputSchema: z.object({
+        progressId: z.string().describe("The progress ID."),
+        itemIds: z.array(z.string()).min(1).describe("Array of item IDs to bind."),
+        reason: z.string().optional(),
+      }),
+      execute: async ({ progressId, itemIds, reason }): Promise<AiToolResult> => {
+        const progress = (context.progresses ?? []).find((p) => p.id === progressId);
+        if (!progress) {
+          return { message: "Progress not found." };
+        }
+        const validIds: string[] = [];
+        const titles: string[] = [];
+        for (const id of itemIds) {
+          const item = context.items.find((i) => i.id === id);
+          if (item) {
+            validIds.push(id);
+            titles.push(item.title);
+          }
+        }
+        if (validIds.length === 0) {
+          return { message: "None of the provided itemIds were found in the user's tasks." };
+        }
+        const actionId = makeActionId("bind-progress-tasks");
+        return {
+          message: `Prepared to bind ${validIds.length} task(s) to progress "${progress.name}".`,
+          proposedActions: [{
+            id: actionId,
+            type: "bind_progress_tasks",
+            title: `Bind ${validIds.length} task(s) to "${progress.name}"`,
+            progressId: progress.id,
+            progressName: progress.name,
+            itemIds: validIds,
+            itemTitles: titles,
+            reason,
+          }],
+        };
+      },
+    }),
+    unbindProgressTasks: tool({
+      description: "Unbind (unlink) one or more tasks from a progress tracker. The tasks themselves are not deleted. You MUST pass a progressId from context.progresses. For itemIds, use searchItems first to obtain the canonical UUIDs.",
+      inputSchema: z.object({
+        progressId: z.string().describe("The progress ID."),
+        itemIds: z.array(z.string()).min(1).describe("Array of item IDs to unbind."),
+        reason: z.string().optional(),
+      }),
+      execute: async ({ progressId, itemIds, reason }): Promise<AiToolResult> => {
+        const progress = (context.progresses ?? []).find((p) => p.id === progressId);
+        if (!progress) {
+          return { message: "Progress not found." };
+        }
+        const validIds: string[] = [];
+        const titles: string[] = [];
+        for (const id of itemIds) {
+          const item = context.items.find((i) => i.id === id);
+          if (item) {
+            validIds.push(id);
+            titles.push(item.title);
+          }
+        }
+        if (validIds.length === 0) {
+          return { message: "None of the provided itemIds were found in the user's tasks." };
+        }
+        const actionId = makeActionId("unbind-progress-tasks");
+        return {
+          message: `Prepared to unbind ${validIds.length} task(s) from progress "${progress.name}".`,
+          proposedActions: [{
+            id: actionId,
+            type: "unbind_progress_tasks",
+            title: `Unbind ${validIds.length} task(s) from "${progress.name}"`,
+            progressId: progress.id,
+            progressName: progress.name,
+            itemIds: validIds,
+            itemTitles: titles,
+            reason,
+          }],
+        };
+      },
+    }),
+    getProgressStatus: tool({
+      description: "Get the current status of a progress tracker including goal, count, percentage, and completion state. Use when the user asks about progress, status, or how far along they are.",
+      inputSchema: z.object({
+        progressId: z.string().describe("The progress ID."),
+      }),
+      execute: async ({ progressId }): Promise<AiToolResult> => {
+        const progress = (context.progresses ?? []).find((p) => p.id === progressId);
+        if (!progress) {
+          return { message: "Progress not found." };
+        }
+        const boundItems = context.items.filter((item) => {
+          if (item.status === "completed") return false;
+          if (item.status === "cancelled") return false;
+          return true;
+        });
+        const summary = [
+          `Progress "${progress.name}":`,
+          `Goal: ${progress.goalValue} ${progress.goalUnit}.`,
+          `Tracking mode: ${progress.trackingMode}.`,
+          `Status: ${progress.status}.`,
+        ].join(" ");
+        return {
+          message: summary,
+          briefing: {
+            progressName: progress.name,
+            goalValue: progress.goalValue,
+            goalUnit: progress.goalUnit,
+            trackingMode: progress.trackingMode,
+            status: progress.status,
+            activeTasks: boundItems.length,
+          },
         };
       },
     }),
