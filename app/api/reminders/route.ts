@@ -14,12 +14,14 @@ import type { Locale } from "@/lib/i18n/config";
 import { LOCALE_COOKIE, isLocale } from "@/lib/i18n/config";
 
 export async function POST(request: NextRequest) {
+  console.log("[ORKEST-DEBUG][Reminders API] POST hit, url=", request.url);
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
+    console.log("[ORKEST-DEBUG][Reminders API] POST 401: no user");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -37,7 +39,13 @@ export async function POST(request: NextRequest) {
     exdates?: string[];
   };
 
+  console.log(
+    "[ORKEST-DEBUG][Reminders API] POST params:",
+    { itemId, remindersLen: reminders?.length, title, startDate, startTime, timezone, allDay, rrule, completedOccurrencesLen: completedOccurrences?.length, exdatesLen: exdates?.length },
+  );
+
   if (!itemId || !reminders?.length) {
+    console.log("[ORKEST-DEBUG][Reminders API] POST 400: missing itemId or reminders", { itemId, remindersLen: reminders?.length });
     return NextResponse.json({ error: "Missing itemId or reminders" }, { status: 400 });
   }
 
@@ -50,6 +58,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (!item || item.deleted_at) {
+    console.log("[ORKEST-DEBUG][Reminders API] POST 404: item not found or deleted", { itemId, itemFound: !!item, deleted: item?.deleted_at });
     return NextResponse.json({ error: "Item not found or deleted" }, { status: 404 });
   }
 
@@ -57,6 +66,7 @@ export async function POST(request: NextRequest) {
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : "en";
 
   try {
+    console.log("[ORKEST-DEBUG][Reminders API] POST calling scheduleItemReminders for", itemId, "with", reminders.length, "reminders");
     const updatedReminders = await scheduleItemReminders(user.id, {
       id: itemId,
       title,
@@ -70,9 +80,19 @@ export async function POST(request: NextRequest) {
       exdates,
     } as ManualItemRecord, locale, user.email);
 
+    const upcomingCount = updatedReminders?.filter((r) => r.occurrenceNotifications?.some((n) => n.notificationId)).length ?? 0;
+    console.log(
+      "[ORKEST-DEBUG][Reminders API] POST scheduleItemReminders returned",
+      updatedReminders?.length ?? 0,
+      "reminders, with",
+      upcomingCount,
+      "having at least one notificationId, locale=", locale,
+    );
+
     return NextResponse.json({ reminders: updatedReminders });
   } catch (error) {
     console.error("[Reminders API] Failed to schedule reminders:", error);
+    console.error("[ORKEST-DEBUG][Reminders API] POST 500 error for", itemId, error);
     return NextResponse.json(
       { error: "Failed to schedule reminders" },
       { status: 500 },
