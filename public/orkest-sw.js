@@ -3,7 +3,7 @@
 
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = "orkest-v1";
+const CACHE_NAME = "orkest-v2";
 const PRECACHE_URLS = ["/", "/logo.svg", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 // Install: precache app shell
@@ -48,12 +48,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets (/_next/static/, images, fonts): cache-first
+  // Static assets (/_next/static/, images, fonts): stale-while-revalidate
+  // Serves cache instantly but revalidates in background to avoid stale chunks.
   if (
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.match(/\.(png|svg|jpg|jpeg|gif|webp|ico|mp3|woff2?|ttf|eot)$/)
   ) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(staleWhileRevalidate(request));
     return;
   }
 
@@ -78,6 +79,23 @@ async function cacheFirst(request) {
   } catch {
     return new Response("Offline", { status: 503 });
   }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+
+  const fetchPromise = fetch(request)
+    .then((response) => {
+      if (response.ok) {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => null);
+
+  // Return cache immediately, revalidate in background
+  return cached || (await fetchPromise) || new Response("Offline", { status: 503 });
 }
 
 async function networkFirst(request) {

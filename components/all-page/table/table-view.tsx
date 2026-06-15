@@ -1,13 +1,16 @@
 "use client";
 
-import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import { CheckCircle, Circle, Plus, Trash2, X } from "lucide-react";
+import { useCallback, useMemo, useState, useRef, useEffect, type Dispatch, type SetStateAction } from "react";
+import { CheckCircle, Circle, FolderOpen, Plus, Trash2, X } from "lucide-react";
 import { TableHeader } from "./table-header";
 import { TableRow } from "./table-row";
 import { TableEmptyState } from "./table-empty-state";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
+import { useProjectStore } from "@/lib/stores/use-project-store";
+import { normalizeProjectColor } from "@/lib/projects/color-palette";
+import { computeProjectsWithStats, sortProjectsWithStats } from "@/lib/projects/project-stats";
 import { useSettingsStore } from "@/lib/stores/use-settings-store";
 import { sortTableRows, type TableSortConfig } from "@/lib/table-sort";
 import { getFilteredListItems, getListItemKey } from "@/components/all-page/list-view";
@@ -31,6 +34,7 @@ function BatchActionBar({
   onComplete,
   onUndoComplete,
   onDelete,
+  onMoveToProject,
   onCancel,
 }: {
   selectedCount: number;
@@ -39,9 +43,31 @@ function BatchActionBar({
   onComplete: () => void;
   onUndoComplete: () => void;
   onDelete: () => void;
+  onMoveToProject: (projectId: string | null) => void;
   onCancel: () => void;
 }) {
   const { t } = useI18n();
+  const projects = useProjectStore((s) => s.projects);
+  const sortMode = useProjectStore((s) => s.sortMode);
+  const manualItems = useAllPageStore((s) => s.manualItems);
+  const sortedProjects = useMemo(() => {
+    const withStats = computeProjectsWithStats(projects, manualItems);
+    return sortProjectsWithStats(withStats, sortMode);
+  }, [projects, manualItems, sortMode]);
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
+  const projectMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!projectMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (projectMenuRef.current && !projectMenuRef.current.contains(e.target as Node)) {
+        setProjectMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [projectMenuOpen]);
+
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.15)] bg-white/50 dark:bg-[#1e1e1e]/80 dark:border-white/10 backdrop-blur-[18px] saturate-150">
       <span className="text-sm font-medium text-[#525059] dark:text-[#d4d4d4] mr-1">
@@ -69,6 +95,56 @@ function BatchActionBar({
           {t("table.batch.undo") as string}
         </Button>
       )}
+      {/* Move to project */}
+      <div className="relative" ref={projectMenuRef}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setProjectMenuOpen((v) => !v)}
+          className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+        >
+          <FolderOpen className="h-3.5 w-3.5" />
+          {t("table.batch.moveToProject") as string}
+        </Button>
+        {projectMenuOpen && (
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 max-h-64 overflow-y-auto scrollbar-transparent-track rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-[#24242a] z-50">
+            <button
+              type="button"
+              onClick={() => {
+                onMoveToProject(null);
+                setProjectMenuOpen(false);
+              }}
+              className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
+            >
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: "#9f99a3" }}
+              />
+              {t("batch.noProject") as string}
+            </button>
+            {sortedProjects.map((project) => {
+              const color = normalizeProjectColor(project.color);
+              return (
+                <button
+                  key={project.id}
+                  type="button"
+                  onClick={() => {
+                    onMoveToProject(project.id);
+                    setProjectMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
+                >
+                  <span
+                    className="inline-block h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className="truncate">{project.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
       <Button
         size="sm"
         variant="outline"
@@ -108,6 +184,7 @@ export function TableView({
   const { t } = useI18n();
   const handleBatchDelete = useAllPageStore((s) => s.handleBatchDelete);
   const handleBatchToggleComplete = useAllPageStore((s) => s.handleBatchToggleComplete);
+  const handleBatchMoveToProject = useAllPageStore((s) => s.handleBatchMoveToProject);
   const handleEditItem = useAllPageStore((s) => s.handleEditItem);
   const handleToggleComplete = useAllPageStore((s) => s.handleToggleComplete);
   const openComposer = useAllPageStore((s) => s.openComposer);
@@ -190,6 +267,14 @@ export function TableView({
     clearSelection();
   }, [selectedItems, handleBatchDelete, clearSelection]);
 
+  const handleBatchMoveToProjectAction = useCallback(
+    (projectId: string | null) => {
+      handleBatchMoveToProject(selectedItems, projectId);
+      clearSelection();
+    },
+    [selectedItems, handleBatchMoveToProject, clearSelection],
+  );
+
   return (
     <div className="w-full min-w-0 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -266,6 +351,7 @@ export function TableView({
           onComplete={handleBatchComplete}
           onUndoComplete={handleBatchUndoComplete}
           onDelete={handleBatchDeleteAction}
+          onMoveToProject={handleBatchMoveToProjectAction}
           onCancel={clearSelection}
         />
       )}

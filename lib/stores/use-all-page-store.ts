@@ -95,6 +95,7 @@ interface AllPageState {
   // Batch operations
   handleBatchDelete: (items: DisplayItem[]) => void;
   handleBatchToggleComplete: (items: DisplayItem[], targetStatus: "completed" | "active") => void;
+  handleBatchMoveToProject: (items: DisplayItem[], projectId: string | null) => void;
 
   // Trash operations
   restoreItem: (itemId: string) => void;
@@ -1171,6 +1172,36 @@ export const useAllPageStore = create<AllPageState>()(
             updatedAt: now,
           };
         }
+
+        updatedItems[itemIndex] = updated;
+        syncRecord("update", "items", updated.id, updated);
+      }
+
+      const sections = computeSections(updatedItems);
+      return { manualItems: updatedItems, sections };
+    });
+  },
+
+  handleBatchMoveToProject: (items, projectId) => {
+    const now = new Date().toISOString();
+
+    set((state) => {
+      const updatedItems = [...state.manualItems];
+
+      for (const item of items) {
+        const baseItem = item.seriesSource ?? item;
+        const itemIndex = updatedItems.findIndex((r) => r.id === baseItem.id);
+        if (itemIndex === -1) continue;
+
+        const existingManualItem = updatedItems[itemIndex];
+        if (existingManualItem.deletedAt) continue;
+
+        // For recurring instances we still update the base record's project.
+        const updated: ManualItemRecord = {
+          ...existingManualItem,
+          projectId: projectId ?? undefined,
+          updatedAt: now,
+        };
 
         updatedItems[itemIndex] = updated;
         syncRecord("update", "items", updated.id, updated);

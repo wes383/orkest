@@ -1,13 +1,16 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState, useRef, useEffect } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { CheckCircle, Circle, ListTodo, MessageCircle, Trash2, X } from "lucide-react";
+import { CheckCircle, Circle, FolderOpen, ListTodo, MessageCircle, Trash2, X } from "lucide-react";
 import { ItemCard } from "./item-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useAiChatContext } from "@/lib/contexts/ai-chat-context";
 import { Button } from "@/components/ui/button";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
+import { useProjectStore } from "@/lib/stores/use-project-store";
+import { normalizeProjectColor } from "@/lib/projects/color-palette";
+import { computeProjectsWithStats, sortProjectsWithStats } from "@/lib/projects/project-stats";
 import { useSettingsStore } from "@/lib/stores/use-settings-store";
 import { useI18n } from "@/lib/i18n";
 import type { Section, DisplayItem, ListFilterConfig, ListSortConfig } from "@/lib/types/all-page";
@@ -225,6 +228,7 @@ function BatchActionBar({
   onComplete,
   onUndoComplete,
   onDelete,
+  onMoveToProject,
   onCancel,
 }: {
   selectedCount: number;
@@ -233,9 +237,30 @@ function BatchActionBar({
   onComplete: () => void;
   onUndoComplete: () => void;
   onDelete: () => void;
+  onMoveToProject: (projectId: string | null) => void;
   onCancel: () => void;
 }) {
   const { t } = useI18n();
+  const projects = useProjectStore((s) => s.projects);
+  const sortMode = useProjectStore((s) => s.sortMode);
+  const manualItems = useAllPageStore((s) => s.manualItems);
+  const sortedProjects = useMemo(() => {
+    const withStats = computeProjectsWithStats(projects, manualItems);
+    return sortProjectsWithStats(withStats, sortMode);
+  }, [projects, manualItems, sortMode]);
+  const [projectMenuOpen, setProjectMenuOpen] = useState(false);
+  const projectMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!projectMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (projectMenuRef.current && !projectMenuRef.current.contains(e.target as Node)) {
+        setProjectMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [projectMenuOpen]);
 
   return (
     <div
@@ -267,6 +292,56 @@ function BatchActionBar({
             {t("batch.undo")}
           </Button>
         )}
+        {/* Move to project */}
+        <div className="relative" ref={projectMenuRef}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setProjectMenuOpen((v) => !v)}
+            className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+          >
+            <FolderOpen className="h-3.5 w-3.5" />
+            {t("batch.moveToProject")}
+          </Button>
+          {projectMenuOpen && (
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 max-h-64 overflow-y-auto scrollbar-transparent-track rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-[#24242a] z-50">
+              <button
+                type="button"
+                onClick={() => {
+                  onMoveToProject(null);
+                  setProjectMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
+              >
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: "#9f99a3" }}
+                />
+                {t("batch.noProject")}
+              </button>
+              {sortedProjects.map((project) => {
+                const color = normalizeProjectColor(project.color);
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    onClick={() => {
+                      onMoveToProject(project.id);
+                      setProjectMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
+                  >
+                    <span
+                      className="inline-block h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="truncate">{project.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
         <Button
           size="sm"
           variant="outline"
@@ -351,6 +426,7 @@ export function ListView({
 }) {
   const handleBatchDelete = useAllPageStore((s) => s.handleBatchDelete);
   const handleBatchToggleComplete = useAllPageStore((s) => s.handleBatchToggleComplete);
+  const handleBatchMoveToProject = useAllPageStore((s) => s.handleBatchMoveToProject);
   const openComposer = useAllPageStore((s) => s.openComposer);
   const ai = useAiChatContext();
   useSettingsStore((s) => s.locale);
@@ -424,6 +500,14 @@ export function ListView({
     handleBatchDelete(selectedItems);
     clearSelection();
   }, [selectedItems, handleBatchDelete, clearSelection]);
+
+  const handleBatchMoveToProjectAction = useCallback(
+    (projectId: string | null) => {
+      handleBatchMoveToProject(selectedItems, projectId);
+      clearSelection();
+    },
+    [selectedItems, handleBatchMoveToProject, clearSelection],
+  );
 
   if (sortConfig.mode === "priority") {
     const priorityItems = sortDisplayItems(allItems, sortConfig);
@@ -519,6 +603,7 @@ export function ListView({
             onComplete={handleBatchComplete}
             onUndoComplete={handleBatchUndoComplete}
             onDelete={handleBatchDeleteAction}
+            onMoveToProject={handleBatchMoveToProjectAction}
             onCancel={clearSelection}
           />
         )}
@@ -575,6 +660,7 @@ export function ListView({
             onComplete={handleBatchComplete}
             onUndoComplete={handleBatchUndoComplete}
             onDelete={handleBatchDeleteAction}
+            onMoveToProject={handleBatchMoveToProjectAction}
             onCancel={clearSelection}
           />
         )}
@@ -684,6 +770,7 @@ export function ListView({
           onComplete={handleBatchComplete}
           onUndoComplete={handleBatchUndoComplete}
           onDelete={handleBatchDeleteAction}
+          onMoveToProject={handleBatchMoveToProjectAction}
           onCancel={clearSelection}
         />
       )}

@@ -120,6 +120,8 @@ const en = {
   "batch.selected": "selected",
   "batch.complete": "Complete",
   "batch.undo": "Undo",
+  "batch.moveToProject": "Move to",
+  "batch.noProject": "No project",
   "auth.createAccount": "Create your account",
   "auth.resetPassword": "Reset your password",
   "auth.welcomeBack": "Welcome back",
@@ -898,6 +900,7 @@ const en = {
   "table.batch.undo": "Mark active",
   "table.batch.delete": "Delete",
   "table.batch.cancel": "Cancel",
+  "table.batch.moveToProject": "Move to",
 };
 
 type Dictionary = Record<keyof typeof en, string>;
@@ -1021,6 +1024,8 @@ const zh: Dictionary = {
   "batch.selected": "已选择",
   "batch.complete": "完成",
   "batch.undo": "撤销",
+  "batch.moveToProject": "移动到",
+  "batch.noProject": "无项目",
   "auth.createAccount": "创建账号",
   "auth.resetPassword": "重置密码",
   "auth.welcomeBack": "欢迎回来",
@@ -1795,6 +1800,7 @@ const zh: Dictionary = {
   "table.batch.undo": "标记为进行中",
   "table.batch.delete": "删除",
   "table.batch.cancel": "取消",
+  "table.batch.moveToProject": "移动到",
 };
 
 const es: Dictionary = {
