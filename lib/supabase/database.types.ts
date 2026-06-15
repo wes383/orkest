@@ -39,6 +39,84 @@ export type Database = {
         };
         Relationships: [];
       };
+      progresses: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          description: string | null;
+          goal_value: number;
+          goal_unit: string;
+          tracking_mode: "count" | "percentage" | "manual";
+          manual_value: number;
+          color: string | null;
+          status: "active" | "completed" | "archived";
+          target_date: string | null;
+          sort_order: number | null;
+          ai_context: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          description?: string | null;
+          goal_value: number;
+          goal_unit?: string;
+          tracking_mode?: "count" | "percentage" | "manual";
+          manual_value?: number;
+          color?: string | null;
+          status?: "active" | "completed" | "archived";
+          target_date?: string | null;
+          sort_order?: number | null;
+          ai_context?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          description?: string | null;
+          goal_value?: number;
+          goal_unit?: string;
+          tracking_mode?: "count" | "percentage" | "manual";
+          manual_value?: number;
+          color?: string | null;
+          status?: "active" | "completed" | "archived";
+          target_date?: string | null;
+          sort_order?: number | null;
+          ai_context?: Json | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      progress_tasks: {
+        Row: {
+          id: string;
+          progress_id: string;
+          item_id: string;
+          weight: number;
+          added_at: string;
+        };
+        Insert: {
+          id?: string;
+          progress_id: string;
+          item_id: string;
+          weight?: number;
+          added_at?: string;
+        };
+        Update: {
+          id?: string;
+          progress_id?: string;
+          item_id?: string;
+          weight?: number;
+          added_at?: string;
+        };
+        Relationships: [];
+      };
       items: {
         Row: {
           id: string;
