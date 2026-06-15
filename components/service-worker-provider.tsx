@@ -18,41 +18,11 @@ export function ServiceWorkerProvider() {
     const initialControllerUrl = navigator.serviceWorker.controller?.scriptURL ?? null;
 
     const findRegistration = async () => {
-      // Clean up legacy OneSignalSDKWorker.js registrations that were created
-      // before we switched to a single combined SW (orkest-sw.js).
-      // If we find one, unregister it and reload immediately so that
-      // OneSignal SDK re-initializes with the correct orkest-sw.js on the
-      // next page load. Without the reload, OneSignal's internal reference
-      // to the old registration becomes stale and postMessage fails.
-      const allRegs = await navigator.serviceWorker.getRegistrations();
-      let foundLegacy = false;
-      for (const r of allRegs) {
-        if (r.active?.scriptURL.includes("OneSignalSDKWorker") || r.waiting?.scriptURL.includes("OneSignalSDKWorker") || r.installing?.scriptURL.includes("OneSignalSDKWorker")) {
-          console.log("[ORKEST-DEBUG][SW] unregistering legacy OneSignalSDKWorker registration, scope=", r.scope);
-          await r.unregister();
-          foundLegacy = true;
-        }
-      }
-      if (foundLegacy) {
-        // Register orkest-sw.js so it's ready on the next load, then reload
-        try {
-          await navigator.serviceWorker.register("/orkest-sw.js", { scope: "/" });
-          console.log("[ORKEST-DEBUG][SW] registered orkest-sw.js, reloading to re-initialize OneSignal SDK");
-        } catch {
-          console.warn("[ORKEST-DEBUG][SW] fallback registration failed before reload");
-        }
-        window.location.reload();
-        return;
-      }
-
-      // No legacy registrations — look for the orkest-sw.js registration
-      let reg: ServiceWorkerRegistration | null | undefined = await navigator.serviceWorker.getRegistration("/orkest-sw.js");
-
-      // If not found by URL, try getting any remaining registration at root scope
-      if (!reg) {
-        const remaining = await navigator.serviceWorker.getRegistrations();
-        reg = remaining.find((r) => r.scope.endsWith("/")) ?? null;
-      }
+      // Look for any existing SW registration at root scope — either
+      // orkest-sw.js (registered by us) or OneSignalSDKWorker.js
+      // (registered by OneSignal SDK). Both files have identical content,
+      // so either one is fine.
+      let reg: ServiceWorkerRegistration | null | undefined = await navigator.serviceWorker.getRegistration("/");
 
       // If still no registration, register ourselves (fallback for cases
       // where OneSignal hasn't loaded yet or is disabled)
