@@ -626,37 +626,6 @@ export default function AllPage() {
               )}
             </div>
             <div className="lg:hidden flex items-center gap-2">
-              {viewMode === "list" && (
-                <>
-                  {isListSelectionMode ? (
-                    <button
-                      type="button"
-                      onClick={toggleSelectAllVisibleListItems}
-                      disabled={visibleListItemKeys.length === 0}
-                      className="flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/8 bg-white px-3 text-[11px] font-medium tracking-wide text-[#7d7880] transition-colors hover:text-[#25242a] disabled:cursor-not-allowed disabled:opacity-45"
-                    >
-                      {allVisibleListItemsSelected ? t("common.deselectAll") : t("ai.selectAll")}
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isListSelectionMode) {
-                        clearListSelection();
-                        return;
-                      }
-                      setIsListSelectionMode(true);
-                    }}
-                    className={`flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-3 text-[11px] font-medium tracking-wide transition-colors ${
-                      isListSelectionMode
-                        ? "border-black/12 bg-white text-[#25242a] shadow-sm"
-                        : "border-black/8 bg-[#f4f0ec]/50 text-[#7d7880] hover:text-[#5f5a63]"
-                    }`}
-                  >
-                    {isListSelectionMode ? t("common.cancel") : t("listControls.select")}
-                  </button>
-                </>
-              )}
               {!showStickyHeader && <AllPageSearch />}
             </div>
             {/* Calendar sticky nav bar */}
@@ -742,7 +711,7 @@ export default function AllPage() {
           </div>
         </div>
 
-        <div className="px-2 lg:px-3 -mt-2 lg:-mt-10 -mb-4">
+        <div className="px-2 lg:px-3 mt-2 lg:-mt-10 -mb-4">
           <FilterBar
             filterConfig={listFilterConfig}
             onFilterChange={setListFilterConfig}
@@ -751,6 +720,18 @@ export default function AllPage() {
             projects={projects}
             availableTags={availableListTags}
             viewMode={viewMode}
+            isListSelectionMode={viewMode === "list" ? isListSelectionMode : undefined}
+            onToggleSelectMode={viewMode === "list" ? () => {
+              if (isListSelectionMode) {
+                clearListSelection();
+                return;
+              }
+              setIsListSelectionMode(true);
+            } : undefined}
+            onToggleSelectAll={viewMode === "list" ? toggleSelectAllVisibleListItems : undefined}
+            onSelectAllLabel={t("ai.selectAll")}
+            allSelected={allVisibleListItemsSelected}
+            selectionDisabled={visibleListItemKeys.length === 0}
           />
         </div>
 
