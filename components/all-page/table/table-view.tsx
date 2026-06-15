@@ -69,101 +69,114 @@ function BatchActionBar({
   }, [projectMenuOpen]);
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.15)] bg-white/50 dark:bg-[#1e1e1e]/80 dark:border-white/10 backdrop-blur-[18px] saturate-150">
-      <span className="text-sm font-medium text-[#525059] dark:text-[#d4d4d4] mr-1">
-        {t("table.batch.selected", { count: selectedCount }) as string}
-      </span>
-      {allActive && (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 px-5 py-3 rounded-2xl border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.15)] bg-white/50 dark:bg-[#1e1e1e]/80 dark:border-white/10 backdrop-blur-[18px] saturate-150">
+      <div className="flex w-full items-center justify-between gap-2 sm:contents sm:w-auto">
+        <span className="text-sm font-medium text-[#525059] dark:text-[#d4d4d4] sm:mr-1">
+          {t("table.batch.selected", { count: selectedCount }) as string}
+        </span>
         <Button
           size="sm"
-          variant="outline"
-          onClick={onComplete}
-          className="h-8 gap-1.5 text-xs border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-800/50 dark:text-green-400 dark:hover:bg-green-950/40 dark:hover:text-green-300"
+          variant="ghost"
+          onClick={onCancel}
+          className="h-8 gap-1 text-xs text-[#7d7880] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#d4d4d4] sm:hidden"
         >
-          <CheckCircle className="h-3.5 w-3.5" />
-          {t("table.batch.complete") as string}
+          <X className="h-3.5 w-3.5" />
+          {t("table.batch.cancel") as string}
         </Button>
-      )}
-      {allCompleted && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onUndoComplete}
-          className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
-        >
-          <Circle className="h-3.5 w-3.5" />
-          {t("table.batch.undo") as string}
-        </Button>
-      )}
-      {/* Move to project */}
-      <div className="relative" ref={projectMenuRef}>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setProjectMenuOpen((v) => !v)}
-          className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
-        >
-          <FolderOpen className="h-3.5 w-3.5" />
-          {t("table.batch.moveToProject") as string}
-        </Button>
-        {projectMenuOpen && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 max-h-64 overflow-y-auto scrollbar-transparent-track rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-[#24242a] z-50">
-            <button
-              type="button"
-              onClick={() => {
-                onMoveToProject(null);
-                setProjectMenuOpen(false);
-              }}
-              className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
-            >
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: "#9f99a3" }}
-              />
-              {t("batch.noProject") as string}
-            </button>
-            {sortedProjects.map((project) => {
-              const color = normalizeProjectColor(project.color);
-              return (
-                <button
-                  key={project.id}
-                  type="button"
-                  onClick={() => {
-                    onMoveToProject(project.id);
-                    setProjectMenuOpen(false);
-                  }}
-                  className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
-                >
-                  <span
-                    className="inline-block h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                  <span className="truncate">{project.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={onDelete}
-        className="h-8 gap-1.5 text-xs border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
-      >
-        <Trash2 className="h-3.5 w-3.5" />
-        {t("table.batch.delete") as string}
-      </Button>
-      <div className="w-px h-5 bg-black/10 dark:bg-white/15 mx-1" />
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={onCancel}
-        className="h-8 gap-1 text-xs text-[#7d7880] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#d4d4d4]"
-      >
-        <X className="h-3.5 w-3.5" />
-        {t("table.batch.cancel") as string}
-      </Button>
+      <div className="flex items-center gap-2 sm:gap-3">
+        {allActive && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onComplete}
+            className="h-8 gap-1.5 text-xs border-green-200 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-800/50 dark:text-green-400 dark:hover:bg-green-950/40 dark:hover:text-green-300"
+          >
+            <CheckCircle className="h-3.5 w-3.5" />
+            {t("table.batch.complete") as string}
+          </Button>
+        )}
+        {allCompleted && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onUndoComplete}
+            className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+          >
+            <Circle className="h-3.5 w-3.5" />
+            {t("table.batch.undo") as string}
+          </Button>
+        )}
+        {/* Move to project */}
+        <div className="relative" ref={projectMenuRef}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setProjectMenuOpen((v) => !v)}
+            className="h-8 gap-1.5 text-xs dark:border-white/10 dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+          >
+            <FolderOpen className="h-3.5 w-3.5" />
+            {t("table.batch.moveToProject") as string}
+          </Button>
+          {projectMenuOpen && (
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 max-h-64 overflow-y-auto scrollbar-transparent-track rounded-xl border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-[#24242a] z-50">
+              <button
+                type="button"
+                onClick={() => {
+                  onMoveToProject(null);
+                  setProjectMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
+              >
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: "#9f99a3" }}
+                />
+                {t("batch.noProject") as string}
+              </button>
+              {sortedProjects.map((project) => {
+                const color = normalizeProjectColor(project.color);
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    onClick={() => {
+                      onMoveToProject(project.id);
+                      setProjectMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-[#525059] hover:bg-black/5 dark:text-[#d4d4d4] dark:hover:bg-white/8"
+                  >
+                    <span
+                      className="inline-block h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="truncate">{project.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onDelete}
+          className="h-8 gap-1.5 text-xs border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          {t("table.batch.delete") as string}
+        </Button>
+        <div className="hidden sm:block w-px h-5 bg-black/10 dark:bg-white/15 mx-0.5 sm:mx-1" />
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onCancel}
+          className="hidden sm:inline-flex h-8 gap-1 text-xs text-[#7d7880] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#d4d4d4]"
+        >
+          <X className="h-3.5 w-3.5" />
+          {t("table.batch.cancel") as string}
+        </Button>
+      </div>
     </div>
   );
 }
