@@ -65,7 +65,8 @@ export function OneSignalProvider() {
               notifyButton: { enable: false },
               // Reuse our orkest-sw.js as the OneSignal service worker so that
               // a single SW handles both push notifications and caching.
-              serviceWorkerPath: "/orkest-sw.js",
+              // Per OneSignal docs, serviceWorkerPath must NOT have a leading slash.
+              serviceWorkerPath: "orkest-sw.js",
               serviceWorkerParam: { scope: "/" },
             });
           });
