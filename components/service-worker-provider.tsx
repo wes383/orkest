@@ -17,18 +17,26 @@ export function ServiceWorkerProvider() {
     const RELOAD_COOLDOWN_MS = 30_000;
     const initialControllerUrl = navigator.serviceWorker.controller?.scriptURL ?? null;
 
-    // Use getRegistration() to find the existing SW registered by OneSignal
-    // SDK (which registers /orkest-sw.js via serviceWorkerPath config).
-    // This avoids a duplicate register() call that can race with OneSignal's
-    // own registration and cause "[WM] No SW registration for postMessage".
     const findRegistration = async () => {
-      // First, check if there's already a registration for our SW
+      // Clean up legacy OneSignalSDKWorker.js registrations that were created
+      // before we switched to a single combined SW (orkest-sw.js).
+      // Without this, the old registration persists in the browser and
+      // OneSignal SDK keeps using it instead of our configured serviceWorkerPath.
+      const allRegs = await navigator.serviceWorker.getRegistrations();
+      for (const r of allRegs) {
+        if (r.active?.scriptURL.includes("OneSignalSDKWorker") || r.waiting?.scriptURL.includes("OneSignalSDKWorker") || r.installing?.scriptURL.includes("OneSignalSDKWorker")) {
+          console.log("[ORKEST-DEBUG][SW] unregistering legacy OneSignalSDKWorker registration, scope=", r.scope);
+          await r.unregister();
+        }
+      }
+
+      // Now look for the orkest-sw.js registration
       let reg: ServiceWorkerRegistration | null | undefined = await navigator.serviceWorker.getRegistration("/orkest-sw.js");
 
-      // If not found by URL, try getting any registration at root scope
+      // If not found by URL, try getting any remaining registration at root scope
       if (!reg) {
-        const allRegs = await navigator.serviceWorker.getRegistrations();
-        reg = allRegs.find((r) => r.scope.endsWith("/")) ?? null;
+        const remaining = await navigator.serviceWorker.getRegistrations();
+        reg = remaining.find((r) => r.scope.endsWith("/")) ?? null;
       }
 
       // If still no registration, register ourselves (fallback for cases
