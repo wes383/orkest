@@ -42,6 +42,7 @@ const EMPTY_FORM_PLACEHOLDER: ItemFormState = {
   subtasks: [],
   projectId: "",
   projectName: "",
+  progressIds: [],
   status: undefined,
   reminders: [],
 };
@@ -98,6 +99,7 @@ export type AiChatProgressContext = {
   goalValue: number;
   goalUnit: string;
   trackingMode: "count" | "percentage" | "manual";
+  manualValue: number;
   status: "active" | "completed" | "archived";
   color?: string;
 };
@@ -109,6 +111,7 @@ export type AiChatContext = {
   selectedItems: AiChatItemContext[];
   projects: AiChatProjectContext[];
   progresses?: AiChatProgressContext[];
+  progressLinks?: Array<{ progressId: string; itemId: string }>;
   today: string; // YYYY-MM-DD in user's local timezone
   currentTime: string; // HH:mm in user's local timezone
   timezone: string; // IANA timezone identifier, e.g. "Asia/Shanghai"
@@ -236,6 +239,7 @@ export type AiProposedAction =
       goalUnit: string;
       trackingMode: "count" | "percentage" | "manual";
       color?: string;
+      targetDate?: string;
       reason?: string;
     }
   | {
@@ -251,6 +255,7 @@ export type AiProposedAction =
         goalUnit?: string;
         trackingMode?: "count" | "percentage" | "manual";
         color?: string;
+        targetDate?: string;
       };
       reason?: string;
     }
@@ -282,6 +287,24 @@ export type AiProposedAction =
       progressName: string;
       itemIds: string[];
       itemTitles: string[];
+      reason?: string;
+    }
+  | {
+      id: string;
+      type: "set_manual_value";
+      title: string;
+      progressId: string;
+      progressName: string;
+      value: number;
+      reason?: string;
+    }
+  | {
+      id: string;
+      type: "generate_progress_tasks";
+      title: string;
+      progressId: string;
+      progressName: string;
+      tasks: Array<{ title: string; description?: string }>;
       reason?: string;
     };
 
@@ -316,7 +339,9 @@ export type AiBatchPreviewItem = {
     | "update_progress"
     | "delete_progress"
     | "bind_progress_tasks"
-    | "unbind_progress_tasks";
+    | "unbind_progress_tasks"
+    | "set_manual_value"
+    | "generate_progress_tasks";
   selected: boolean;
   formState: ItemFormState;
   targetItemId?: string;
@@ -340,6 +365,8 @@ export type AiBatchPreviewItem = {
   progressColor?: string;
   /** For create_progress: optional description. */
   progressDescription?: string;
+  /** For create_progress: optional target date. */
+  progressTargetDate?: string;
   /** For update_progress: fields to patch. */
   progressPatch?: {
     name?: string;
@@ -348,11 +375,16 @@ export type AiBatchPreviewItem = {
     goalUnit?: string;
     trackingMode?: "count" | "percentage" | "manual";
     color?: string;
+    targetDate?: string;
   };
   /** For bind/unbind: item IDs. */
   progressItemIds?: string[];
   /** For bind/unbind: item titles. */
   progressItemTitles?: string[];
+  /** For set_manual_value: the new value. */
+  progressManualValue?: number;
+  /** For generate_progress_tasks: generated tasks to create and bind. */
+  progressGeneratedTasks?: Array<{ title: string; description?: string }>;
   originalForm?: ItemFormState | null;
   autoSelected?: boolean;
   reason?: string;
@@ -768,6 +800,7 @@ export function convertProposedActionsToBatchPreview(actions: AiProposedAction[]
         progressTrackingMode: action.trackingMode,
         progressColor: action.color,
         progressDescription: action.description,
+        progressTargetDate: action.targetDate,
         reason: action.reason,
       });
     } else if (action.type === "update_progress") {
@@ -814,6 +847,28 @@ export function convertProposedActionsToBatchPreview(actions: AiProposedAction[]
         progressName: action.progressName,
         progressItemIds: action.itemIds,
         progressItemTitles: action.itemTitles,
+        reason: action.reason,
+      });
+    } else if (action.type === "set_manual_value") {
+      nextBatch.push({
+        id: action.id,
+        kind: "set_manual_value",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        progressId: action.progressId,
+        progressName: action.progressName,
+        progressManualValue: action.value,
+        reason: action.reason,
+      });
+    } else if (action.type === "generate_progress_tasks") {
+      nextBatch.push({
+        id: action.id,
+        kind: "generate_progress_tasks",
+        selected: true,
+        formState: EMPTY_FORM_PLACEHOLDER,
+        progressId: action.progressId,
+        progressName: action.progressName,
+        progressGeneratedTasks: action.tasks,
         reason: action.reason,
       });
     }

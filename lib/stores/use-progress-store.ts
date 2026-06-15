@@ -22,7 +22,6 @@ function progressUpdateToRow(updates: ProgressUpdate): Record<string, unknown> {
   if (updates.status !== undefined) row.status = updates.status;
   if (updates.targetDate !== undefined) row.target_date = updates.targetDate;
   if (updates.sortOrder !== undefined) row.sort_order = updates.sortOrder;
-  if (updates.aiContext !== undefined) row.ai_context = updates.aiContext;
   return row;
 }
 
@@ -90,7 +89,6 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       status: row.status,
       targetDate: row.target_date ?? undefined,
       sortOrder: row.sort_order ?? undefined,
-      aiContext: (row.ai_context as Record<string, unknown> | null) ?? undefined,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     }));
@@ -135,7 +133,6 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       color: input.color,
       status: input.status ?? "active",
       targetDate: input.targetDate,
-      aiContext: input.aiContext,
       sortOrder: maxSort + 1,
       createdAt: now,
       updatedAt: now,
@@ -155,7 +152,6 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       status: progress.status,
       target_date: progress.targetDate ?? null,
       sort_order: progress.sortOrder,
-      ai_context: progress.aiContext ?? null,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),
     });
@@ -211,7 +207,7 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
   },
 
   async setManualValue(userId, progressId, value) {
-    if (value < 0) return false;
+    if (value < 0 || value > 99999999) return false;
     set((state) => ({
       progresses: state.progresses.map((p) =>
         p.id === progressId ? { ...p, manualValue: value, updatedAt: new Date() } : p,

@@ -127,6 +127,7 @@ export type ItemFormState = {
   subtasks: SubtaskFormItem[];
   projectId: string;
   projectName: string;
+  progressIds: string[];
   status: ItemStatus | undefined;
   reminders: Reminder[];
 };

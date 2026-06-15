@@ -321,7 +321,6 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
         status: (payload.status as "active" | "completed" | "archived") ?? "active",
         target_date: (payload.target_date ?? null) as string | null,
         sort_order: (payload.sort_order as number | null) ?? null,
-        ai_context: (payload.ai_context as Database["public"]["Tables"]["progresses"]["Insert"]["ai_context"]) ?? null,
         created_at: payload.created_at as string,
         updated_at: payload.updated_at as string,
       };
@@ -334,13 +333,25 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
     }
 
     // update
+    const allowedKeys = new Set([
+      "name",
+      "description",
+      "goal_value",
+      "goal_unit",
+      "tracking_mode",
+      "manual_value",
+      "color",
+      "status",
+      "target_date",
+      "sort_order",
+      "user_id",
+      "updated_at",
+    ]);
     const updatePayload: Database["public"]["Tables"]["progresses"]["Update"] = {};
     for (const key of Object.keys(payload)) {
       const value = payload[key];
       if (value === undefined) continue;
-      // Only forward keys that exist in the Update type. Camel-cased keys
-      // would otherwise reach PostgREST and trigger PGRST204 errors.
-      if (key in updatePayload) {
+      if (allowedKeys.has(key)) {
         (updatePayload as Record<string, unknown>)[key] = value;
       }
     }

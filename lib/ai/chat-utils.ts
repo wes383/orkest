@@ -30,6 +30,7 @@ const EMPTY_FORM: ItemFormState = {
   subtasks: [],
   projectId: "",
   projectName: "",
+  progressIds: [],
   status: undefined,
   reminders: [],
 };
@@ -90,6 +91,7 @@ export function formFromAiItem(item: AiChatItemContext): ItemFormState {
     })),
     projectId: item.projectId ?? "",
     projectName: item.projectName ?? "",
+    progressIds: [],
     status: item.status,
     reminders: (item.reminders ?? []).map((r) => ({
       id: crypto.randomUUID(),

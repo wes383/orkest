@@ -15,6 +15,7 @@ import { useProgressStore } from "@/lib/stores/use-progress-store";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useI18n, addLocaleToPathname } from "@/lib/i18n";
 import { computeProgressStats } from "@/lib/progress/progress-stats";
+import { emptyForm } from "@/lib/all-page-utils";
 import type { ManualItemRecord } from "@/lib/types/all-page";
 
 interface ProgressDetailPageProps {
@@ -37,6 +38,7 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
   const manualItems = useAllPageStore((s) => s.manualItems);
   const itemsLoaded = useAllPageStore((s) => s.isLoaded);
   const loadItemsFromCloud = useAllPageStore((s) => s.loadItemsFromCloud);
+  const openComposerWithForm = useAllPageStore((s) => s.openComposerWithForm);
   const undoToast = useAllPageStore((s) => s.undoToast);
   const undo = useAllPageStore((s) => s.undo);
 
@@ -98,6 +100,13 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
     const label = t("all.undoToast.unlinkedFromProgress", { name: progress?.name ?? "" });
     useAllPageStore.getState().showUndoToast(label, () => {
       void bindTasks(user.id, progressId, [itemId]);
+    });
+  }
+
+  function handleCreateNewTask() {
+    openComposerWithForm({
+      ...emptyForm,
+      progressIds: [progressId],
     });
   }
 
@@ -189,16 +198,28 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
             {t("progress.detail.boundTasks")}
           </h2>
           {user ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => setPickerOpen(true)}
-              className="h-7 gap-1.5 px-2 text-xs"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {t("progress.addTask")}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={handleCreateNewTask}
+                className="h-7 gap-1.5 px-2 text-xs"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {t("progress.newTask")}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => setPickerOpen(true)}
+                className="h-7 gap-1.5 px-2 text-xs"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {t("progress.addTask")}
+              </Button>
+            </div>
           ) : null}
         </div>
         <ProgressBoundTaskList items={boundItems} onUnlink={handleUnlink} />
@@ -266,8 +287,8 @@ function ManualValueEditor({ value, goalValue, goalUnit, onChange }: ManualValue
 
   function commit(next: string) {
     const parsed = Number(next);
-    if (Number.isFinite(parsed) && parsed >= 0 && parsed !== value) {
-      onChange(parsed);
+    if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 99999999 && parsed !== value) {
+      onChange(Math.min(99999999, parsed));
     } else {
       setDraft(String(value));
     }
@@ -282,7 +303,8 @@ function ManualValueEditor({ value, goalValue, goalUnit, onChange }: ManualValue
         <input
           type="number"
           min={0}
-          step="0.01"
+          max={99999999}
+          step="1"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={() => commit(draft)}
@@ -295,7 +317,7 @@ function ManualValueEditor({ value, goalValue, goalUnit, onChange }: ManualValue
           className="w-32 rounded-lg border border-black/8 bg-white px-3 py-2 text-sm text-[#25242a] focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#202020] dark:text-[#f5f5f5]"
         />
         <span className="text-xs text-[#7d7880] dark:text-[#a3a3a3]">
-          {t("progress.currentOfGoal", { current: value, goal: goalValue, unit: goalUnit })}
+          / {goalValue} {goalUnit}
         </span>
       </div>
     </div>

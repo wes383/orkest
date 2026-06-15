@@ -92,8 +92,8 @@ export function QuickAddBar({ open, onClose }: QuickAddBarProps) {
       estimateMinutes: parsed.estimateMinutes ? String(parsed.estimateMinutes) : "",
     };
 
-    const error = handleCreateItem(form);
-    if (!error) {
+    const result = handleCreateItem(form);
+    if (!result.error) {
       setCreated(parsed.title);
       setTimeout(() => {
         setCreated(null);

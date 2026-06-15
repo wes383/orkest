@@ -17,7 +17,6 @@ export interface Progress {
   status: ProgressStatus;
   targetDate?: string;
   sortOrder?: number;
-  aiContext?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,7 +39,6 @@ export interface ProgressInput {
   color?: string;
   status?: ProgressStatus;
   targetDate?: string;
-  aiContext?: Record<string, unknown>;
 }
 
 export interface ProgressUpdate {
@@ -54,5 +52,4 @@ export interface ProgressUpdate {
   status?: ProgressStatus;
   targetDate?: string;
   sortOrder?: number;
-  aiContext?: Record<string, unknown>;
 }

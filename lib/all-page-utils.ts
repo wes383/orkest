@@ -131,6 +131,7 @@ export const emptyForm: ItemFormState = {
   subtasks: [],
   projectId: "",
   projectName: "",
+  progressIds: [],
   status: undefined,
   reminders: [],
 };
@@ -1012,7 +1013,7 @@ export function toManualItemRecord(item: Item, overrides: Partial<ManualItemReco
   };
 }
 
-export function toFormStateFromItem(item: Item, subtasks?: SubtaskFormItem[]): ItemFormState {
+export function toFormStateFromItem(item: Item, subtasks?: SubtaskFormItem[], progressLinks?: Array<{ progressId: string; itemId: string }>): ItemFormState {
   const start = item.time.start;
   const end = item.time.end;
   const due = item.time.due;
@@ -1021,6 +1022,10 @@ export function toFormStateFromItem(item: Item, subtasks?: SubtaskFormItem[]): I
     item.recurrence?.type === "daily" || item.recurrence?.type === "weekly" || item.recurrence?.type === "monthly" || item.recurrence?.type === "yearly"
       ? item.recurrence.type
       : "none";
+
+  const progressIds = progressLinks
+    ?.filter((link) => link.itemId === item.id)
+    .map((link) => link.progressId) ?? [];
 
   return {
     title: item.title,
@@ -1051,6 +1056,7 @@ export function toFormStateFromItem(item: Item, subtasks?: SubtaskFormItem[]): I
     subtasks: subtasks ?? [],
     projectId: item.projectId || "",
     projectName: "",
+    progressIds,
     status: item.status,
     reminders: item.reminders || [],
   };

@@ -1,5 +1,11 @@
 import type { ManualItemRecord } from "../types/all-page";
 import type { Progress, ProgressStatus, ProgressTaskLink, ProgressTrackingMode } from "../types/progress";
+import {
+  toItemFromManualRecord,
+  getCompletedRecurringDisplayItems,
+  getReopenedRecurringDisplayItems,
+  getNextPendingRecurringDisplayItem,
+} from "../all-page-utils";
 
 export type ProgressSortMode = "default" | "alpha" | "recent" | "completion";
 
@@ -62,10 +68,22 @@ export function computeProgressStats(
     const item = liveItems.get(link.itemId);
     if (!item) continue;
     const bucket = counts.get(link.progressId) ?? { bound: 0, completed: 0 };
-    bucket.bound += 1;
-    if (item.status === "completed") {
-      bucket.completed += 1;
+
+    if (item.recurrenceType && item.recurrenceType !== "none") {
+      const fullItem = toItemFromManualRecord(item);
+      const completedItems = getCompletedRecurringDisplayItems(fullItem);
+      const reopenedItems = getReopenedRecurringDisplayItems(fullItem);
+      const nextPending = getNextPendingRecurringDisplayItem(fullItem);
+
+      bucket.bound += completedItems.length + reopenedItems.length + (nextPending ? 1 : 0);
+      bucket.completed += completedItems.length;
+    } else {
+      bucket.bound += 1;
+      if (item.status === "completed") {
+        bucket.completed += 1;
+      }
     }
+
     counts.set(link.progressId, bucket);
   }
 
@@ -107,12 +125,10 @@ function computeCurrentAndPercent(
     return { currentValue: pct, percent: pct };
   }
 
-  // `count` mode: the "goal" is the number of currently bound tasks, not the
-  // stored `goalValue` (which was captured at create time and can go stale as
-  // the user binds/unbinds items). Always derive both `currentValue` and
-  // `percent` from the live bucket so the UI stays in sync.
+  // `count` mode: the "goal" is the stored `goalValue`. Always derive
+  // `currentValue` from the completed bound items and `percent` relative to the goal.
   const current = bucket.completed;
-  const pct = bucket.bound > 0 ? clampPercent((current / bucket.bound) * 100) : 0;
+  const pct = goalValue > 0 ? clampPercent((current / goalValue) * 100) : 0;
   return { currentValue: current, percent: pct };
 }
 

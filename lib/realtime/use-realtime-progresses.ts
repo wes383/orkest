@@ -53,7 +53,6 @@ export function useRealtimeProgresses(userId: string | undefined) {
             status: "active" | "completed" | "archived";
             target_date: string | null;
             sort_order: number | null;
-            ai_context: Record<string, unknown> | null;
             created_at: string;
             updated_at: string;
           } | null;
@@ -71,7 +70,6 @@ export function useRealtimeProgresses(userId: string | undefined) {
             status: row.status,
             targetDate: row.target_date ?? undefined,
             sortOrder: row.sort_order ?? undefined,
-            aiContext: row.ai_context ?? undefined,
             createdAt: new Date(row.created_at),
             updatedAt: new Date(row.updated_at),
           });

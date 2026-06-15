@@ -80,4 +80,6 @@ DROP POLICY IF EXISTS "progress_tasks_delete_own" ON progress_tasks;
 CREATE POLICY "progress_tasks_delete_own" ON progress_tasks
   FOR DELETE USING (
     EXISTS (SELECT 1 FROM progresses p WHERE p.id = progress_tasks.progress_id AND p.user_id = auth.uid())
+    OR
+    EXISTS (SELECT 1 FROM items i WHERE i.id = progress_tasks.item_id AND i.user_id = auth.uid())
   );

@@ -209,6 +209,11 @@ const SLASH_TOOLS: SlashTool[] = [
   { name: "memory", label: "/memory", description: "Remember a preference", toolName: "updateUserMemory" },
   { name: "briefing", label: "/briefing", description: "Get daily briefing", toolName: "getDailyBriefing" },
   { name: "review", label: "/review", description: "Get weekly review", toolName: "getWeeklyReview" },
+  { name: "progress", label: "/progress", description: "List all progress trackers", toolName: "listProgresses" },
+  { name: "create-progress", label: "/create-progress", description: "Create a new progress tracker", toolName: "createProgress" },
+  { name: "progress-status", label: "/progress-status", description: "Check progress status", toolName: "getProgressStatus" },
+  { name: "set-progress", label: "/set-progress", description: "Set manual progress value", toolName: "setManualValue" },
+  { name: "generate-tasks", label: "/generate-tasks", description: "Generate tasks for a progress", toolName: "generateProgressTasks" },
 ];
 
 export function AiOverlay({
@@ -1560,7 +1565,7 @@ export function AiOverlay({
       {showSlashMenu && filteredTools.length > 0 && slashMenuPos && (
         <div
           ref={slashMenuRef}
-          className="fixed z-[60] max-h-[min(16rem,80vh)] overflow-y-auto rounded-2xl border border-black/8 bg-white shadow-lg"
+          className="fixed z-[60] max-h-[min(16rem,80vh)] overflow-y-auto scrollbar-transparent-track rounded-2xl border border-black/8 bg-white shadow-lg dark:border-white/10 dark:bg-[#202020]"
           style={{
             bottom: `calc(100vh - ${slashMenuPos.top}px)`,
             left: slashMenuPos.left,

@@ -66,7 +66,10 @@ export function useAiChat(config: UseAiChatConfig) {
   } = config;
 
   const projects = useProjectStore((s) => s.projects);
+  const projectsLoaded = useProjectStore((s) => s.isLoaded);
   const progresses = useProgressStore((s) => s.progresses);
+  const progressesLoaded = useProgressStore((s) => s.isLoaded);
+  const links = useProgressStore((s) => s.links);
   const { locale, t } = useI18n();
   const loadProjects = useProjectStore((s) => s.loadProjects);
   const loadProgresses = useProgressStore((s) => s.loadProgresses);
@@ -76,6 +79,7 @@ export function useAiChat(config: UseAiChatConfig) {
   const deleteProgress = useProgressStore((s) => s.deleteProgress);
   const bindProgressTasks = useProgressStore((s) => s.bindTasks);
   const unbindProgressTask = useProgressStore((s) => s.unbindTask);
+  const setManualValue = useProgressStore((s) => s.setManualValue);
   const sleepStart = useSettingsStore((s) => s.sleepStart);
   const sleepEnd = useSettingsStore((s) => s.sleepEnd);
   const bufferMinutes = useSettingsStore((s) => s.bufferMinutes);
@@ -143,14 +147,14 @@ export function useAiChat(config: UseAiChatConfig) {
   }, [manualItems, projectNameById, aiCalendarProcessingEnabled]);
 
   useEffect(() => {
-    if (userId && projects.length === 0) {
+    if (userId && !projectsLoaded) {
       loadProjects(userId);
     }
-    if (userId && progresses.length === 0) {
+    if (userId && !progressesLoaded) {
       loadProgresses(userId);
       loadLinks(userId);
     }
-  }, [userId, projects.length, progresses.length, loadProjects, loadProgresses, loadLinks]);
+  }, [userId, projectsLoaded, progressesLoaded, loadProjects, loadProgresses, loadLinks]);
 
   // --- State ---
   const [isExpanded, setIsExpanded] = useState(false);
@@ -202,8 +206,13 @@ export function useAiChat(config: UseAiChatConfig) {
         goalValue: progress.goalValue,
         goalUnit: progress.goalUnit,
         trackingMode: progress.trackingMode,
+        manualValue: progress.manualValue,
         status: progress.status,
         color: progress.color,
+      })),
+      progressLinks: links.map((link) => ({
+        progressId: link.progressId,
+        itemId: link.itemId,
       })),
       today: nowInTz.format("YYYY-MM-DD"),
       currentTime: nowInTz.format("HH:mm"),
@@ -225,7 +234,7 @@ export function useAiChat(config: UseAiChatConfig) {
       language: LOCALE_AI_NAMES[locale],
       weekStartDay: getWeekStartDay(),
     };
-  }, [candidateItems, aiTargetItems, projects, progresses, sleepStart, sleepEnd, bufferMinutes, focusSessions, pageContext, username, locale]);
+  }, [candidateItems, aiTargetItems, projects, progresses, links, sleepStart, sleepEnd, bufferMinutes, focusSessions, pageContext, username, locale]);
 
   // --- Chat History ---
   const {
@@ -632,6 +641,20 @@ export function useAiChat(config: UseAiChatConfig) {
         Array.isArray(item.progressItemIds)
       )
       .map((item) => ({ progressId: item.progressId, itemIds: item.progressItemIds }));
+    const setManualValuesList = selectedDrafts
+      .filter((item): item is AiBatchPreviewItem & { progressId: string; progressManualValue: number } =>
+        item.kind === "set_manual_value" &&
+        typeof item.progressId === "string" &&
+        typeof item.progressManualValue === "number"
+      )
+      .map((item) => ({ progressId: item.progressId, value: item.progressManualValue }));
+    const generateProgressTasksList = selectedDrafts
+      .filter((item): item is AiBatchPreviewItem & { progressId: string; progressGeneratedTasks: Array<{ title: string; description?: string }> } =>
+        item.kind === "generate_progress_tasks" &&
+        typeof item.progressId === "string" &&
+        Array.isArray(item.progressGeneratedTasks)
+      )
+      .map((item) => ({ progressId: item.progressId, tasks: item.progressGeneratedTasks }));
 
     if (updateItems.length > 0) {
       applyAiUpdates(updateItems);
@@ -677,6 +700,7 @@ export function useAiChat(config: UseAiChatConfig) {
           goalUnit: item.progressGoalUnit ?? "tasks",
           trackingMode: item.progressTrackingMode ?? "count",
           color: item.progressColor,
+          targetDate: item.progressTargetDate,
         });
       }
     }
@@ -731,10 +755,78 @@ export function useAiChat(config: UseAiChatConfig) {
       }
     }
 
+    if (setManualValuesList.length > 0) {
+      if (!userId) {
+        setAiError(t("ai.missingUser"));
+        return;
+      }
+      for (const { progressId, value } of setManualValuesList) {
+        const ok = await setManualValue(userId, progressId, value);
+        if (!ok) {
+          setAiError(t("ai.progress.updateFailed"));
+          return;
+        }
+      }
+    }
+
+    if (generateProgressTasksList.length > 0) {
+      if (!userId) {
+        setAiError(t("ai.missingUser"));
+        return;
+      }
+      for (const { progressId, tasks } of generateProgressTasksList) {
+        // Create tasks using the existing form-based creation
+        const forms: ItemFormState[] = tasks.map((task) => ({
+          title: task.title,
+          description: task.description || "",
+          hasTime: false,
+          startDate: "",
+          startTime: "",
+          endDate: "",
+          endTime: "",
+          allDay: false,
+          hasDueDate: false,
+          dueDate: "",
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          recurrenceType: "none",
+          recurrenceInterval: "1",
+          daysOfWeek: [false, false, false, false, false, false, false],
+          recurrenceEndType: "never",
+          recurrenceEndDate: "",
+          recurrenceCount: "",
+          monthlyPattern: "day_of_month",
+          nthWeekdayPosition: "1",
+          nthWeekdayDay: 1,
+          priority: undefined,
+          estimateMinutes: "",
+          tags: [],
+          subtasks: [],
+          projectId: "",
+          projectName: "",
+          progressIds: [],
+          status: undefined,
+          reminders: [],
+        }));
+        const error = handleCreateItems(forms);
+        if (error) {
+          setAiError(error);
+          return;
+        }
+        // Find created items by title and bind to progress
+        const store = useAllPageStore.getState();
+        const createdIds = tasks
+          .map((task) => store.manualItems.find((item) => item.title === task.title && !item.deletedAt)?.id)
+          .filter((id): id is string => Boolean(id));
+        if (createdIds.length > 0) {
+          await bindProgressTasks(userId, progressId, createdIds);
+        }
+      }
+    }
+
     setAiBatchPreview([]);
     setAiTargetItems([]);
     setAiError(null);
-  }, [aiBatchPreview, aiLoading, manualItems, toItemFromManualRecord, applyAiUpdates, handleCreateItems, handleBatchDelete, handleDeleteProject, createProgress, updateProgress, deleteProgress, bindProgressTasks, unbindProgressTask, userId, t]);
+  }, [aiBatchPreview, aiLoading, manualItems, toItemFromManualRecord, applyAiUpdates, handleCreateItems, handleBatchDelete, handleDeleteProject, createProgress, updateProgress, deleteProgress, bindProgressTasks, unbindProgressTask, setManualValue, userId, t]);
 
   const applyDroppedItem = useCallback((item: CandidateItem) => {
     setAiTargetItems((current) => {

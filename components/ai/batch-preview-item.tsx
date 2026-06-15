@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Trash2, PencilLine } from "lucide-react";
+import { Bell, Trash2, PencilLine, Link2, Link2Off, Target } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,20 +43,28 @@ export function BatchPreviewItemRenderer({
     item.formState.projectName ||
     projects.find((project) => project.id === item.formState.projectId)?.name ||
     "";
+  const isProgressKind = item.kind === "create_progress" || item.kind === "update_progress" ||
+    item.kind === "delete_progress" || item.kind === "bind_progress_tasks" ||
+    item.kind === "unbind_progress_tasks" || item.kind === "set_manual_value" ||
+    item.kind === "generate_progress_tasks";
   const actionLabel =
     item.kind === "delete"
       ? t("ai.batch.deleteTitle", { index: index + 1 })
       : item.kind === "delete_project"
         ? t("ai.batch.deleteProjectTitle", { index: index + 1 })
-        : item.kind === "update"
-          ? `Update ${index + 1}`
-          : `Draft ${index + 1}`;
+        : item.kind === "delete_progress"
+          ? t("ai.batch.deleteTitle", { index: index + 1 })
+          : item.kind === "update" || item.kind === "update_progress"
+            ? `Update ${index + 1}`
+            : isProgressKind
+              ? `Progress ${index + 1}`
+              : `Draft ${index + 1}`;
 
   return (
     <div
       key={item.id}
       className={`rounded-2xl border p-4 transition-colors ${isFullscreen ? "max-w-2xl" : ""} ${
-        (item.kind === "delete" || item.kind === "delete_project") && item.selected
+        (item.kind === "delete" || item.kind === "delete_project" || item.kind === "delete_progress") && item.selected
           ? "border-red-200/70 bg-red-50/45 dark:border-red-900/30 dark:bg-red-950/15"
           : item.selected
             ? "border-black/10 bg-white/85 dark:border-white/10 dark:bg-zinc-900/85"
@@ -79,12 +87,12 @@ export function BatchPreviewItemRenderer({
             ) : null}
           </div>
         </div>
-        {item.kind === "delete" || item.kind === "delete_project" ? (
+        {item.kind === "delete" || item.kind === "delete_project" || item.kind === "delete_progress" ? (
           <div className="inline-flex h-8 items-center gap-1.5 rounded-full border border-red-200 bg-white/70 px-3 text-xs font-medium text-red-600 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-400">
             <Trash2 className="h-3.5 w-3.5" />
             {t("ai.batch.delete")}
           </div>
-        ) : (
+        ) : isProgressKind ? null : (
           <Button
             type="button"
             variant="outline"
@@ -132,7 +140,158 @@ export function BatchPreviewItemRenderer({
         </div>
       ) : null}
 
-      {item.kind === "delete" || item.kind === "delete_project" ? null : (
+      {item.kind === "delete_progress" ? (
+        <div className="rounded-2xl border border-red-200/50 bg-red-50/30 p-4 dark:border-red-900/30 dark:bg-red-950/15">
+          <p className="text-[11px] font-semibold tracking-[0.2em] text-red-500/70 dark:text-red-400/60 uppercase">
+            {t("ai.batch.willDelete")}
+          </p>
+          <h3 className="mt-1 text-lg font-semibold text-red-600/80 dark:text-red-400/90">
+            {item.progressName || t("ai.untitledItem")}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-red-500/80 dark:text-red-400/80">
+            {(item.unlinkedTaskCount ?? 0) > 0
+              ? `${item.unlinkedTaskCount} task(s) will be unlinked.`
+              : "No tasks are bound to this progress."}
+          </p>
+        </div>
+      ) : null}
+
+      {item.kind === "create_progress" ? (
+        <div className="rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-zinc-900/80">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-blue-500" />
+            <h3 className="text-lg font-semibold text-[#25242a] dark:text-zinc-100">
+              {item.progressName || t("ai.untitledItem")}
+            </h3>
+          </div>
+          {item.progressDescription ? (
+            <p className="mt-2 text-sm leading-6 text-[#5f5a63] dark:text-zinc-400">{item.progressDescription}</p>
+          ) : null}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-full border border-black/8 bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
+              Goal: {item.progressGoalValue} {item.progressGoalUnit}
+            </span>
+            <span className="rounded-full border border-black/8 bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
+              Mode: {item.progressTrackingMode}
+            </span>
+            {item.progressColor ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-black/8 bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
+                <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.progressColor }} />
+                Color
+              </span>
+            ) : null}
+            {item.progressTargetDate ? (
+              <span className="rounded-full border border-black/8 bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
+                Target: {item.progressTargetDate}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {item.kind === "update_progress" ? (
+        <div className="rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-zinc-900/80">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-amber-500" />
+            <h3 className="text-lg font-semibold text-[#25242a] dark:text-zinc-100">
+              {item.progressName || t("ai.untitledItem")}
+            </h3>
+          </div>
+          {item.progressPatch && (
+            <div className="mt-3 space-y-1.5">
+              {item.progressPatch.name && (
+                <p className="text-sm text-[#5f5a63] dark:text-zinc-400">Name: {item.progressPatch.name}</p>
+              )}
+              {item.progressPatch.description && (
+                <p className="text-sm text-[#5f5a63] dark:text-zinc-400">Description: {item.progressPatch.description}</p>
+              )}
+              {item.progressPatch.goalValue !== undefined && (
+                <p className="text-sm text-[#5f5a63] dark:text-zinc-400">Goal: {item.progressPatch.goalValue} {item.progressPatch.goalUnit}</p>
+              )}
+              {item.progressPatch.trackingMode && (
+                <p className="text-sm text-[#5f5a63] dark:text-zinc-400">Mode: {item.progressPatch.trackingMode}</p>
+              )}
+              {item.progressPatch.color && (
+                <p className="flex items-center gap-1.5 text-sm text-[#5f5a63] dark:text-zinc-400">
+                  Color: <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: item.progressPatch.color }} />
+                </p>
+              )}
+              {item.progressPatch.targetDate !== undefined && (
+                <p className="text-sm text-[#5f5a63] dark:text-zinc-400">
+                  Target: {item.progressPatch.targetDate || "cleared"}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {(item.kind === "bind_progress_tasks" || item.kind === "unbind_progress_tasks") ? (
+        <div className="rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-zinc-900/80">
+          <div className="flex items-center gap-2">
+            {item.kind === "bind_progress_tasks" ? (
+              <Link2 className="h-4 w-4 text-green-500" />
+            ) : (
+              <Link2Off className="h-4 w-4 text-red-500" />
+            )}
+            <h3 className="text-lg font-semibold text-[#25242a] dark:text-zinc-100">
+              {item.progressName || t("ai.untitledItem")}
+            </h3>
+          </div>
+          <p className="mt-2 text-sm text-[#5f5a63] dark:text-zinc-400">
+            {item.kind === "bind_progress_tasks" ? "Bind" : "Unbind"} {(item.progressItemTitles ?? []).length} task(s):
+          </p>
+          <ul className="mt-2 space-y-1">
+            {(item.progressItemTitles ?? []).map((title, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-[#3c3841] dark:text-zinc-300">
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/15 dark:border-white/20" />
+                {title}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {item.kind === "set_manual_value" ? (
+        <div className="rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-zinc-900/80">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-blue-500" />
+            <h3 className="text-lg font-semibold text-[#25242a] dark:text-zinc-100">
+              {item.progressName || t("ai.untitledItem")}
+            </h3>
+          </div>
+          <p className="mt-2 text-sm text-[#5f5a63] dark:text-zinc-400">
+            Set manual value to <span className="font-semibold">{item.progressManualValue}</span>
+          </p>
+        </div>
+      ) : null}
+
+      {item.kind === "generate_progress_tasks" ? (
+        <div className="rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-zinc-900/80">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-green-500" />
+            <h3 className="text-lg font-semibold text-[#25242a] dark:text-zinc-100">
+              {item.progressName || t("ai.untitledItem")}
+            </h3>
+          </div>
+          <p className="mt-2 text-sm text-[#5f5a63] dark:text-zinc-400">
+            Create and bind {(item.progressGeneratedTasks ?? []).length} task(s):
+          </p>
+          <ul className="mt-2 space-y-1">
+            {(item.progressGeneratedTasks ?? []).map((task, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-[#3c3841] dark:text-zinc-300">
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/15 dark:border-white/20" />
+                <span>{task.title}</span>
+                {task.description ? (
+                  <span className="text-xs text-[#7d7880] dark:text-zinc-500">— {task.description}</span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {item.kind === "delete" || item.kind === "delete_project" || isProgressKind ? null : (
       <div className="rounded-2xl border border-black/8 bg-white/80 p-4 dark:border-white/10 dark:bg-zinc-900/80">
         <h3 className="text-lg font-semibold text-[#25242a] dark:text-zinc-100">
           {item.formState.title || t("ai.untitledItem")}
@@ -194,7 +353,7 @@ export function BatchPreviewItemRenderer({
       </div>
       )}
 
-      {item.kind !== "delete" && item.formState.subtasks.length > 0 ? (
+      {item.kind !== "delete" && !isProgressKind && item.formState.subtasks.length > 0 ? (
         <div className="mt-4 rounded-2xl border border-black/8 bg-white/80 p-4 space-y-1.5 dark:border-white/10 dark:bg-zinc-900/80">
           <p className="text-[11px] font-semibold tracking-[0.2em] text-[#8c8691] dark:text-zinc-400 uppercase">Subtasks</p>
           <ul className="space-y-1">
@@ -208,7 +367,7 @@ export function BatchPreviewItemRenderer({
         </div>
       ) : null}
 
-      {item.kind !== "delete" && item.kind !== "delete_project" ? (
+      {item.kind !== "delete" && item.kind !== "delete_project" && !isProgressKind ? (
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {reviewSchedule ? (
           <div className={`rounded-2xl border border-black/8 bg-white/70 p-3 dark:border-white/10 dark:bg-zinc-900/70 ${reviewMetaCount === 1 ? "sm:col-span-2" : ""}`}>

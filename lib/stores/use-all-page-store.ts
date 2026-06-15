@@ -80,7 +80,7 @@ interface AllPageState {
   applyAiUpdates: (updates: Array<{ itemId: string; form: ItemFormState }>) => void;
   closeComposer: () => void;
   resetForm: () => void;
-  handleCreateItem: (formOverride?: ItemFormState) => string | null;
+  handleCreateItem: (formOverride?: ItemFormState) => { error: string | null; itemId?: string };
   handleCreateItems: (forms: ItemFormState[]) => string | null;
   handleToggleComplete: (item: DisplayItem) => void;
   handleMoveItemToColumn: (item: DisplayItem, targetColumn: "backlog" | "today" | "done") => { originalRecord: ManualItemRecord } | null;
@@ -256,7 +256,7 @@ export const useAllPageStore = create<AllPageState>()(
       },
     })),
 
-  openComposer: (item) => {
+  openComposer: (item?: DisplayItem) => {
     if (item) {
       const sourceItem = item.seriesSource ?? item;
       const existingSubtasks = get().manualItems
@@ -300,6 +300,7 @@ export const useAllPageStore = create<AllPageState>()(
       estimateMinutes: formState.estimateMinutes ?? "",
       projectId: formState.projectId || (!editingItem && selectedProjectId ? selectedProjectId : ""),
       projectName: formState.projectName || (!editingItem && selectedProjectId ? "" : ""),
+      progressIds: formState.progressIds ?? [],
     };
     set({
       form: sanitizedForm,
@@ -634,7 +635,7 @@ export const useAllPageStore = create<AllPageState>()(
     const validationError = validateItemForm(nextForm, translator ?? undefined);
     if (validationError) {
       set({ formError: validationError });
-      return validationError;
+      return { error: validationError };
     }
 
     const now = new Date().toISOString();
@@ -661,7 +662,7 @@ export const useAllPageStore = create<AllPageState>()(
 
       // Sync to Supabase
       queueParentWithSubtasksSync(newManualItems, updatedItem);
-      return null;
+      return { error: null, itemId: editingItem.id };
     }
 
     const newId = makeUid();
@@ -683,7 +684,7 @@ export const useAllPageStore = create<AllPageState>()(
 
     // Sync to Supabase
     queueParentWithSubtasksSync(newManualItems, newItem);
-    return null;
+    return { error: null, itemId: newId };
   },
 
   handleCreateItems: (forms) => {

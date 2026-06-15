@@ -173,8 +173,13 @@ const chatContextSchema = z.object({
     goalValue: z.number(),
     goalUnit: z.string(),
     trackingMode: z.enum(["count", "percentage", "manual"]),
+    manualValue: z.number().default(0),
     status: z.enum(["active", "completed", "archived"]),
     color: z.string().optional(),
+  })).default([]),
+  progressLinks: z.array(z.object({
+    progressId: z.string(),
+    itemId: z.string(),
   })).default([]),
   today: z.string().default(() => {
     const n = new Date();
@@ -206,7 +211,7 @@ const chatContextSchema = z.object({
       ["high", "medium", "low"].includes(v.confidence as string)
     );
   }).default(null),
-  pageContext: z.enum(["all", "today", "focus"]).default("all"),
+  pageContext: z.enum(["all", "today", "focus", "projects", "progress"]).default("all"),
   username: z.string().optional(),
   locale: z.enum(["en", "zh-CN", "es", "fr", "de", "ja", "pt"]).default("en"),
   language: z.string().optional(),
@@ -791,7 +796,11 @@ function systemPrompt(context: AiChatContext) {
 
   const pageHint = context.pageContext === "today"
     ? `The user is currently viewing the Today page, focused on today's schedule. Help them plan their day, resolve conflicts, and prioritize. You can still access and schedule items from other dates.`
-    : `The user is currently viewing the All page, which shows all their tasks across all dates.`;
+    : context.pageContext === "progress"
+      ? `The user is currently viewing the Progress page, tracking their goals and progress trackers. Help them manage progress trackers, bind/unbind tasks, and check completion status.`
+      : context.pageContext === "projects"
+        ? `The user is currently viewing the Projects page, organizing tasks by project. Help them manage projects, assign tasks, and track project-level progress.`
+        : `The user is currently viewing the All page, which shows all their tasks across all dates.`;
 
   const bufferHint = context.bufferMinutes > 0
     ? `When scheduling multiple tasks back-to-back, leave ${context.bufferMinutes} minutes of buffer time between them for transitions.`
@@ -2795,7 +2804,8 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           return { message: "No progresses found. The user hasn't created any progress trackers yet." };
         }
         const list = progresses.map((p) => {
-          return `- ${p.name} (goal: ${p.goalValue} ${p.goalUnit}, mode: ${p.trackingMode}, status: ${p.status}) | id=${p.id}`;
+          const current = p.trackingMode === "manual" ? p.manualValue : "auto";
+          return `- ${p.name} (current: ${current}/${p.goalValue} ${p.goalUnit}, mode: ${p.trackingMode}, status: ${p.status}) | id=${p.id}`;
         }).join("\n");
         return {
           message: `Found ${progresses.length} progress tracker(s):\n${list}\n\nUse the exact id (UUID) shown above when calling progress tools.`,
@@ -2803,17 +2813,23 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
       },
     }),
     createProgress: tool({
-      description: "Create a new progress tracker. Use when the user wants to track progress towards a goal, set up a counter, percentage, or manual progress.",
+      description: "Create a new progress tracker. Use when the user wants to track progress towards a goal.",
       inputSchema: z.object({
         name: z.string().describe("The progress tracker name."),
         description: z.string().optional().describe("Optional description."),
-        goalValue: z.number().describe("The numeric target (e.g. 10 for 10 tasks, 100 for 100%)."),
-        goalUnit: z.string().default("tasks").describe("The unit of measurement (e.g. 'tasks', '%', 'pages', 'miles')."),
-        trackingMode: z.enum(["count", "percentage", "manual"]).default("count").describe("How progress is computed."),
+        goalValue: z.number().describe("The numeric target (e.g. 10 for 10 books, 100 for 100%)."),
+        goalUnit: z.string().default("tasks").describe("The unit of measurement (e.g. 'books', 'tasks', '%', 'pages', 'km')."),
+        trackingMode: z.enum(["count", "percentage", "manual"]).default("count").describe(
+          "How progress is tracked. Choose carefully:\n" +
+          "- 'count': AUTO-COUNT mode. Progress is computed by counting completed tasks bound to this tracker. Use when the user wants to bind specific tasks and track their completion (e.g. 'finish 5 tasks this week').\n" +
+          "- 'percentage': Like count, but shows as percentage. Use when the user wants a percentage-based goal.\n" +
+          "- 'manual': MANUAL COUNTER mode. The user manually increments/decrements the value. Use when the user wants to track something that happens outside the app (e.g. 'read 10 books this year', 'run 100km', 'save $5000'). Default starting value is 0."
+        ),
         color: z.string().optional().describe("Optional color (hex)."),
+        targetDate: z.string().optional().describe("Optional target completion date (YYYY-MM-DD)."),
         reason: z.string().optional(),
       }),
-      execute: async ({ name, description, goalValue, goalUnit, trackingMode, color, reason }): Promise<AiToolResult> => {
+      execute: async ({ name, description, goalValue, goalUnit, trackingMode, color, targetDate, reason }): Promise<AiToolResult> => {
         const existing = (context.progresses ?? []).find(
           (p) => p.name.toLowerCase() === name.toLowerCase(),
         );
@@ -2836,6 +2852,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
             goalUnit,
             trackingMode,
             color,
+            targetDate,
             reason,
           }],
         };
@@ -2849,16 +2866,19 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         description: z.string().optional(),
         goalValue: z.number().optional().describe("New goal value (must be > 0)."),
         goalUnit: z.string().optional(),
-        trackingMode: z.enum(["count", "percentage", "manual"]).optional(),
+        trackingMode: z.enum(["count", "percentage", "manual"]).optional().describe(
+          "count = auto-count bound tasks; percentage = like count but as %; manual = user manually sets value."
+        ),
         color: z.string().optional(),
+        targetDate: z.string().optional().describe("Target completion date (YYYY-MM-DD). Set to empty string to clear."),
         reason: z.string().optional(),
       }),
-      execute: async ({ progressId, name, description, goalValue, goalUnit, trackingMode, color, reason }): Promise<AiToolResult> => {
+      execute: async ({ progressId, name, description, goalValue, goalUnit, trackingMode, color, targetDate, reason }): Promise<AiToolResult> => {
         const progress = (context.progresses ?? []).find((p) => p.id === progressId);
         if (!progress) {
           return { message: "Progress not found." };
         }
-        const patch: { name?: string; description?: string; goalValue?: number; goalUnit?: string; trackingMode?: "count" | "percentage" | "manual"; color?: string } = {};
+        const patch: { name?: string; description?: string; goalValue?: number; goalUnit?: string; trackingMode?: "count" | "percentage" | "manual"; color?: string; targetDate?: string } = {};
         if (name !== undefined) patch.name = name;
         if (description !== undefined) patch.description = description;
         if (goalValue !== undefined) {
@@ -2868,6 +2888,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         if (goalUnit !== undefined) patch.goalUnit = goalUnit;
         if (trackingMode !== undefined) patch.trackingMode = trackingMode;
         if (color !== undefined) patch.color = color;
+        if (targetDate !== undefined) patch.targetDate = targetDate || undefined;
         if (Object.keys(patch).length === 0) {
           return { message: "No changes specified." };
         }
@@ -2897,16 +2918,19 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         if (!progress) {
           return { message: "Progress not found." };
         }
+        const unlinkedTaskCount = (context.progressLinks ?? []).filter(
+          (l) => l.progressId === progressId,
+        ).length;
         const actionId = makeActionId("delete-progress");
         return {
-          message: `Prepared to delete progress "${progress.name}".`,
+          message: `Prepared to delete progress "${progress.name}". ${unlinkedTaskCount} task(s) will be unlinked.`,
           proposedActions: [{
             id: actionId,
             type: "delete_progress",
             title: `Delete progress "${progress.name}"`,
             progressId: progress.id,
             progressName: progress.name,
-            unlinkedTaskCount: 0,
+            unlinkedTaskCount,
             reason,
           }],
         };
@@ -3002,27 +3026,99 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         if (!progress) {
           return { message: "Progress not found." };
         }
-        const boundItems = context.items.filter((item) => {
-          if (item.status === "completed") return false;
-          if (item.status === "cancelled") return false;
-          return true;
-        });
+        const boundItemIds = new Set(
+          (context.progressLinks ?? [])
+            .filter((l) => l.progressId === progressId)
+            .map((l) => l.itemId),
+        );
+        const boundItems = context.items.filter((item) => boundItemIds.has(item.id));
+        const completedItems = boundItems.filter((item) => item.status === "completed");
+        const activeItems = boundItems.filter((item) => item.status !== "completed" && item.status !== "cancelled");
+        const currentValue = progress.trackingMode === "manual"
+          ? progress.manualValue
+          : completedItems.length;
         const summary = [
           `Progress "${progress.name}":`,
-          `Goal: ${progress.goalValue} ${progress.goalUnit}.`,
+          `Current: ${currentValue} / ${progress.goalValue} ${progress.goalUnit}.`,
           `Tracking mode: ${progress.trackingMode}.`,
           `Status: ${progress.status}.`,
-        ].join(" ");
+          progress.trackingMode !== "manual"
+            ? `Bound tasks: ${boundItems.length} total, ${completedItems.length} completed, ${activeItems.length} active.`
+            : null,
+        ].filter(Boolean).join(" ");
         return {
           message: summary,
           briefing: {
             progressName: progress.name,
+            currentValue,
             goalValue: progress.goalValue,
             goalUnit: progress.goalUnit,
             trackingMode: progress.trackingMode,
             status: progress.status,
-            activeTasks: boundItems.length,
+            boundTasks: boundItems.length,
+            completedTasks: completedItems.length,
+            activeTasks: activeItems.length,
           },
+        };
+      },
+    }),
+    setManualValue: tool({
+      description: "Set the manual value for a progress tracker that uses 'manual' tracking mode. Use when the user wants to update their progress value directly.",
+      inputSchema: z.object({
+        progressId: z.string().describe("The progress ID."),
+        value: z.number().min(0).max(99999999).describe("The new manual value (0-99999999)."),
+        reason: z.string().optional(),
+      }),
+      execute: async ({ progressId, value, reason }): Promise<AiToolResult> => {
+        const progress = (context.progresses ?? []).find((p) => p.id === progressId);
+        if (!progress) {
+          return { message: "Progress not found." };
+        }
+        if (progress.trackingMode !== "manual") {
+          return { message: `Progress "${progress.name}" uses ${progress.trackingMode} tracking, not manual. Only manual-mode progresses can have their value set directly.` };
+        }
+        const actionId = makeActionId("set-manual-value");
+        return {
+          message: `Prepared to set "${progress.name}" manual value to ${value} ${progress.goalUnit}.`,
+          proposedActions: [{
+            id: actionId,
+            type: "set_manual_value",
+            title: `Set "${progress.name}" to ${value} ${progress.goalUnit}`,
+            progressId: progress.id,
+            progressName: progress.name,
+            value,
+            reason,
+          }],
+        };
+      },
+    }),
+    generateProgressTasks: tool({
+      description: "Generate and bind tasks to a progress tracker. Before calling this tool, generate 3-5 specific, actionable task titles based on the progress goal. For example, for 'Read 10 books', generate titles like 'Read Atomic Habits', 'Read Deep Work', etc.",
+      inputSchema: z.object({
+        progressId: z.string().describe("The progress ID."),
+        tasks: z.array(z.object({
+          title: z.string().describe("Task title."),
+          description: z.string().optional().describe("Task description."),
+        })).min(1).max(10).describe("Tasks to create and bind (1-10)."),
+        reason: z.string().optional(),
+      }),
+      execute: async ({ progressId, tasks, reason }): Promise<AiToolResult> => {
+        const progress = (context.progresses ?? []).find((p) => p.id === progressId);
+        if (!progress) {
+          return { message: "Progress not found." };
+        }
+        const actionId = makeActionId("generate-progress-tasks");
+        return {
+          message: `Prepared to create and bind ${tasks.length} task(s) to "${progress.name}".`,
+          proposedActions: [{
+            id: actionId,
+            type: "generate_progress_tasks",
+            title: `Generate ${tasks.length} tasks for "${progress.name}"`,
+            progressId: progress.id,
+            progressName: progress.name,
+            tasks,
+            reason,
+          }],
         };
       },
     }),

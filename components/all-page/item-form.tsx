@@ -14,6 +14,7 @@ import { rrulestr } from "rrule";
 
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
+import { useProgressStore } from "@/lib/stores/use-progress-store";
 import { useScrollLock } from "@/lib/hooks/use-scroll-lock";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth/auth-provider";
@@ -38,6 +39,7 @@ const ITEM_FORM_SAVED_EVENT = "orkest:item-form-saved";
 
 export function ItemForm() {
   const { t } = useI18n();
+  const { user } = useAuth();
   const isComposerOpen = useAllPageStore((s) => s.isComposerOpen);
   const closeComposer = useAllPageStore((s) => s.closeComposer);
   const form = useAllPageStore((s) => s.form);
@@ -51,6 +53,7 @@ export function ItemForm() {
   const handleCreateItem = useAllPageStore((s) => s.handleCreateItem);
   const composerSubmitOverride = useAllPageStore((s) => s.composerSubmitOverride);
   const manualItems = useAllPageStore((s) => s.manualItems);
+  const bindProgressTasks = useProgressStore((s) => s.bindTasks);
   const [tagInputFocused, setTagInputFocused] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [closingSuggestedTags, setClosingSuggestedTags] = useState<string[]>([]);
@@ -188,10 +191,21 @@ export function ItemForm() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     commitPendingTag();
-    const error = composerSubmitOverride
-      ? composerSubmitOverride(form, editingItem)
+    
+    // Capture progress IDs before form is reset
+    const progressIds = form.progressIds;
+    
+    const result = composerSubmitOverride
+      ? { error: composerSubmitOverride(form, editingItem), itemId: editingItem?.id }
       : handleCreateItem();
-    if (!error) {
+    if (!result.error) {
+      // Bind to progress trackers after successful creation/update
+      if (user && progressIds.length > 0 && result.itemId) {
+        for (const progressId of progressIds) {
+          void bindProgressTasks(user.id, progressId, [result.itemId]);
+        }
+      }
+      
       if (composerSubmitOverride) {
         closeComposer();
       }
@@ -554,6 +568,7 @@ export function ItemForm() {
                 <div className="overflow-hidden">
                   <div className="space-y-5">
                     <ProjectSelector />
+                    <ProgressSelector />
                     <div>
                       <p className="mb-2 text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase">
                         {t("itemForm.subtasks")}
@@ -951,7 +966,7 @@ export function ItemForm() {
                         </div>
                       </div>
                       {form.hasTime && form.startDate && (
-                        <div className="min-w-0">
+                        <div className="min-w-0 pt-4">
                           <p className="mb-2 text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase">
                             {t("itemForm.reminders")}
                           </p>
@@ -1323,6 +1338,110 @@ function OccurrencePreview() {
           </span>
         ))}
       </div>
+    </div>
+  );
+}
+
+function ProgressSelector() {
+  const { t } = useI18n();
+  const form = useAllPageStore((s) => s.form);
+  const setForm = useAllPageStore((s) => s.setForm);
+  const progresses = useProgressStore((s) => s.progresses);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const selectedProgresses = progresses.filter((p) => form.progressIds.includes(p.id));
+
+  function toggleProgress(progressId: string) {
+    setForm((current) => {
+      const isSelected = current.progressIds.includes(progressId);
+      return {
+        ...current,
+        progressIds: isSelected
+          ? current.progressIds.filter((id) => id !== progressId)
+          : [...current.progressIds, progressId],
+      };
+    });
+  }
+
+  return (
+    <div ref={containerRef} className="relative">
+      <p className="mb-2 text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase">
+        {t("itemForm.progress")}
+      </p>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-12 w-full items-center justify-between gap-2 rounded-2xl border border-black/8 bg-white px-4 text-[15px] text-[#4d4a51] transition-colors hover:border-black/15 focus:border-black/22 focus:outline-none dark:border-white/10 dark:bg-[#202020] dark:text-[#d4d4d4] dark:hover:border-white/18 dark:focus:border-white/25"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          {selectedProgresses.length > 0 ? (
+            <span className="truncate">
+              {selectedProgresses.map((p) => p.name).join(", ")}
+            </span>
+          ) : (
+            <span className="text-[#9f99a3] dark:text-[#737373]">{t("itemForm.noProgress")}</span>
+          )}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#9f99a3] transition-transform dark:text-[#737373] ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open ? (
+        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto scrollbar-transparent-track rounded-2xl border border-black/8 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-[#202020]">
+          {progresses.length === 0 ? (
+            <p className="px-3 py-2.5 text-sm text-[#9f99a3] dark:text-[#737373]">
+              {t("itemForm.noProgressAvailable")}
+            </p>
+          ) : (
+            progresses.map((progress) => {
+              const isSelected = form.progressIds.includes(progress.id);
+              return (
+                <button
+                  key={progress.id}
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => toggleProgress(progress.id)}
+                  className={`flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[15px] transition-colors hover:bg-black/3 dark:hover:bg-white/5 ${
+                    isSelected
+                      ? "font-medium text-[#25242a] dark:text-[#f5f5f5]"
+                      : "text-[#4d4a51] dark:text-[#d4d4d4]"
+                  }`}
+                >
+                  <span
+                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border ${
+                      isSelected
+                        ? "border-blue-500 bg-blue-500 text-white"
+                        : "border-black/20 dark:border-white/20"
+                    }`}
+                  >
+                    {isSelected ? (
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : null}
+                  </span>
+                  <span className="truncate">{progress.name}</span>
+                  <span className="ml-auto text-xs text-[#9f99a3] dark:text-[#737373]">
+                    {progress.goalValue} {progress.goalUnit}
+                  </span>
+                </button>
+              );
+            })
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

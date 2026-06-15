@@ -1298,14 +1298,14 @@ function FlyoutMenu({
       let curr = target as HTMLElement | null;
       while (curr) {
         if (typeof curr.hasAttribute === "function" && curr.hasAttribute("data-flyout-panel")) {
-          let checkPanel = curr as HTMLElement & { __anchor?: HTMLElement | null };
+          let checkPanel: (HTMLElement & { __anchor?: HTMLElement | null }) | null = curr as HTMLElement & { __anchor?: HTMLElement | null };
           while (checkPanel) {
-            const anchorOfCheck = checkPanel.__anchor;
+            const anchorOfCheck: HTMLElement | null | undefined = checkPanel.__anchor;
             if (anchorOfCheck && panel.contains(anchorOfCheck)) {
               return; // Click is inside a child/descendant submenu, do not close.
             }
             checkPanel = anchorOfCheck && typeof anchorOfCheck.closest === "function" 
-              ? anchorOfCheck.closest("[data-flyout-panel]") 
+              ? anchorOfCheck.closest("[data-flyout-panel]") as (HTMLElement & { __anchor?: HTMLElement | null }) | null
               : null;
           }
         }
