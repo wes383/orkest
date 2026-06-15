@@ -146,6 +146,7 @@ const MIN_UPCOMING_NOTIFICATIONS = 10;
  */
 function rescheduleStaleReminders(items: ManualItemRecord[]): void {
   const today = new Date().toISOString().slice(0, 10);
+  let enqueued = 0;
   for (const item of items) {
     if (!item.rrule || !item.reminders?.length || !item.startDate) continue;
     let upcoming = 0;
@@ -157,8 +158,13 @@ function rescheduleStaleReminders(items: ManualItemRecord[]): void {
       }
     }
     if (upcoming < MIN_UPCOMING_NOTIFICATIONS) {
+      console.log("[ORKEST-DEBUG][Reschedule] enqueueing item", item.id, "title=", item.title, "upcoming=", upcoming, "threshold=", MIN_UPCOMING_NOTIFICATIONS, "rrule=", item.rrule);
       syncRecord("update", "items", item.id, item as unknown as Record<string, unknown>);
+      enqueued++;
     }
+  }
+  if (enqueued > 0) {
+    console.log("[ORKEST-DEBUG][Reschedule] total enqueued this run:", enqueued, "out of", items.length, "items");
   }
 }
 
@@ -557,11 +563,13 @@ export const useAllPageStore = create<AllPageState>()(
         .order("created_at", { ascending: true });
 
       if (error) {
-        console.error("Failed to load items:", error);
+        console.error("[ORKEST-DEBUG][LoadItems] select failed:", error);
         return;
       }
 
       const manualItems = (data ?? []).map((row) => dbRowToManualItemRecord(row));
+      const recurring = manualItems.filter((i) => i.rrule);
+      console.log("[ORKEST-DEBUG][LoadItems] loaded", manualItems.length, "items,", recurring.length, "recurring");
 
       const sections = computeSections(manualItems);
       set({ manualItems, sections, isLoaded: true });
@@ -569,7 +577,7 @@ export const useAllPageStore = create<AllPageState>()(
       // Replenish stale reminders for recurring items (rolling window for push)
       rescheduleStaleReminders(manualItems);
     } catch (err) {
-      console.error("Failed to load items:", err);
+      console.error("[ORKEST-DEBUG][LoadItems] threw:", err);
     } finally {
       set({ isSyncing: false });
     }

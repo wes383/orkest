@@ -30,6 +30,7 @@ function hasStoreHydrated(store: typeof useSettingsStore | typeof useFocusStore)
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  console.log("[ORKEST-DEBUG][AuthProvider] render, pathname=", typeof window !== "undefined" ? window.location.pathname : "(ssr)");
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
