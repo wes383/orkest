@@ -766,6 +766,10 @@ export default function AllPage() {
                 sections={sections}
                 filterConfig={effectiveKanbanFilter}
                 sortConfig={kanbanSortConfig}
+                onSwitchToList={() => {
+                  setViewMode("list");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
               />
             );
           }

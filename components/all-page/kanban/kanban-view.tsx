@@ -19,6 +19,7 @@ type KanbanViewProps = {
   filterConfig: ListFilterConfig;
   sortConfig?: ListSortConfig;
   doneLookbackDays?: number;
+  onSwitchToList?: () => void;
 };
 
 interface ToastMessage {
@@ -53,6 +54,7 @@ export function KanbanView({
   filterConfig,
   sortConfig,
   doneLookbackDays = 1,
+  onSwitchToList,
 }: KanbanViewProps) {
   const { t } = useI18n();
   const openComposer = useAllPageStore((s) => s.openComposer);
@@ -163,6 +165,22 @@ export function KanbanView({
           />
         ))}
       </div>
+
+      {onSwitchToList && (
+        <div className="border-t border-black/6 pt-10 text-center dark:border-white/10 mt-10">
+          <p className="text-sm text-[#9f99a3] dark:text-[#737373]">
+            {t("kanban.hint")}{" "}
+            <button
+              type="button"
+              onClick={onSwitchToList}
+              className="cursor-pointer font-medium text-[#6f6a72] underline decoration-black/10 underline-offset-4 hover:text-[#2b2a30] hover:decoration-black/30 dark:text-[#e5e5e5] dark:decoration-white/20 dark:hover:text-[#f5f5f5] dark:hover:decoration-white/40"
+            >
+              {t("kanban.switchToList")}
+            </button>{" "}
+            {t("kanban.toSeeThem")}
+          </p>
+        </div>
+      )}
 
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#25242a] text-white px-4 py-2.5 rounded-xl shadow-lg">
