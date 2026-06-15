@@ -82,6 +82,8 @@ export default function AllPage() {
   const setListSortConfig = useAllPageStore((s) => s.setListSortConfig);
   const listFilterConfig = useAllPageStore((s) => s.listFilterConfig);
   const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
+  const undoToast = useAllPageStore((s) => s.undoToast);
+  const undo = useAllPageStore((s) => s.undo);
 
   useEffect(() => {
     setTranslator(((key: string, values?: Record<string, string | number>) => t(key as Parameters<typeof t>[0], values)) as (key: string, values?: Record<string, string | number>) => string);
@@ -822,6 +824,22 @@ export default function AllPage() {
               {t("common.close")}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Toast: undo destructive action */}
+      {undoToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#25242a] text-white px-4 py-2.5 rounded-xl shadow-lg">
+          <span className="text-sm">
+            {undoToast.label}
+          </span>
+          <button
+            type="button"
+            onClick={undo}
+            className="text-sm font-medium text-white/70 hover:text-white underline underline-offset-2 cursor-pointer"
+          >
+            {t("common.undo")}
+          </button>
         </div>
       )}
     </section>

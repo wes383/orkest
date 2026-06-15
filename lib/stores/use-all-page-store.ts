@@ -97,6 +97,11 @@ interface AllPageState {
   handleBatchToggleComplete: (items: DisplayItem[], targetStatus: "completed" | "active") => void;
   handleBatchMoveToProject: (items: DisplayItem[], projectId: string | null) => void;
 
+  // Undo
+  undoToast: { label: string } | null;
+  undo: () => void;
+  dismissUndoToast: () => void;
+
   // Trash operations
   restoreItem: (itemId: string) => void;
   permanentlyDeleteItem: (itemId: string) => Promise<void>;
@@ -187,6 +192,10 @@ const defaultListFilterConfig: ListFilterConfig = {
   searchQuery: "",
 };
 
+// Module-level undo stack (not persisted)
+const _undoStack: ManualItemRecord[][] = [];
+let _undoTimerRef: ReturnType<typeof setTimeout> | null = null;
+
 const initialState = {
   manualItems: [] as ManualItemRecord[],
   isComposerOpen: false,
@@ -206,6 +215,7 @@ const initialState = {
   aiMode: "create" as AiMode,
   aiTargetItem: null,
   listFilterConfig: defaultListFilterConfig,
+  undoToast: null as { label: string } | null,
 };
 
 export const useAllPageStore = create<AllPageState>()(
@@ -583,6 +593,28 @@ export const useAllPageStore = create<AllPageState>()(
     });
   },
 
+  undo: () => {
+    if (_undoStack.length === 0) return;
+    const snapshot = _undoStack.pop()!;
+    if (_undoTimerRef) { clearTimeout(_undoTimerRef); _undoTimerRef = null; }
+
+    const sections = computeSections(snapshot);
+    set({ manualItems: snapshot, sections, undoToast: null });
+
+    // Re-sync all restored records to Supabase
+    for (const record of snapshot) {
+      if (!record.deletedAt) {
+        syncRecord("update", "items", record.id, record);
+      }
+    }
+  },
+
+  dismissUndoToast: () => {
+    _undoStack.length = 0;
+    if (_undoTimerRef) { clearTimeout(_undoTimerRef); _undoTimerRef = null; }
+    set({ undoToast: null });
+  },
+
   handleCreateItem: (formOverride) => {
     const { form, editingItem, manualItems, translator } = get();
     const nextForm = formOverride ?? form;
@@ -932,8 +964,16 @@ export const useAllPageStore = create<AllPageState>()(
   },
 
   handleDeleteItem: (item, scope = "series") => {
+    const { manualItems, translator } = get();
     const baseItem = item.seriesSource ?? item;
     const now = new Date().toISOString();
+
+    // Save undo snapshot before mutation
+    _undoStack.push(manualItems);
+    const label = translator ? (scope === "single" ? translator("all.undoToast.singleRemoved") : translator("all.undoToast.deleted")) : "Item deleted";
+    set({ undoToast: { label } });
+    if (_undoTimerRef) clearTimeout(_undoTimerRef);
+    _undoTimerRef = setTimeout(() => set({ undoToast: null }), 5000);
 
     set((state) => {
       const existingManualItem = state.manualItems.find((current) => current.id === baseItem.id);
@@ -1074,7 +1114,15 @@ export const useAllPageStore = create<AllPageState>()(
   },
 
   handleBatchDelete: (items) => {
+    const { manualItems, translator } = get();
     const now = new Date().toISOString();
+
+    // Save undo snapshot before mutation
+    _undoStack.push(manualItems);
+    const label = translator ? translator("all.undoToast.batchDeleted", { count: items.length }) : "Items deleted";
+    set({ undoToast: { label } });
+    if (_undoTimerRef) clearTimeout(_undoTimerRef);
+    _undoTimerRef = setTimeout(() => set({ undoToast: null }), 5000);
 
     set((state) => {
       const updatedItems = [...state.manualItems];
@@ -1125,7 +1173,15 @@ export const useAllPageStore = create<AllPageState>()(
   },
 
   handleBatchToggleComplete: (items, targetStatus) => {
+    const { manualItems, translator } = get();
     const now = new Date().toISOString();
+
+    // Save undo snapshot before mutation
+    _undoStack.push(manualItems);
+    const label = translator ? translator("all.undoToast.batchStatusChanged", { count: items.length }) : "Status changed";
+    set({ undoToast: { label } });
+    if (_undoTimerRef) clearTimeout(_undoTimerRef);
+    _undoTimerRef = setTimeout(() => set({ undoToast: null }), 5000);
 
     set((state) => {
       const updatedItems = [...state.manualItems];
@@ -1183,7 +1239,15 @@ export const useAllPageStore = create<AllPageState>()(
   },
 
   handleBatchMoveToProject: (items, projectId) => {
+    const { manualItems, translator } = get();
     const now = new Date().toISOString();
+
+    // Save undo snapshot before mutation
+    _undoStack.push(manualItems);
+    const label = translator ? translator("all.undoToast.batchMoved", { count: items.length }) : "Items moved";
+    set({ undoToast: { label } });
+    if (_undoTimerRef) clearTimeout(_undoTimerRef);
+    _undoTimerRef = setTimeout(() => set({ undoToast: null }), 5000);
 
     set((state) => {
       const updatedItems = [...state.manualItems];
