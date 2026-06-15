@@ -158,11 +158,15 @@ function getItemSpan(item: DisplayItem) {
   let end = item.time.end ? startOfDay(item.time.end) : start;
   const due = item.time.due ? startOfDay(item.time.due) : null;
 
-  if (item.time.start && item.time.end) {
-    const isMidnightEnd = item.time.end.getTime() === startOfDay(item.time.end).getTime();
-    if (isMidnightEnd && item.time.end.getTime() > item.time.start.getTime()) {
-      end = startOfDay(new Date(item.time.end.getTime() - 1));
-    }
+  if (
+    item.time.end &&
+    !item.time.allDay &&
+    end &&
+    start &&
+    end.getTime() > start.getTime() &&
+    item.time.end.getTime() === startOfDay(item.time.end).getTime()
+  ) {
+    end = addDays(end, -1);
   }
 
   if (start) {
