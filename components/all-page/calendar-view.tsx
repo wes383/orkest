@@ -521,6 +521,17 @@ export function CalendarView({ sections, filterConfig, onNavigateRef, onNavState
 
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
+      
+      // Check if click is inside a flyout menu (the "more" menu)
+      let current = target as HTMLElement | null;
+      while (current) {
+        if (typeof current.hasAttribute === "function" && current.hasAttribute("data-flyout-panel")) {
+          return; // Click is inside a flyout menu, don't close anything
+        }
+        current = current.parentElement;
+      }
+      
+      // Now check each popover
       if (morePopoverRef.current && !morePopoverRef.current.contains(target)) setMorePopover(null);
       if (eventPopoverRef.current && !eventPopoverRef.current.contains(target)) setEventPopover(null);
       if (addPopoverRef.current && !addPopoverRef.current.contains(target)) setAddPopover(null);

@@ -63,6 +63,8 @@ export default function TodayPage() {
   const openComposer = useAllPageStore((s) => s.openComposer);
   const setComposerSubmitOverride = useAllPageStore((s) => s.setComposerSubmitOverride);
   const setSelectedItem = useAllPageStore((s) => s.setSelectedItem);
+  const undoToast = useAllPageStore((s) => s.undoToast);
+  const undo = useAllPageStore((s) => s.undo);
 
   const projects = useProjectStore((s) => s.projects);
 
@@ -303,6 +305,22 @@ export default function TodayPage() {
         emptyStateMessage={t("ai.empty")}
         quickPrompts={[t("ai.prompt.briefing"), t("ai.prompt.planDay"), t("ai.prompt.focus"), t("ai.prompt.overdue"), t("ai.prompt.moveTomorrow")]}
       />
+
+      {/* Toast: undo destructive action */}
+      {undoToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#25242a] text-white px-4 py-2.5 rounded-xl shadow-lg">
+          <span className="text-sm">
+            {undoToast.label}
+          </span>
+          <button
+            type="button"
+            onClick={undo}
+            className="text-sm font-medium text-white/70 hover:text-white underline underline-offset-2 cursor-pointer"
+          >
+            {t("common.undo")}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

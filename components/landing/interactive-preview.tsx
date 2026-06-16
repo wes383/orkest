@@ -256,7 +256,7 @@ function DigestView() {
 
 /* ─── Today Page ─── */
 function TodayPage({ dark }: { dark: boolean }) {
-  const [view, setView] = useState(0); // 0=digest, 1=timeline
+  const [view, setView] = useState(1); // 0=digest, 1=timeline
   return (
     <div className="px-4 py-8 sm:px-14 lg:px-14 lg:py-12">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">

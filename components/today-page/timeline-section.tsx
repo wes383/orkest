@@ -543,9 +543,24 @@ export function TimelineSection({
     }
 
     function handleMouseDown(e: MouseEvent) {
-      if (eventPopoverRef.current && !eventPopoverRef.current.contains(e.target as Node)) {
-        setEventPopover(null);
+      const target = e.target as Node;
+      
+      // Check if click is inside the event popover
+      if (eventPopoverRef.current && eventPopoverRef.current.contains(target)) {
+        return;
       }
+      
+      // Check if click is inside a flyout menu (the "more" menu)
+      let current = target as HTMLElement | null;
+      while (current) {
+        if (typeof current.hasAttribute === "function" && current.hasAttribute("data-flyout-panel")) {
+          return; // Click is inside a flyout menu, don't close
+        }
+        current = current.parentElement;
+      }
+      
+      // Click is outside both the popover and any flyout menus
+      setEventPopover(null);
     }
 
     document.addEventListener("keydown", handleKeyDown);
