@@ -102,7 +102,7 @@ export default function FocusPage() {
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 lg:gap-10" style={{ minHeight: "calc(100vh - 4rem)" }}>
 
         <div className="flex flex-1 w-full flex-col items-center gap-10 lg:flex-row lg:items-start lg:justify-center lg:gap-40">
-          <div className="flex flex-col items-stretch gap-8 lg:justify-center" style={{ flex: 1 }}>
+          <div className="flex flex-col items-center gap-8 lg:justify-center" style={{ flex: 1 }}>
             <TimerModeSelector />
             <FocusTimer />
             <QuickPresets />

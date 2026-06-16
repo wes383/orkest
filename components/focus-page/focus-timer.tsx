@@ -132,7 +132,7 @@ export function FocusTimer() {
   return (
     <div
       className={cn(
-        "relative flex h-48 self-stretch items-center justify-center overflow-hidden rounded-3xl border border-black/[0.08] dark:border-white/10",
+        "relative flex h-48 w-full max-w-112 items-center justify-center overflow-hidden rounded-3xl border border-black/[0.08] dark:border-white/10",
         canEdit && "cursor-pointer",
       )}
       onClick={handleClick}
