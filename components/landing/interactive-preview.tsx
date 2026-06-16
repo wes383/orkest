@@ -1401,7 +1401,7 @@ function AiChatPanel({ onClose, dark }: { onClose: () => void; dark: boolean }) 
                           </div>
                         </div>
 
-                        {item.original && (
+                        {('original' in item) && item.original && (
                           <div className="mb-3 rounded-2xl border border-red-200/50 bg-red-50/30 p-3">
                             <p className="text-[11px] font-semibold tracking-[0.2em] text-red-500/70 uppercase">
                               Original
@@ -1427,7 +1427,7 @@ function AiChatPanel({ onClose, dark }: { onClose: () => void; dark: boolean }) 
                                 {item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}
                               </span>
                             )}
-                            {item.tags?.map((tag) => (
+                            {('tags' in item) && item.tags?.map((tag) => (
                               <span
                                 key={tag}
                                 className="rounded-full border border-black/8 bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#5f5a63]"
