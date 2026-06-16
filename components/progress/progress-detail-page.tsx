@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { createPortal } from "react-dom";
+import { Plus, Trash2, Eye, EyeOff, ArrowUpDown, Calendar, ChevronDown, GripVertical, Flag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { ProgressDetailSkeleton } from "@/components/ui/page-skeletons";
 import { ProgressBar } from "@/components/progress/progress-bar";
 import { ProgressBoundTaskList } from "@/components/progress/progress-bound-task-list";
@@ -46,6 +48,11 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(true);
+  const [sortMode, setSortMode] = useState<"added" | "startTime" | "priority">("added");
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const sortBtnRef = useRef<HTMLButtonElement>(null);
+  const sortMenuRef = useRef<HTMLDivElement>(null);
 
   const progress = useMemo(
     () => progresses.find((p) => p.id === progressId) ?? null,
@@ -58,18 +65,60 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
     if (!itemsLoaded && user) void loadItemsFromCloud(user.id);
   }, [isLoaded, links.length, loadProgresses, loadLinks, itemsLoaded, loadItemsFromCloud, user]);
 
+  useEffect(() => {
+    if (!sortMenuOpen) return;
+    function onClick(e: MouseEvent) {
+      const target = e.target as Node;
+      if (sortBtnRef.current?.contains(target) || sortMenuRef.current?.contains(target)) return;
+      setSortMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [sortMenuOpen]);
+
   const progressLinks = useMemo(
     () => links.filter((l) => l.progressId === progressId),
     [links, progressId],
   );
 
-  const boundItems = useMemo(() => {
+  const boundItemsWithLinks = useMemo(() => {
     const map = new Map<string, ManualItemRecord>();
     for (const item of manualItems) map.set(item.id, item);
     return progressLinks
-      .map((l) => map.get(l.itemId))
-      .filter((item): item is ManualItemRecord => Boolean(item) && !(item as ManualItemRecord).deletedAt);
+      .map((link) => ({ item: map.get(link.itemId), link }))
+      .filter((x): x is { item: ManualItemRecord; link: (typeof progressLinks)[0] } => {
+        if (!x.item) return false;
+        return !x.item.deletedAt;
+      });
   }, [progressLinks, manualItems]);
+
+  const displayItems = useMemo(() => {
+    let result = [...boundItemsWithLinks];
+
+    if (!showCompleted) {
+      result = result.filter(({ item }) => item.status !== "completed");
+    }
+
+    if (sortMode === "startTime") {
+      result.sort((a, b) => {
+        const aVal = a.item.startDate ? a.item.startDate + (a.item.startTime ?? "") : "";
+        const bVal = b.item.startDate ? b.item.startDate + (b.item.startTime ?? "") : "";
+        if (!aVal && !bVal) return 0;
+        if (!aVal) return 1;
+        if (!bVal) return -1;
+        return aVal.localeCompare(bVal);
+      });
+    } else if (sortMode === "priority") {
+      const weight: Record<string, number> = { urgent: 3, high: 2, medium: 1, low: 0 };
+      result.sort((a, b) => {
+        const aw = a.item.priority ? weight[a.item.priority] ?? -1 : -1;
+        const bw = b.item.priority ? weight[b.item.priority] ?? -1 : -1;
+        return bw - aw;
+      });
+    }
+
+    return result.map(({ item }) => item);
+  }, [boundItemsWithLinks, showCompleted, sortMode]);
 
   const stats = useMemo(() => {
     if (!progress) return null;
@@ -190,7 +239,75 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
             {t("progress.detail.boundTasks")}
           </h2>
           {user ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setShowCompleted((v) => !v)}
+                className={cn(
+                  "flex h-7 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-colors",
+                  showCompleted
+                    ? "border-black/8 bg-transparent text-[#7d7880] hover:bg-black/[0.04] dark:border-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/[0.06]"
+                    : "border-black/12 bg-white text-[#25242a] dark:border-white/12 dark:bg-[#2a2a2a] dark:text-[#f5f5f5]",
+                )}
+              >
+                {showCompleted ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                <span className="max-w-[6rem] truncate">
+                  {showCompleted ? t("progress.filter.hideCompleted") : t("progress.filter.showCompleted")}
+                </span>
+              </button>
+              <div className="relative">
+                <button
+                  ref={sortBtnRef}
+                  type="button"
+                  onClick={() => setSortMenuOpen((v) => !v)}
+                  className={cn(
+                    "flex h-7 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-colors",
+                    sortMenuOpen
+                      ? "border-black/12 bg-white text-[#25242a] dark:border-white/12 dark:bg-[#2a2a2a] dark:text-[#f5f5f5]"
+                      : "border-black/8 bg-transparent text-[#7d7880] hover:bg-black/[0.04] dark:border-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/[0.06]",
+                  )}
+                >
+                  <ArrowUpDown className="h-3 w-3" />
+                  <span className="max-w-[6rem] truncate">
+                    {sortMode === "added" ? t("progress.sort.default") : sortMode === "startTime" ? t("listControls.startTime") : t("itemForm.priority")}
+                  </span>
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", sortMenuOpen && "rotate-180")} />
+                </button>
+                {sortMenuOpen && typeof document !== "undefined"
+                  ? createPortal(
+                      <div
+                        ref={sortMenuRef}
+                        className="fixed z-50 w-44 rounded-xl border border-black/8 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-[#1f1d24] flex flex-col gap-0.5"
+                        style={{
+                          top: sortBtnRef.current ? sortBtnRef.current.getBoundingClientRect().bottom + 4 : 0,
+                          right: sortBtnRef.current ? window.innerWidth - sortBtnRef.current.getBoundingClientRect().right : 0,
+                        }}
+                      >
+                        {([
+                          { mode: "added" as const, icon: GripVertical, label: t("progress.sort.default") },
+                          { mode: "startTime" as const, icon: Calendar, label: t("listControls.startTime") },
+                          { mode: "priority" as const, icon: Flag, label: t("itemForm.priority") },
+                        ]).map(({ mode, icon: Icon, label }) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => { setSortMode(mode); setSortMenuOpen(false); }}
+                            className={cn(
+                              "flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors",
+                              sortMode === mode
+                                ? "bg-black/[0.05] text-[#25242a] dark:bg-white/10 dark:text-[#f5f5f5]"
+                                : "text-[#7d7880] hover:bg-black/[0.035] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]",
+                            )}
+                          >
+                            <Icon className="h-3.5 w-3.5 shrink-0" />
+                            <span>{label}</span>
+                          </button>
+                        ))}
+                      </div>,
+                      document.body,
+                    )
+                  : null}
+              </div>
               <Button
                 type="button"
                 size="sm"
@@ -214,7 +331,7 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
             </div>
           ) : null}
         </div>
-        <ProgressBoundTaskList items={boundItems} onUnlink={handleUnlink} />
+        <ProgressBoundTaskList items={displayItems} onUnlink={handleUnlink} />
       </section>
 
       {user ? (
