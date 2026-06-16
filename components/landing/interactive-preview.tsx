@@ -7,9 +7,11 @@ import {
   ChevronDown, Eye, EyeOff, Plus, Pencil, Trash2, Quote,
   Bell, Search, Folder, Tag, Flag, ArrowUpDown,
   ChevronLeft, ChevronRight, MoreHorizontal, Repeat,
-  Maximize2, Minimize2, Filter,
+  Maximize2, Minimize2, Filter, MessageCircle, Bot, ArrowUp, X, Sparkles, Mic,
+  Brain, PanelRight, PanelBottom, Film, BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MarkdownText } from "@/components/ui/markdown-text";
 
 type PageId = "timeline" | "digest" | "all" | "focus" | "progress";
 
@@ -245,9 +247,58 @@ function DigestView() {
           <Calendar className="h-4 w-4 text-[#8c8691] dark:text-[#a09ba5]" />
           <p className={label}>Today in History</p>
         </div>
-        <div className="mt-4 flex gap-3 text-[13px]">
-          <span className="shrink-0 text-[11px] font-semibold text-[#8c8691] dark:text-[#a09ba5]">2022</span>
-          <span className="text-[#25242a] dark:text-[#f5f5f5]">First image of the Milky Way's black hole revealed</span>
+        <div className="mt-4 space-y-3">
+          {[
+            { year: "2022", text: "First image of the Milky Way's black hole revealed" },
+            { year: "1963", text: "Valentina Tereshkova becomes the first woman in space" },
+            { year: "1903", text: "Ford Motor Company is incorporated" },
+            { year: "1858", text: "Charles Darwin receives manuscript from Alfred Wallace on natural selection" },
+          ].map((event, i) => (
+            <div key={i} className="flex items-center gap-3 text-[13px]">
+              <span className="shrink-0 text-sm font-semibold text-[#8c8691] dark:text-[#a09ba5] w-12 text-center">{event.year}</span>
+              <span className="text-[#25242a] dark:text-[#f5f5f5]">{event.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* DailyBookCard */}
+      <div className={card}>
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-[#8c8691] dark:text-[#a09ba5]" />
+          <p className={label}>Daily Book</p>
+        </div>
+        <div className="mt-4 space-y-2">
+          <h3 className="text-base font-semibold text-[#25242a] dark:text-[#f5f5f5]">
+            Brave New World
+          </h3>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-[#6f6a72] dark:text-[#a09ba5]">
+            <span>Author: Aldous Huxley</span>
+            <span>Year: 1932</span>
+            <span>Language: English</span>
+          </div>
+          <p className="pt-1 text-sm leading-relaxed text-[#25242a] dark:text-[#f5f5f5]">
+            A dystopian masterpiece exploring a futuristic society where technology and conditioning have eliminated human suffering at the cost of individuality and freedom.
+          </p>
+        </div>
+      </div>
+      {/* DailyMovieCard */}
+      <div className={card}>
+        <div className="flex items-center gap-2">
+          <Film className="h-4 w-4 text-[#8c8691] dark:text-[#a09ba5]" />
+          <p className={label}>Daily Movie</p>
+        </div>
+        <div className="mt-4 space-y-2">
+          <h3 className="text-base font-semibold text-[#25242a] dark:text-[#f5f5f5]">
+            Where Is the Friend's House?
+          </h3>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-[#6f6a72] dark:text-[#a09ba5]">
+            <span>Year: 1987</span>
+            <span>Genres: Family/Drama</span>
+            <span>Directors: Abbas Kiarostami</span>
+          </div>
+          <p className="pt-1 text-sm leading-relaxed text-[#25242a] dark:text-[#f5f5f5]">
+            A simple yet profound story of a young boy's journey to return his classmate's notebook. A masterpiece of Iranian cinema that explores childhood innocence and determination.
+          </p>
         </div>
       </div>
     </div>
@@ -1069,11 +1120,414 @@ function ProgressDetailPreview({ progressId, onBack }: { progressId: string; onB
   );
 }
 
+/* ─── AI Chat Overlay ─── */
+const DEMO_CONVERSATIONS = [
+  {
+    user: "What's on my schedule today?",
+    assistant: "You have 5 tasks scheduled for today:\n\n• **Morning Review** at 9:00 AM\n• **Team Standup** at 10:30 AM  \n• **Design Sprint** from 2:00-4:00 PM\n• **Review Q4 Metrics** at 2:00 PM (high priority)\n• **Client Call** at 5:00 PM\n\nYou also have 3 all-day tasks in your backlog.",
+    tool: null,
+    hasReview: false,
+  },
+  {
+    user: "Add a task to review Q4 metrics tomorrow at 2pm",
+    assistant: "I'll create that task for you.",
+    tool: "Creating task...",
+    hasReview: true,
+    reviewItems: [
+      {
+        title: "Review Q4 metrics",
+        description: "Analyze quarterly performance data and prepare insights",
+        priority: "high",
+        schedule: "Tomorrow at 2:00 PM - 3:00 PM",
+        tags: ["review", "metrics"],
+      }
+    ],
+  },
+  {
+    user: "Move all overdue tasks to tomorrow",
+    assistant: "I found 3 overdue tasks. I'll reschedule them to tomorrow for you.",
+    tool: "Updating 3 tasks...",
+    hasReview: true,
+    reviewItems: [
+      {
+        title: "Complete project proposal",
+        description: "Finalize and submit Q4 project proposal",
+        priority: "urgent",
+        schedule: "Tomorrow at 9:00 AM - 11:00 AM",
+        original: "Yesterday at 2:00 PM",
+      },
+      {
+        title: "Review client feedback",
+        description: "Go through client comments and prepare response",
+        priority: "high",
+        schedule: "Tomorrow at 2:00 PM - 3:00 PM",
+        original: "2 days ago",
+      },
+      {
+        title: "Update documentation",
+        description: "Add latest API changes to developer docs",
+        priority: "medium",
+        schedule: "Tomorrow at 4:00 PM - 5:00 PM",
+        original: "Last week",
+      },
+    ],
+  },
+  {
+    user: "Plan my week",
+    assistant: "Based on your upcoming tasks and deadlines, here's a suggested plan:\n\n**Monday**: Focus on Q4 metrics review and presentation prep  \n**Tuesday**: Design sprint and stakeholder meetings  \n**Wednesday**: Development work (3 high-priority items)  \n**Thursday**: Testing and code review  \n**Friday**: Documentation and weekly wrap-up\n\nWould you like me to schedule these?",
+    tool: null,
+    hasReview: false,
+  },
+];
+
+const PRIORITY_COLORS: Record<string, string> = {
+  urgent: "border-red-200 bg-red-50 text-red-600",
+  high: "border-orange-200 bg-orange-50 text-orange-600",
+  medium: "border-blue-200 bg-blue-50 text-blue-600",
+  low: "border-gray-200 bg-gray-50 text-gray-600",
+};
+
+function AiChatPanel({ onClose, dark }: { onClose: () => void; dark: boolean }) {
+  const [conversationIndex, setConversationIndex] = useState(0);
+  const [input, setInput] = useState("");
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const currentConvo = DEMO_CONVERSATIONS[conversationIndex];
+
+  useEffect(() => {
+    if (shouldAutoScroll && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      setShouldAutoScroll(false);
+    }
+  }, [shouldAutoScroll]);
+
+  useEffect(() => {
+    // Auto-select all review items when conversation changes
+    if (currentConvo.hasReview && currentConvo.reviewItems) {
+      setSelectedItems(new Set(currentConvo.reviewItems.map((_, i) => i)));
+    }
+  }, [conversationIndex, currentConvo.hasReview, currentConvo.reviewItems]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    // Find matching conversation or cycle to next
+    const matchIndex = DEMO_CONVERSATIONS.findIndex(c => 
+      c.user.toLowerCase().includes(input.toLowerCase().trim())
+    );
+    if (matchIndex !== -1) {
+      setConversationIndex(matchIndex);
+    } else {
+      setConversationIndex((i) => (i + 1) % DEMO_CONVERSATIONS.length);
+    }
+    setInput("");
+    setShouldAutoScroll(true);
+  };
+
+  const toggleItemSelection = (index: number) => {
+    setSelectedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
+  const selectAllItems = () => {
+    if (currentConvo.reviewItems) {
+      setSelectedItems(new Set(currentConvo.reviewItems.map((_, i) => i)));
+    }
+  };
+
+  const quickPrompts = [
+    { text: "What's on my schedule today?", index: 0 },
+    { text: "Add a new task", index: 1 },
+    { text: "Plan my week", index: 3 },
+    { text: "Find overdue tasks", index: 2 },
+  ];
+
+  return (
+    <div className="flex flex-col" style={{ height: "560px" }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold text-[#2b2a30]">Orkest AI</span>
+          <span className="rounded-full bg-[#e8e6ea] px-2 py-0.5 text-[10px] font-medium text-[#6f6a72]">
+            Demo
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => {}}
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              title="New Chat"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              title="History"
+            >
+              <Clock className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {}}
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              title="Memories"
+            >
+              <Brain className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {}}
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+            title="Style Toggle"
+          >
+            <PanelBottom className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-3 space-y-3">
+        {/* Initial welcome with quick prompts */}
+        <div className="rounded-2xl border border-black/8 bg-white/60 p-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-[#3c3841]">
+            <Bot className="h-4 w-4 text-[#7b7580]" />
+            Hello! I can help you manage your tasks. Try asking me something!
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {quickPrompts.map((prompt) => (
+              <button
+                key={prompt.text}
+                type="button"
+                onClick={() => {
+                  setConversationIndex(prompt.index);
+                }}
+                className="cursor-pointer rounded-full border border-black/8 bg-white px-2.5 py-1 text-xs font-medium text-[#5f5a63] transition-colors hover:bg-black/[0.03]"
+              >
+                {prompt.text}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Show current conversation */}
+        <>
+          {/* User message */}
+          <div className="flex justify-end">
+            <div className="inline-flex items-center max-w-[85%] rounded-3xl border border-black/8 bg-[#25242a] text-white px-4 py-2.5">
+              <p className="text-sm leading-6 whitespace-pre-wrap break-words">
+                {currentConvo.user}
+              </p>
+            </div>
+          </div>
+
+          {/* Assistant message */}
+          <div className="flex justify-start">
+            <div className="inline-flex flex-col max-w-[85%] rounded-3xl border border-black/8 bg-white/75 px-4 py-2.5">
+              <div className="text-sm leading-6">
+                <MarkdownText>{currentConvo.assistant}</MarkdownText>
+              </div>
+              {currentConvo.tool && (
+                <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-black/8 bg-[#f8f7f6] px-2.5 py-1 text-xs text-[#6d6871] self-start">
+                  <Sparkles className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{currentConvo.tool}</span>
+                </div>
+              )}
+
+              {/* Review section */}
+              {currentConvo.hasReview && currentConvo.reviewItems && (
+                <div className="mt-4 space-y-3 border-t border-black/8 pt-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-semibold tracking-[0.24em] text-[#7b7580] uppercase">
+                        Review Changes
+                      </p>
+                      <p className="mt-1 text-sm text-[#5f5a63]">
+                        {selectedItems.size} of {currentConvo.reviewItems.length} selected
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={selectAllItems}
+                      className="h-8 cursor-pointer rounded-full border border-black/8 bg-white px-3 text-xs font-medium text-[#5f5a63] transition-colors hover:bg-black/[0.03]"
+                    >
+                      Select All
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {currentConvo.reviewItems.map((item, index) => (
+                      <div
+                        key={index}
+                        className={`rounded-2xl border p-4 transition-colors ${
+                          selectedItems.has(index)
+                            ? "border-black/10 bg-white/85"
+                            : "border-black/6 bg-white/55 opacity-80"
+                        }`}
+                      >
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedItems.has(index)}
+                              onChange={() => toggleItemSelection(index)}
+                              className="mt-0.5 h-4 w-4 rounded border-gray-300 cursor-pointer"
+                            />
+                            <div>
+                              <p className="text-[11px] font-semibold tracking-[0.2em] text-[#8c8691] uppercase">
+                                Draft {index + 1}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {item.original && (
+                          <div className="mb-3 rounded-2xl border border-red-200/50 bg-red-50/30 p-3">
+                            <p className="text-[11px] font-semibold tracking-[0.2em] text-red-500/70 uppercase">
+                              Original
+                            </p>
+                            <p className="mt-1 text-sm text-red-600/80">
+                              Scheduled: {item.original}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="rounded-2xl border border-black/8 bg-white/80 p-4">
+                          <h3 className="text-lg font-semibold text-[#25242a]">
+                            {item.title}
+                          </h3>
+                          {item.description && (
+                            <p className="mt-2 text-sm leading-6 text-[#5f5a63]">
+                              {item.description}
+                            </p>
+                          )}
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {item.priority && (
+                              <span className={`rounded-full border px-3 py-1.5 text-xs font-medium ${PRIORITY_COLORS[item.priority]}`}>
+                                {item.priority.charAt(0).toUpperCase() + item.priority.slice(1)}
+                              </span>
+                            )}
+                            {item.tags?.map((tag) => (
+                              <span
+                                key={tag}
+                                className="rounded-full border border-black/8 bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#5f5a63]"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {item.schedule && (
+                          <div className="mt-4 rounded-2xl border border-black/8 bg-white/70 p-3">
+                            <p className="text-[11px] font-semibold tracking-[0.2em] text-[#8c8691] uppercase">
+                              Schedule
+                            </p>
+                            <p className="mt-1 text-sm leading-6 text-[#3c3841]">
+                              {item.schedule}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 pt-1">
+                    <button
+                      type="button"
+                      className="h-8 cursor-pointer rounded-full px-3 text-xs font-medium text-[#7d7880] transition-colors hover:text-[#5f5a63]"
+                    >
+                      Clear Review
+                    </button>
+                    <button
+                      type="button"
+                      disabled={selectedItems.size === 0}
+                      className="h-8 cursor-pointer rounded-full bg-[#25242a] px-4 text-xs font-medium text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:scale-105"
+                    >
+                      Apply Selected
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      </div>
+
+      {/* Input */}
+      <div className="px-4 pb-4 pt-2">
+        <form onSubmit={handleSubmit}>
+          <div className="relative rounded-3xl border border-black/8 bg-white transition-all duration-200">
+            <div className="relative flex items-center">
+              <button
+                type="button"
+                className="absolute left-1.5 h-8 w-8 shrink-0 rounded-full transition-colors text-gray-400 hover:text-gray-600 flex items-center justify-center"
+                title="Manual input (demo)"
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                className="absolute left-10 h-8 w-8 shrink-0 rounded-full transition-colors text-gray-400 hover:text-gray-600 flex items-center justify-center"
+                title="Voice input (demo)"
+              >
+                <Mic className="h-3.5 w-3.5" />
+              </button>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask me anything..."
+                className="flex-1 bg-transparent border-0 outline-none pt-3 pb-2.5 pl-[5.5rem] pr-14 text-sm leading-5 placeholder:text-[#8c8691]"
+                maxLength={200}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!input.trim()}
+                className="absolute right-1.5 flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[#25242a] text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:enabled:scale-105"
+              >
+                <ArrowUp className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Export ─── */
 export function InteractivePreview({ dark }: { dark: boolean }) {
   const [active, setActive] = useState<PageId>("digest");
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [progressDetailId, setProgressDetailId] = useState<string | null>(null);
+  const [isAiExpanded, setIsAiExpanded] = useState(false);
   const bg = "bg-[#fcfbfa] dark:bg-[#101010]";
 
   return (
@@ -1100,6 +1554,50 @@ export function InteractivePreview({ dark }: { dark: boolean }) {
         {active === "focus" && <FocusPageView dark={dark} />}
         {active === "progress" && !progressDetailId && <ProgressPageView onOpen={setProgressDetailId} />}
         {active === "progress" && progressDetailId && <ProgressDetailPreview progressId={progressDetailId} onBack={() => setProgressDetailId(null)} />}
+      </div>
+
+      {/* AI Chat Panel */}
+      <div className="absolute right-6 bottom-6 z-40">
+        {/* Expanded panel */}
+        <div
+          className={`absolute right-0 bottom-0 overflow-hidden rounded-2xl border border-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.35)] transition-all duration-300 ease-in-out origin-bottom-right dark:border-white/35 dark:shadow-none ${
+            isAiExpanded
+              ? "w-[440px] max-w-[calc(100vw-3rem)] opacity-100 pointer-events-auto scale-100"
+              : "w-14 opacity-0 pointer-events-none scale-90"
+          }`}
+          style={{
+            backgroundColor: "rgba(252, 251, 250, 0.85)",
+            backdropFilter: "blur(18px) saturate(140%)",
+            WebkitBackdropFilter: "blur(18px) saturate(140%)",
+          }}
+        >
+          <div className="grid transition-all duration-300 ease-in-out" style={{ gridTemplateRows: isAiExpanded ? "1fr" : "0fr" }}>
+            <div className="overflow-hidden">
+              <AiChatPanel onClose={() => setIsAiExpanded(false)} dark={dark} />
+            </div>
+          </div>
+        </div>
+
+        {/* AI FAB Button */}
+        <div className="h-14 w-14 shrink-0 rounded-full">
+          <button
+            type="button"
+            onClick={() => setIsAiExpanded(true)}
+            className={`h-14 w-14 rounded-full border border-white/30 shadow-[0_10px_30px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.35)] hover:scale-[1.03] hover:shadow-[0_12px_36px_rgba(0,0,0,0.16),inset_0_1px_0_rgba(255,255,255,0.45)] transition-all duration-300 dark:border-white/35 dark:shadow-none dark:hover:shadow-none ${
+              isAiExpanded
+                ? "opacity-0 pointer-events-none scale-90"
+                : "opacity-100 scale-100"
+            }`}
+            style={{
+              backgroundColor: "rgba(252, 251, 250, 0.88)",
+              backdropFilter: "blur(18px) saturate(140%)",
+              WebkitBackdropFilter: "blur(18px) saturate(140%)",
+            }}
+            aria-label="Orkest AI"
+          >
+            <MessageCircle className="h-6 w-6 text-gray-700 dark:text-[#f5f5f5] mx-auto" strokeWidth={2} />
+          </button>
+        </div>
       </div>
     </div>
   );
