@@ -18,6 +18,7 @@ import {
   Moon,
   Sparkles,
   Sun,
+  Target,
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -225,6 +226,7 @@ function Features() {
     { icon: Calendar, title: t("landing.features.timelineView"), description: t("landing.features.timelineView.desc") },
     { icon: Mail, title: t("landing.features.dailyDigest"), description: t("landing.features.dailyDigest.desc") },
     { icon: Tag, title: t("landing.features.projectsTags"), description: t("landing.features.projectsTags.desc") },
+    { icon: Target, title: t("landing.features.progressTracking"), description: t("landing.features.progressTracking.desc") },
     { icon: Globe, title: t("landing.features.multilingual"), description: t("landing.features.multilingual.desc") },
     { icon: Zap, title: t("landing.features.offlineFirst"), description: t("landing.features.offlineFirst.desc") },
   ];
@@ -240,7 +242,7 @@ function Features() {
           </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f) => (
             <div
               key={f.title}
