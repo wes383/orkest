@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { addLocaleToPathname, useI18n } from "@/lib/i18n";
 import { useSettingsStore } from "@/lib/stores/use-settings-store";
+import { InteractivePreview } from "./interactive-preview";
 
 function Logo({ className }: { className?: string }) {
   return (
@@ -294,7 +295,7 @@ function Preview() {
         <div className="absolute top-1/2 left-1/2 h-[700px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(37,36,42,0.03)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(245,245,245,0.03)_0%,transparent_70%)]" />
       </div>
 
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-[1400px] px-6">
         <div className="mb-16 text-center">
           <h2 className="font-display text-3xl font-semibold tracking-[-0.02em] text-[#171717] dark:text-[#f5f5f5] md:text-4xl">
             {t("landing.preview.title")}
@@ -304,27 +305,11 @@ function Preview() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-16">
-          {/* Today View Container */}
-          <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:border-white/[0.06] dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)]">
-            <img
-              src={isDark ? "/screenshots/today-dark.png" : "/screenshots/today.png"}
-              alt="Orkest Today page"
-              className="w-full"
-            />
-          </div>
-
-          {/* Daily Digest Container */}
-          <div className="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:border-white/[0.06] dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)]">
-            <img
-              src={isDark ? "/screenshots/digest-dark.png" : "/screenshots/digest.png"}
-              alt="Orkest Daily Digest page"
-              className="w-full"
-            />
-          </div>
+        <div className="mx-auto">
+          <InteractivePreview dark={isDark} />
         </div>
 
-        <div className="mt-16 text-center">
+        <div className="mt-10 text-center">
           <Link href={appHref}>
             <Button variant="outline" className="h-11 px-6">
               {t("landing.preview.cta")}
