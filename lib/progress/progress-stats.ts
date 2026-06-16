@@ -121,8 +121,9 @@ function computeCurrentAndPercent(
   }
 
   if (trackingMode === "percentage") {
-    const pct = bucket.bound > 0 ? clampPercent((bucket.completed / bucket.bound) * 100) : 0;
-    return { currentValue: pct, percent: pct };
+    const rawPct = bucket.bound > 0 ? (bucket.completed / bucket.bound) * 100 : 0;
+    const pct = goalValue > 0 ? clampPercent((rawPct / goalValue) * 100) : 0;
+    return { currentValue: rawPct, percent: pct };
   }
 
   // `count` mode: the "goal" is the stored `goalValue`. Always derive
@@ -170,7 +171,9 @@ export function summarizeProgress(progress: ProgressWithStats): {
   const effectiveGoal =
     progress.trackingMode === "count" ? progress.boundTaskCount : progress.goalValue;
   const remaining =
-    progress.trackingMode === "percentage" ? 0 : Math.max(effectiveGoal - progress.currentValue, 0);
+    progress.trackingMode === "percentage"
+      ? Math.max(effectiveGoal - progress.currentValue, 0)
+      : Math.max(effectiveGoal - progress.currentValue, 0);
   const isStale = progress.status === "active" && progress.percent < 1 && progress.total === 0;
   return { status: progress.status, remaining, isStale };
 }

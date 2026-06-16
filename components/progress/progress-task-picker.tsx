@@ -1,10 +1,16 @@
 "use client";
 
-import { Check, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
+import { Check, Search } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
 import type { ManualItemRecord } from "@/lib/types/all-page";
 
@@ -30,18 +36,6 @@ export function ProgressTaskPicker({ open, candidates, boundItemIds, onClose, on
     }
   }
 
-  useEffect(() => {
-    if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
   const bound = useMemo(() => new Set(boundItemIds), [boundItemIds]);
 
   const filtered = useMemo(() => {
@@ -54,9 +48,6 @@ export function ProgressTaskPicker({ open, candidates, boundItemIds, onClose, on
       return item.title.toLowerCase().includes(q);
     });
   }, [candidates, search, bound]);
-
-  if (!open) return null;
-  if (typeof document === "undefined") return null;
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -77,35 +68,23 @@ export function ProgressTaskPicker({ open, candidates, boundItemIds, onClose, on
     }
   }
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-0 cursor-default bg-white/35 backdrop-blur-[5px] dark:bg-black/50"
-      />
-      <div className="relative z-10 flex h-[70vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-black/8 bg-white shadow-[0_18px_55px_rgba(0,0,0,0.16)] dark:border-white/10 dark:bg-[#202020]">
-        <div className="flex items-center justify-between border-b border-black/6 px-5 py-4 dark:border-white/8">
-          <h2 className="text-lg font-semibold text-[#25242a] dark:text-[#f5f5f5]">
+  return (
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent className="mx-auto flex max-h-[70vh] max-w-[min(92vw,28rem)] flex-col overflow-hidden rounded-2xl p-0">
+        <DialogHeader className="border-b border-black/6 px-5 py-4 dark:border-white/8">
+          <DialogTitle className="text-lg font-semibold text-[#25242a] dark:text-[#f5f5f5]">
             {t("progress.taskPicker.title")}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[#7d7880] transition-colors hover:bg-black/[0.04] hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t("progress.taskPicker.title")}
+          </DialogDescription>
+        </DialogHeader>
 
         <div className="border-b border-black/6 px-5 py-3 dark:border-white/8">
           <div className="flex items-center gap-2 rounded-lg border border-black/8 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-[#1f1d24]">
             <Search className="h-4 w-4 shrink-0 text-[#9f99a3]" />
             <input
               type="text"
-              autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("progress.taskPicker.search")}
@@ -167,8 +146,7 @@ export function ProgressTaskPicker({ open, candidates, boundItemIds, onClose, on
             {t("progress.taskPicker.confirm", { count: selected.size })}
           </Button>
         </div>
-      </div>
-    </div>,
-    document.body,
+      </DialogContent>
+    </Dialog>
   );
 }

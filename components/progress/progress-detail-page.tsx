@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ProgressDetailSkeleton } from "@/components/ui/page-skeletons";
 import { ProgressBar } from "@/components/progress/progress-bar";
 import { ProgressBoundTaskList } from "@/components/progress/progress-bound-task-list";
 import { ProgressFormModal } from "@/components/progress/progress-form-modal";
@@ -123,11 +124,7 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
   }
 
   if (!progress || !stats) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-10">
-        <p className="text-sm text-[#7d7880] dark:text-[#a3a3a3]">{t("common.loading")}</p>
-      </div>
-    );
+    return <ProgressDetailSkeleton />;
   }
 
   return (
@@ -179,7 +176,7 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
             </p>
           ) : null}
 
-          <ProgressBar progress={stats} />
+          <ProgressBar progress={stats} onValueChange={progress.trackingMode === "manual" ? handleManualChange : undefined} />
 
           {progress.trackingMode === "manual" ? (
             <ManualValueEditor
@@ -240,13 +237,12 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
             progressId={progressId}
             onClose={() => setEditOpen(false)}
           />
-          {deleteOpen ? (
-            <DeleteProgressDialog
-              progressName={progress.name}
-              onCancel={() => setDeleteOpen(false)}
-              onConfirm={handleConfirmDelete}
-            />
-          ) : null}
+          <DeleteProgressDialog
+            open={deleteOpen}
+            progressName={progress.name}
+            onCancel={() => setDeleteOpen(false)}
+            onConfirm={handleConfirmDelete}
+          />
         </>
       ) : null}
 

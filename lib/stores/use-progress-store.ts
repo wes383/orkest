@@ -95,21 +95,22 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
     set({ progresses, isLoaded: true });
   },
 
-  async loadLinks(_userId) {
+  async loadLinks(userId) {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("progress_tasks")
-      .select("*");
+      .select("*, progresses!inner(user_id)")
+      .eq("progresses.user_id", userId);
     if (error) {
       console.error("Failed to load progress_tasks:", error);
       return;
     }
-    const links: ProgressTaskLink[] = (data ?? []).map((row) => ({
-      id: row.id,
-      progressId: row.progress_id,
-      itemId: row.item_id,
+    const links: ProgressTaskLink[] = ((data ?? []) as unknown as Array<Record<string, unknown>>).map((row) => ({
+      id: row.id as string,
+      progressId: row.progress_id as string,
+      itemId: row.item_id as string,
       weight: Number(row.weight),
-      addedAt: new Date(row.added_at),
+      addedAt: new Date(row.added_at as string),
     }));
     set({ links });
   },

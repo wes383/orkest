@@ -43,6 +43,7 @@ export function ProgressListPage() {
   const sortMode = useProgressStore((s) => s.sortMode);
   const setSortMode = useProgressStore((s) => s.setSortMode);
   const deleteProgress = useProgressStore((s) => s.deleteProgress);
+  const setManualValue = useProgressStore((s) => s.setManualValue);
   const reorderProgresses = useProgressStore((s) => s.reorderProgresses);
   const manualItems = useAllPageStore((s) => s.manualItems);
   const links = useProgressStore((s) => s.links);
@@ -320,7 +321,15 @@ export function ProgressListPage() {
                         ) : null}
                       </div>
                       <div className="mt-3">
-                        <ProgressBar progress={progress} compact />
+                        <ProgressBar
+                          progress={progress}
+                          compact
+                          onValueChange={
+                            progress.trackingMode === "manual" && user
+                              ? (v: number) => void setManualValue(user.id, progress.id, v)
+                              : undefined
+                          }
+                        />
                       </div>
                     </div>
                     <div className="hidden shrink-0 items-center text-right sm:flex">
@@ -378,13 +387,12 @@ export function ProgressListPage() {
         </>
       ) : null}
 
-      {deletingProgress ? (
-        <DeleteProgressDialog
-          progressName={deletingProgress.name}
-          onCancel={() => setDeletingId(null)}
-          onConfirm={handleConfirmDelete}
-        />
-      ) : null}
+      <DeleteProgressDialog
+        open={deletingId !== null}
+        progressName={deletingProgress?.name ?? ""}
+        onCancel={() => setDeletingId(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </section>
   );
 }

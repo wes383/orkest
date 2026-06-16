@@ -33,8 +33,7 @@ export default function ProgressRoute() {
       void loadItemsFromCloud(user.id);
     }
     if (!progressLoaded && user) {
-      void loadProgresses(user.id);
-      void loadLinks(user.id);
+      void Promise.all([loadProgresses(user.id), loadLinks(user.id)]);
     }
   }, [isLoaded, loadItemsFromCloud, progressLoaded, loadProgresses, loadLinks, user]);
 
