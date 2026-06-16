@@ -3036,11 +3036,13 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           if (item.recurrenceType && item.recurrenceType !== "none") {
             const completedOccs = item.completedOccurrences?.length ?? 0;
             const reopenedOccs = item.reopenedOccurrences?.length ?? 0;
-            // For recurring with end condition, use total planned instances
+            const exdateCount = item.exdates?.length ?? 0;
+            // For recurring with end condition, use total planned instances minus excluded
             if (item.recurrenceEndType && item.recurrenceEndType !== "never") {
               const totalFromRule = item.recurrenceCount ?? 0;
-              const exdateCount = item.exdates?.length ?? 0;
-              boundCount += Math.max(totalFromRule - exdateCount, completedOccs + reopenedOccs + 1);
+              const netFromRule = totalFromRule - exdateCount;
+              // Use rule-based count when available; fallback to visible count if rule data missing
+              boundCount += netFromRule > 0 ? netFromRule : (completedOccs + reopenedOccs + 1);
             } else {
               boundCount += completedOccs + reopenedOccs + 1; // completed + reopened + next pending
             }
@@ -3057,9 +3059,10 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         const currentValue = progress.trackingMode === "manual"
           ? progress.manualValue
           : completedCount;
+        const displayGoal = progress.trackingMode === "count" ? boundCount : progress.goalValue;
         const summary = [
           `Progress "${progress.name}":`,
-          `Current: ${currentValue} / ${progress.goalValue} ${progress.goalUnit}.`,
+          `Current: ${currentValue} / ${displayGoal} ${progress.goalUnit}.`,
           `Tracking mode: ${progress.trackingMode}.`,
           `Status: ${progress.status}.`,
           progress.trackingMode !== "manual"
@@ -3071,7 +3074,7 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           briefing: {
             progressName: progress.name,
             currentValue,
-            goalValue: progress.goalValue,
+            goalValue: displayGoal,
             goalUnit: progress.goalUnit,
             trackingMode: progress.trackingMode,
             status: progress.status,

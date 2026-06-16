@@ -80,7 +80,7 @@ describe("computeProgressStats - count mode", () => {
     expect(result.boundTaskCount).toBe(3);
     expect(result.completed).toBe(2);
     expect(result.currentValue).toBe(2);
-    expect(result.percent).toBe(20);
+    expect(result.percent).toBeCloseTo(66.67);
   });
 
   it("clamps percent at 100 when over the goal", () => {
@@ -164,7 +164,7 @@ describe("computeProgressStats - filtering", () => {
     const [result] = computeProgressStats([p], items, links);
     expect(result.boundTaskCount).toBe(1);
     expect(result.completed).toBe(1);
-    expect(result.percent).toBe(20);
+    expect(result.percent).toBe(100);
   });
 
   it("ignores sub-items (parentId != null)", () => {
@@ -214,7 +214,7 @@ describe("computeProgressStats - multi-progress", () => {
     expect(ra.completed).toBe(1);
     expect(ra.percent).toBe(50);
     expect(rb.completed).toBe(1);
-    expect(rb.percent).toBe(20);
+    expect(rb.percent).toBe(100);
   });
 });
 

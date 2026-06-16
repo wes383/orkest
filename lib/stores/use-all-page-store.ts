@@ -304,6 +304,7 @@ export const useAllPageStore = create<AllPageState>()(
       nthWeekdayPosition: formState.nthWeekdayPosition ?? "2",
       nthWeekdayDay: formState.nthWeekdayDay ?? 2,
       estimateMinutes: formState.estimateMinutes ?? "",
+      timezone: formState.timezone || getBrowserTimezone() || emptyForm.timezone,
       projectId: formState.projectId || (!editingItem && selectedProjectId ? selectedProjectId : ""),
       projectName: formState.projectName || (!editingItem && selectedProjectId ? "" : ""),
       progressIds: formState.progressIds ?? [],

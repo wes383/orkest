@@ -141,9 +141,11 @@ export function computeProgressStats(
     const bucket = counts.get(progress.id) ?? { bound: 0, completed: 0 };
     const { bound, completed } = bucket;
 
+    const effectiveGoal = progress.trackingMode === "count" ? bound : progress.goalValue;
     const { currentValue, percent } = computeCurrentAndPercent(
       progress,
       { bound, completed },
+      effectiveGoal,
     );
 
     return {
@@ -161,25 +163,24 @@ export function computeProgressStats(
 function computeCurrentAndPercent(
   progress: Progress,
   bucket: { bound: number; completed: number },
+  effectiveGoal: number,
 ): { currentValue: number; percent: number } {
-  const { trackingMode, goalValue } = progress;
+  const { trackingMode } = progress;
 
   if (trackingMode === "manual") {
     const current = progress.manualValue ?? 0;
-    const pct = goalValue > 0 ? clampPercent((current / goalValue) * 100) : 0;
+    const pct = effectiveGoal > 0 ? clampPercent((current / effectiveGoal) * 100) : 0;
     return { currentValue: current, percent: pct };
   }
 
   if (trackingMode === "percentage") {
     const rawPct = bucket.bound > 0 ? (bucket.completed / bucket.bound) * 100 : 0;
-    const pct = goalValue > 0 ? clampPercent((rawPct / goalValue) * 100) : 0;
+    const pct = effectiveGoal > 0 ? clampPercent((rawPct / effectiveGoal) * 100) : 0;
     return { currentValue: rawPct, percent: pct };
   }
 
-  // `count` mode: the "goal" is the stored `goalValue`. Always derive
-  // `currentValue` from the completed bound items and `percent` relative to the goal.
   const current = bucket.completed;
-  const pct = goalValue > 0 ? clampPercent((current / goalValue) * 100) : 0;
+  const pct = effectiveGoal > 0 ? clampPercent((current / effectiveGoal) * 100) : 0;
   return { currentValue: current, percent: pct };
 }
 
