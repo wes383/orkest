@@ -1,10 +1,11 @@
 "use client";
 
-import { Search, Plus, ArrowRight, CheckCircle2, Circle, AlertCircle, MessageCircle, Clock, X, Folder } from "lucide-react";
+import { Search, Plus, ArrowRight, CheckCircle2, Circle, AlertCircle, MessageCircle, Clock, X, Folder, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
+import { useProgressStore } from "@/lib/stores/use-progress-store";
 import { useRecentsStore } from "@/lib/stores/use-recents-store";
 import { fuzzySearchItems } from "@/lib/ai/candidate-search";
 import type { CandidateItem } from "@/lib/ai/candidate-search";
@@ -76,6 +77,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
   const manualItems = useAllPageStore((s) => s.manualItems);
   const setListFilterConfig = useAllPageStore((s) => s.setListFilterConfig);
   const projects = useProjectStore((s) => s.projects);
+  const progresses = useProgressStore((s) => s.progresses);
 
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -127,6 +129,15 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
         action: () => {
           onClose();
           onNavigate?.("/focus");
+        },
+      },
+      {
+        id: "go-progress",
+        label: t("nav.progress"),
+        icon: <ArrowRight className="h-4 w-4" />,
+        action: () => {
+          onClose();
+          onNavigate?.("/progress");
         },
       },
       {
@@ -217,6 +228,13 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
     return projects.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 5);
   }, [query, projects]);
 
+  // Progress search results
+  const progressResults = useMemo(() => {
+    if (!query.trim()) return [];
+    const q = query.trim().toLowerCase();
+    return progresses.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 5);
+  }, [query, progresses]);
+
   // Tag search results
   const tagResults = useMemo(() => {
     if (!query.trim()) return [];
@@ -235,7 +253,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
 
   // Combined items for navigation
   const allItems = useMemo(() => {
-    const items: Array<{ id: string; type: "action" | "task" | "project" | "tag"; action: () => void }> = [];
+    const items: Array<{ id: string; type: "action" | "task" | "project" | "progress" | "tag"; action: () => void }> = [];
 
     // Recents (already filtered by query + existence)
     for (const record of recentsItems) {
@@ -278,6 +296,18 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
             searchQuery: "",
           });
           onNavigate?.("/all");
+        },
+      });
+    }
+
+    // Progress results
+    for (const progress of progressResults) {
+      items.push({
+        id: `progress:${progress.id}`,
+        type: "progress",
+        action: () => {
+          onClose();
+          onNavigate?.(`/progress/${progress.id}`);
         },
       });
     }
@@ -325,7 +355,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
     }
 
     return items;
-  }, [recentsItems, filteredActions, projectResults, tagResults, searchResults, recordView, onClose, onNavigate, setListFilterConfig]);
+  }, [recentsItems, filteredActions, projectResults, progressResults, tagResults, searchResults, recordView, onClose, onNavigate, setListFilterConfig]);
 
   // Reset state when opening
   useEffect(() => {
@@ -537,6 +567,40 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
             </>
           )}
 
+          {/* Progress Results */}
+          {progressResults.length > 0 && (
+            <>
+              <div className="mt-2 px-2 py-1.5">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-[#9b95a0]">
+                  {t("commandPalette.progresses")}
+                </p>
+              </div>
+              {progressResults.map((progress, i) => {
+                const globalIndex = recentsItems.length + filteredActions.length + projectResults.length + i;
+                return (
+                  <button
+                    key={progress.id}
+                    data-index={globalIndex}
+                    onClick={allItems[globalIndex]?.action}
+                    onMouseEnter={() => setSelectedIndex(globalIndex)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                      selectedIndex === globalIndex
+                        ? "bg-[#f4f0ec] text-[#25242a] dark:bg-[#2a2a2a] dark:text-[#f5f5f5]"
+                        : "text-[#6d6770] hover:bg-[#f4f0ec]/60 dark:text-[#a3a3a3] dark:hover:bg-[#2a2a2a]/60"
+                    }`}
+                  >
+                    <TrendingUp className="h-4 w-4 text-[#9b95a0]" />
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: progress.color ?? "#a3a3a3" }}
+                    />
+                    <span className="flex-1 truncate">{progress.name}</span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+
           {/* Tag Results */}
           {tagResults.length > 0 && (
             <>
@@ -546,7 +610,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
                 </p>
               </div>
               {tagResults.map((tag, i) => {
-                const globalIndex = recentsItems.length + filteredActions.length + projectResults.length + i;
+                const globalIndex = recentsItems.length + filteredActions.length + projectResults.length + progressResults.length + i;
                 return (
                   <button
                     key={tag}
@@ -576,7 +640,7 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
                 </p>
               </div>
               {searchResults.map((result, i) => {
-                const globalIndex = recentsItems.length + filteredActions.length + projectResults.length + tagResults.length + i;
+                const globalIndex = recentsItems.length + filteredActions.length + projectResults.length + progressResults.length + tagResults.length + i;
                 const statusIcon =
                   result.status === "completed" ? (
                     <CheckCircle2 className="h-4 w-4 text-green-500" />
@@ -615,7 +679,8 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
           {query.trim().length >= 2 &&
             searchResults.length === 0 &&
             filteredActions.length === 0 &&
-            recentsItems.length === 0 && (
+            recentsItems.length === 0 &&
+            progressResults.length === 0 && (
               <div className="px-3 py-6 text-center text-sm text-[#9b95a0]">
                 {t("commandPalette.noResults")}
               </div>

@@ -156,11 +156,12 @@ export function SidebarLayout({
         }
         return;
       }
-      setActiveTab(href);
+      setActiveTab(href.startsWith("/progress/") ? "/progress" : href);
       setMountedTabs((prev) => {
-        if (prev.has(href)) return prev;
+        const tabHref = href.startsWith("/progress/") ? "/progress" : href;
+        if (prev.has(tabHref)) return prev;
         const next = new Set(prev);
-        next.add(href);
+        next.add(tabHref);
         return next;
       });
       if (isSpecialTarget) {
@@ -194,6 +195,14 @@ export function SidebarLayout({
           if (prev.has("/trash")) return prev;
           const next = new Set(prev);
           next.add("/trash");
+          return next;
+        });
+      } else if (path === "/progress" || path.startsWith("/progress/")) {
+        setActiveTab("/progress");
+        setMountedTabs((prev) => {
+          if (prev.has("/progress")) return prev;
+          const next = new Set(prev);
+          next.add("/progress");
           return next;
         });
       }
@@ -546,7 +555,7 @@ export function SidebarLayout({
           <nav className="flex flex-col gap-2">
             {items.map((item) => {
               const isActive =
-                activeTab === item.href && !isSettingsPage && !isProjectsPage && !isProgressPage;
+                activeTab === item.href && !isSettingsPage && !isProjectsPage;
               const Icon = item.icon;
 
               return (
@@ -733,7 +742,7 @@ export function SidebarLayout({
           <nav className="flex flex-col gap-2">
             {items.map((item) => {
               const isActive =
-                activeTab === item.href && !isSettingsPage && !isProjectsPage && !isProgressPage;
+                activeTab === item.href && !isSettingsPage && !isProjectsPage;
               const Icon = item.icon;
               const label = t(`nav.${item.href === "/" ? "today" : item.href.slice(1)}` as "nav.today" | "nav.all" | "nav.focus" | "nav.progress");
               return (
