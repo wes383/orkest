@@ -51,7 +51,6 @@ export type Database = {
           manual_value: number;
           color: string | null;
           status: "active" | "completed" | "archived";
-          target_date: string | null;
           sort_order: number | null;
           created_at: string;
           updated_at: string;
@@ -67,7 +66,6 @@ export type Database = {
           manual_value?: number;
           color?: string | null;
           status?: "active" | "completed" | "archived";
-          target_date?: string | null;
           sort_order?: number | null;
           created_at?: string;
           updated_at?: string;
@@ -83,7 +81,6 @@ export type Database = {
           manual_value?: number;
           color?: string | null;
           status?: "active" | "completed" | "archived";
-          target_date?: string | null;
           sort_order?: number | null;
           created_at?: string;
           updated_at?: string;

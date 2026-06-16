@@ -700,7 +700,6 @@ export function useAiChat(config: UseAiChatConfig) {
           goalUnit: item.progressGoalUnit ?? "tasks",
           trackingMode: item.progressTrackingMode ?? "count",
           color: item.progressColor,
-          targetDate: item.progressTargetDate,
         });
       }
     }

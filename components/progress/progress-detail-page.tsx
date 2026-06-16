@@ -139,11 +139,6 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
               <h1 className="mt-1 truncate font-display text-2xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">
                 {progress.name}
               </h1>
-              {progress.targetDate ? (
-                <p className="mt-1 text-xs text-[#7d7880] dark:text-[#a3a3a3]">
-                  {t("progress.detail.target", { date: progress.targetDate })}
-                </p>
-              ) : null}
             </div>
             {user ? (
               <div className="flex items-center gap-1">

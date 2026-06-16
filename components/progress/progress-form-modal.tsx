@@ -78,7 +78,6 @@ function ProgressFormModalBody({ mode, editing, onClose, onSubmitted }: Progress
   const [color, setColor] = useState<string>(
     editing ? normalizeProjectColor(editing.color) : DEFAULT_PROJECT_COLOR,
   );
-  const [targetDate, setTargetDate] = useState<string>(editing?.targetDate ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -124,7 +123,6 @@ function ProgressFormModalBody({ mode, editing, onClose, onSubmitted }: Progress
           trackingMode,
           manualValue,
           color: safeColor,
-          targetDate: targetDate || undefined,
         });
         if (!created) {
           setError(t("progress.error.createFailed"));
@@ -140,7 +138,6 @@ function ProgressFormModalBody({ mode, editing, onClose, onSubmitted }: Progress
           trackingMode,
           manualValue,
           color: safeColor,
-          targetDate: targetDate || undefined,
         });
         if (!ok) {
           setError(t("progress.error.updateFailed"));
@@ -334,19 +331,7 @@ function ProgressFormModalBody({ mode, editing, onClose, onSubmitted }: Progress
                 className="w-full rounded-lg border border-black/8 bg-white px-3 py-2 text-sm text-[#25242a] focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#202020] dark:text-[#f5f5f5]"
               />
             </div>
-          ) : null}
-
-          <div>
-            <label className="mb-2 block text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase">
-              {t("progress.targetDate")}
-            </label>
-            <input
-              type="date"
-              value={targetDate}
-              onChange={(e) => setTargetDate(e.target.value)}
-              className="w-full rounded-lg border border-black/8 bg-white px-3 py-2 text-sm text-[#25242a] focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-[#202020] dark:text-[#f5f5f5]"
-            />
-          </div>
+        ) : null}
 
           <div>
             <label className="mb-2 block text-[11px] font-semibold tracking-[0.15em] text-[#9f99a3] uppercase">

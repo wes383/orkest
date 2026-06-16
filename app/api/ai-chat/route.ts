@@ -2826,10 +2826,9 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           "- 'manual': MANUAL COUNTER mode. The user manually increments/decrements the value. Use when the user wants to track something that happens outside the app (e.g. 'read 10 books this year', 'run 100km', 'save $5000'). Default starting value is 0."
         ),
         color: z.string().optional().describe("Optional color (hex)."),
-        targetDate: z.string().optional().describe("Optional target completion date (YYYY-MM-DD)."),
         reason: z.string().optional(),
       }),
-      execute: async ({ name, description, goalValue, goalUnit, trackingMode, color, targetDate, reason }): Promise<AiToolResult> => {
+      execute: async ({ name, description, goalValue, goalUnit, trackingMode, color, reason }): Promise<AiToolResult> => {
         const existing = (context.progresses ?? []).find(
           (p) => p.name.toLowerCase() === name.toLowerCase(),
         );
@@ -2852,7 +2851,6 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
             goalUnit,
             trackingMode,
             color,
-            targetDate,
             reason,
           }],
         };
@@ -2870,15 +2868,14 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
           "count = auto-count bound tasks; percentage = like count but as %; manual = user manually sets value."
         ),
         color: z.string().optional(),
-        targetDate: z.string().optional().describe("Target completion date (YYYY-MM-DD). Set to empty string to clear."),
         reason: z.string().optional(),
       }),
-      execute: async ({ progressId, name, description, goalValue, goalUnit, trackingMode, color, targetDate, reason }): Promise<AiToolResult> => {
+      execute: async ({ progressId, name, description, goalValue, goalUnit, trackingMode, color, reason }): Promise<AiToolResult> => {
         const progress = (context.progresses ?? []).find((p) => p.id === progressId);
         if (!progress) {
           return { message: "Progress not found." };
         }
-        const patch: { name?: string; description?: string; goalValue?: number; goalUnit?: string; trackingMode?: "count" | "percentage" | "manual"; color?: string; targetDate?: string } = {};
+        const patch: { name?: string; description?: string; goalValue?: number; goalUnit?: string; trackingMode?: "count" | "percentage" | "manual"; color?: string } = {};
         if (name !== undefined) patch.name = name;
         if (description !== undefined) patch.description = description;
         if (goalValue !== undefined) {
@@ -2888,7 +2885,6 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         if (goalUnit !== undefined) patch.goalUnit = goalUnit;
         if (trackingMode !== undefined) patch.trackingMode = trackingMode;
         if (color !== undefined) patch.color = color;
-        if (targetDate !== undefined) patch.targetDate = targetDate || undefined;
         if (Object.keys(patch).length === 0) {
           return { message: "No changes specified." };
         }

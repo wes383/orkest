@@ -20,7 +20,6 @@ function progressUpdateToRow(updates: ProgressUpdate): Record<string, unknown> {
   if (updates.manualValue !== undefined) row.manual_value = updates.manualValue;
   if (updates.color !== undefined) row.color = updates.color;
   if (updates.status !== undefined) row.status = updates.status;
-  if (updates.targetDate !== undefined) row.target_date = updates.targetDate;
   if (updates.sortOrder !== undefined) row.sort_order = updates.sortOrder;
   return row;
 }
@@ -87,7 +86,6 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       manualValue: Number(row.manual_value),
       color: row.color ?? undefined,
       status: row.status,
-      targetDate: row.target_date ?? undefined,
       sortOrder: row.sort_order ?? undefined,
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
@@ -133,7 +131,6 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       manualValue: input.manualValue ?? 0,
       color: input.color,
       status: input.status ?? "active",
-      targetDate: input.targetDate,
       sortOrder: maxSort + 1,
       createdAt: now,
       updatedAt: now,
@@ -151,7 +148,6 @@ export const useProgressStore = create<ProgressStoreState>((set, get) => ({
       manual_value: progress.manualValue,
       color: progress.color ?? null,
       status: progress.status,
-      target_date: progress.targetDate ?? null,
       sort_order: progress.sortOrder,
       created_at: now.toISOString(),
       updated_at: now.toISOString(),

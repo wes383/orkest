@@ -239,7 +239,6 @@ export type AiProposedAction =
       goalUnit: string;
       trackingMode: "count" | "percentage" | "manual";
       color?: string;
-      targetDate?: string;
       reason?: string;
     }
   | {
@@ -255,7 +254,6 @@ export type AiProposedAction =
         goalUnit?: string;
         trackingMode?: "count" | "percentage" | "manual";
         color?: string;
-        targetDate?: string;
       };
       reason?: string;
     }
@@ -365,8 +363,6 @@ export type AiBatchPreviewItem = {
   progressColor?: string;
   /** For create_progress: optional description. */
   progressDescription?: string;
-  /** For create_progress: optional target date. */
-  progressTargetDate?: string;
   /** For update_progress: fields to patch. */
   progressPatch?: {
     name?: string;
@@ -375,7 +371,6 @@ export type AiBatchPreviewItem = {
     goalUnit?: string;
     trackingMode?: "count" | "percentage" | "manual";
     color?: string;
-    targetDate?: string;
   };
   /** For bind/unbind: item IDs. */
   progressItemIds?: string[];
@@ -800,7 +795,6 @@ export function convertProposedActionsToBatchPreview(actions: AiProposedAction[]
         progressTrackingMode: action.trackingMode,
         progressColor: action.color,
         progressDescription: action.description,
-        progressTargetDate: action.targetDate,
         reason: action.reason,
       });
     } else if (action.type === "update_progress") {

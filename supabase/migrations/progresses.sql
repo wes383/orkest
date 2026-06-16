@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS progresses (
   manual_value    numeric NOT NULL DEFAULT 0 CHECK (manual_value >= 0),
   color           text,
   status          text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'archived')),
-  target_date     date,
   sort_order      integer,
-  ai_context      jsonb,
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now()
 );

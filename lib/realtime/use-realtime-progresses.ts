@@ -51,7 +51,6 @@ export function useRealtimeProgresses(userId: string | undefined) {
             manual_value: number;
             color: string | null;
             status: "active" | "completed" | "archived";
-            target_date: string | null;
             sort_order: number | null;
             created_at: string;
             updated_at: string;
@@ -68,7 +67,6 @@ export function useRealtimeProgresses(userId: string | undefined) {
             manualValue: Number(row.manual_value),
             color: row.color ?? undefined,
             status: row.status,
-            targetDate: row.target_date ?? undefined,
             sortOrder: row.sort_order ?? undefined,
             createdAt: new Date(row.created_at),
             updatedAt: new Date(row.updated_at),

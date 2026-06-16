@@ -180,11 +180,6 @@ export function BatchPreviewItemRenderer({
                 Color
               </span>
             ) : null}
-            {item.progressTargetDate ? (
-              <span className="rounded-full border border-black/8 bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#5f5a63] dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300">
-                Target: {item.progressTargetDate}
-              </span>
-            ) : null}
           </div>
         </div>
       ) : null}
@@ -214,11 +209,6 @@ export function BatchPreviewItemRenderer({
               {item.progressPatch.color && (
                 <p className="flex items-center gap-1.5 text-sm text-[#5f5a63] dark:text-zinc-400">
                   Color: <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: item.progressPatch.color }} />
-                </p>
-              )}
-              {item.progressPatch.targetDate !== undefined && (
-                <p className="text-sm text-[#5f5a63] dark:text-zinc-400">
-                  Target: {item.progressPatch.targetDate || "cleared"}
                 </p>
               )}
             </div>

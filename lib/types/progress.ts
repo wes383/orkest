@@ -15,7 +15,6 @@ export interface Progress {
   manualValue: number;
   color?: string;
   status: ProgressStatus;
-  targetDate?: string;
   sortOrder?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -38,7 +37,6 @@ export interface ProgressInput {
   manualValue?: number;
   color?: string;
   status?: ProgressStatus;
-  targetDate?: string;
 }
 
 export interface ProgressUpdate {
@@ -50,6 +48,5 @@ export interface ProgressUpdate {
   manualValue?: number;
   color?: string;
   status?: ProgressStatus;
-  targetDate?: string;
   sortOrder?: number;
 }
