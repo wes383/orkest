@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Sun, ClipboardList, Target, TrendingUp, User, Clock,
   CheckCircle, Circle, Calendar, List, LayoutGrid, Table2,
@@ -59,57 +59,50 @@ function Logo({ dark }: { dark: boolean }) {
 }
 
 /* ─── TogglePanelIcon (matches sidebar-layout.tsx) ─── */
-function ToggleIcon() {
+function ToggleIcon({ isCollapsed }: { isCollapsed?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5" style={{ shapeRendering: "geometricPrecision" }}>
       <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="2" />
-      <path d="M9 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d={isCollapsed ? "M9 7V17" : "M9 3V21"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
 
 /* ─── Sidebar ─── */
-function Sidebar({ active, onChange, dark }: { active: PageId; onChange: (p: PageId) => void; dark: boolean }) {
+function Sidebar({ active, onChange, dark, isCollapsed, onToggleCollapse }: { active: PageId; onChange: (p: PageId) => void; dark: boolean; isCollapsed: boolean; onToggleCollapse: () => void }) {
   const realActive = active === "digest" ? "timeline" : active;
+
   return (
-    <div className="flex h-full w-64 shrink-0 flex-col bg-sidebar px-5 pt-6 sm:pt-8">
-      {/* Header: logo + toggle */}
-      <div className="mb-6 flex items-center justify-between">
-        <button type="button" className="cursor-pointer rounded-md p-1 transition-colors hover:bg-black/[0.035] dark:hover:bg-white/8 ml-2">
-          <Logo dark={dark} />
-        </button>
-        <button type="button" className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl text-black transition-colors hover:bg-black/[0.035] dark:text-[#f5f5f5] dark:hover:bg-white/8">
-          <ToggleIcon />
-        </button>
-      </div>
-      {/* Nav */}
-      <nav className="flex flex-col gap-2">
-        {NAV.map(item => {
-          const isActive = realActive === item.id;
-          return (
-            <button key={item.id} type="button" onClick={() => onChange(item.id)}
-              className={cn(
-                "flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-[15px] leading-none font-medium transition-colors",
-                isActive
-                  ? "bg-black/[0.035] text-black dark:bg-white/10 dark:text-[#f5f5f5]"
-                  : "text-black hover:bg-black/[0.035] hover:text-black dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
-              )}>
-              <item.icon className="h-5 w-5 shrink-0" strokeWidth={2} style={{ shapeRendering: "geometricPrecision" }} />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-      {/* Bottom */}
-      <div className="mt-auto shrink-0 pt-4">
-        <div className="px-4">
-          <div className="flex items-center gap-1.5 text-[11px] text-[#8c8691] dark:text-[#737373]">
-            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            <span>Synced</span>
-          </div>
+    <>
+      {/* Desktop sidebar — always visible */}
+      <div className="hidden sm:flex h-full w-64 shrink-0 flex-col bg-sidebar px-5 pt-6 sm:pt-8">
+        <div className="mb-6 flex items-center justify-between">
+          <button type="button" className="cursor-pointer rounded-md p-1 transition-colors hover:bg-black/[0.035] dark:hover:bg-white/8 ml-2">
+            <Logo dark={dark} />
+          </button>
+          <button type="button" className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl text-black transition-colors hover:bg-black/[0.035] dark:text-[#f5f5f5] dark:hover:bg-white/8">
+            <ToggleIcon />
+          </button>
         </div>
-        <div className="relative mt-4">
-          <button type="button" className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 transition-colors hover:bg-black/[0.035] dark:hover:bg-white/8">
+        <nav className="flex flex-col gap-2">
+          {NAV.map(item => {
+            const isActive = realActive === item.id;
+            return (
+              <button key={item.id} type="button" onClick={() => onChange(item.id)}
+                className={cn(
+                  "flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-[15px] leading-none font-medium transition-colors",
+                  isActive
+                    ? "bg-black/[0.035] text-black dark:bg-white/10 dark:text-[#f5f5f5]"
+                    : "text-black hover:bg-black/[0.035] hover:text-black dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+                )}>
+                <item.icon className="h-5 w-5 shrink-0" strokeWidth={2} style={{ shapeRendering: "geometricPrecision" }} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <div className="mt-auto shrink-0 pt-4">
+          <button type="button" className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 dark:bg-white/10">
               <User className="h-3.5 w-3.5 text-[#7d7880] dark:text-[#8a8a8a]" />
             </div>
@@ -117,7 +110,46 @@ function Sidebar({ active, onChange, dark }: { active: PageId; onChange: (p: Pag
           </button>
         </div>
       </div>
-    </div>
+
+      {/* Mobile sidebar — absolute within container, slides in/out */}
+      <aside className={`absolute sm:hidden inset-y-0 left-0 z-40 w-72 overflow-hidden bg-sidebar shadow-xl transition-transform duration-200 ease-in-out ${isCollapsed ? "-translate-x-full" : "translate-x-0"}`}>
+        <div className={`absolute inset-y-0 left-0 w-72 px-5 pt-6 flex flex-col transition-[opacity] duration-200 ${isCollapsed ? "pointer-events-none opacity-0" : "opacity-100"}`}>
+          <div className="mb-6 flex items-center justify-between">
+            <button type="button" className="cursor-pointer rounded-md p-1 transition-colors hover:bg-black/[0.035] dark:hover:bg-white/8 ml-2">
+              <Logo dark={dark} />
+            </button>
+            <button type="button" onClick={onToggleCollapse} className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl text-black transition-colors hover:bg-black/[0.035] dark:text-[#f5f5f5] dark:hover:bg-white/8">
+              <ToggleIcon isCollapsed={isCollapsed} />
+            </button>
+          </div>
+          <nav className="flex flex-col gap-2">
+            {NAV.map(item => {
+              const isActive = realActive === item.id;
+              return (
+                <button key={item.id} type="button" onClick={() => { onChange(item.id); onToggleCollapse(); }}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-[15px] leading-none font-medium transition-colors",
+                    isActive
+                      ? "bg-black/[0.035] text-black dark:bg-white/10 dark:text-[#f5f5f5]"
+                      : "text-black hover:bg-black/[0.035] hover:text-black dark:text-[#d4d4d4] dark:hover:bg-white/8 dark:hover:text-[#f5f5f5]"
+                  )}>
+                  <item.icon className="h-5 w-5 shrink-0" strokeWidth={2} style={{ shapeRendering: "geometricPrecision" }} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+          <div className="mt-auto shrink-0 pt-4">
+            <button type="button" className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 dark:bg-white/10">
+                <User className="h-3.5 w-3.5 text-[#7d7880] dark:text-[#8a8a8a]" />
+              </div>
+              <span className="truncate text-[13px] font-medium text-black dark:text-[#f5f5f5]">demo_user</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
 
@@ -253,12 +285,12 @@ type Task = {
   tags: string[]; recurring: boolean; desc?: string;
 };
 const TASKS: Task[] = [
-  { id: 1, title: "Team standup meeting", time: "10:00 AM - 10:30 AM", day: "Today", p: "high", done: false, scheduled: true, project: "Engineering", projColor: "#3b82f6", tags: ["meeting"], recurring: true },
-  { id: 2, title: "Review PR #142", time: "11:00 AM - 11:30 AM", day: "Today", p: "medium", done: false, scheduled: true, project: "Engineering", projColor: "#3b82f6", tags: ["code-review"], recurring: false },
+  { id: 1, title: "Team standup meeting", time: "10:00 AM - 10:30 AM", day: "Today", p: "high", done: false, scheduled: true, project: null, projColor: "#a3a3a3", tags: ["meeting"], recurring: true },
+  { id: 2, title: "Review PR #142", time: "11:00 AM - 11:30 AM", day: "Today", p: "medium", done: false, scheduled: true, project: "Engineering", projColor: "#3b82f6", tags: [], recurring: false },
   { id: 3, title: "Lunch break", time: "12:00 PM - 1:00 PM", day: "Today", p: "low", done: false, scheduled: true, project: null, projColor: "#a3a3a3", tags: [], recurring: false },
   { id: 4, title: "Write API documentation", time: "2:00 PM - 3:00 PM", day: "Today", p: "medium", done: false, scheduled: true, project: "Design", projColor: "#8b5cf6", tags: ["docs"], recurring: false, desc: "Document the new REST API endpoints for v2" },
-  { id: 5, title: "1:1 with Sarah", time: "3:30 PM - 4:00 PM", day: "Today", p: "high", done: false, scheduled: true, project: "Engineering", projColor: "#3b82f6", tags: ["meeting"], recurring: true },
-  { id: 6, title: "Submit quarterly report", time: "", day: "Unscheduled", p: "urgent", done: false, scheduled: false, project: "Operations", projColor: "#f97316", tags: ["report"], recurring: false },
+  { id: 5, title: "1:1 with Sarah", time: "3:30 PM - 4:00 PM", day: "Today", p: "high", done: false, scheduled: true, project: null, projColor: "#a3a3a3", tags: ["meeting"], recurring: true },
+  { id: 6, title: "Submit quarterly report", time: "", day: "Unscheduled", p: "urgent", done: false, scheduled: false, project: null, projColor: "#a3a3a3", tags: ["report"], recurring: false },
   { id: 7, title: "Update project roadmap", time: "", day: "Unscheduled", p: "medium", done: false, scheduled: false, project: "Marketing", projColor: "#14b8a6", tags: [], recurring: false },
   { id: 8, title: "Fix login bug", time: "", day: "Unscheduled", p: "high", done: true, scheduled: false, project: "Engineering", projColor: "#3b82f6", tags: ["bug"], recurring: false },
 ];
@@ -382,7 +414,7 @@ function AllListView() {
   const unscheduled = TASKS.filter(t => !t.scheduled);
   return (
     <div className="space-y-8">
-      <div className="grid gap-12 grid-cols-[minmax(0,1fr)]">
+      <div className="grid gap-12 grid-cols-1 lg:grid-cols-2">
         {/* Scheduled */}
         <div>
           <div className="mb-4 flex items-center justify-between">
@@ -459,14 +491,6 @@ function AllTimelineView() {
           </section>
         </div>
       </section>
-      {/* Unscheduled hint */}
-      <div className="border-t border-black/6 pt-10 text-center dark:border-white/10">
-        <p className="text-sm text-[#9f99a3] dark:text-[#737373]">
-          Unscheduled tasks are not shown in the timeline.{" "}
-          <span className="cursor-pointer font-medium text-[#6f6a72] underline decoration-black/10 underline-offset-4 hover:text-[#2b2a30] dark:text-[#e5e5e5] dark:decoration-white/20">Switch to List</span>{" "}
-          to see them.
-        </p>
-      </div>
     </div>
   );
 }
@@ -619,7 +643,7 @@ function AllTableView() {
                 <td className="px-3 py-2">
                   <p className={cn("text-sm font-medium text-[#25242a] dark:text-[#f5f5f5]", t.done && "line-through")}>{t.title}</p>
                 </td>
-                <td className="px-3 py-2 text-xs text-[#7d7880] tabular-nums dark:text-[#a3a3a3]">{t.time || "—"}</td>
+                <td className="px-3 py-2 text-xs text-[#7d7880] tabular-nums dark:text-[#a3a3a3] whitespace-nowrap">{t.time || "—"}</td>
                 <td className="px-3 py-2">
                   {t.project && <span className="inline-flex items-center gap-1.5 text-xs"><span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.projColor }} />{t.project}</span>}
                 </td>
@@ -645,7 +669,19 @@ function AllTableView() {
 function AllPageView({ dark }: { dark: boolean }) {
   const [view, setView] = useState<AllView>("list");
   const [dropOpen, setDropOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
   const current = VIEW_OPTIONS.find(v => v.key === view)!;
+
+  useEffect(() => {
+    if (!dropOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) {
+        setDropOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropOpen]);
 
   return (
     <div className="px-4 py-8 sm:px-14 lg:py-12 lg:pr-14 lg:pl-14">
@@ -654,7 +690,7 @@ function AllPageView({ dark }: { dark: boolean }) {
         <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between lg:gap-3 px-2 lg:px-3">
           <div className="flex items-center gap-2">
             {/* View dropdown */}
-            <div className="relative">
+            <div className="relative" ref={dropRef}>
               <button type="button" onClick={() => setDropOpen(o => !o)} className="flex h-9 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-black/8 dark:border-white/10 bg-[#f4f0ec]/[0.5] dark:bg-[#2a2a2a] px-4 text-xs font-medium tracking-wide text-[#525059] dark:text-[#d4d4d4] transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]">
                 <current.icon className="h-3.5 w-3.5" />
                 {current.label}
@@ -730,7 +766,7 @@ function FocusPageView({ dark }: { dark: boolean }) {
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
         <div className="flex flex-1 w-full flex-col items-center gap-8 lg:flex-row lg:items-start lg:justify-center lg:gap-16">
           {/* Left: timer */}
-          <div className="flex flex-col items-center gap-6 min-w-[480px] lg:min-w-[520px]">
+          <div className="flex flex-col items-center gap-6 w-full max-w-xs sm:max-w-none sm:min-w-[480px] lg:min-w-[520px]">
             {/* TimerModeSelector */}
             <PillToggle options={["Countdown", "Stopwatch"]} active={0} onChange={() => {}} dark={dark} />
             {/* FocusTimer */}
@@ -775,6 +811,100 @@ function FocusPageView({ dark }: { dark: boolean }) {
             </div>
           </div>
         </div>
+        {/* Bottom: Statistics */}
+        <FocusPreviewStats />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Focus Preview: Static Statistics ─── */
+function FocusPreviewStats() {
+  const stats = [
+    { label: "Total Focus", value: "2h 15m" },
+    { label: "Sessions", value: "3/4" },
+    { label: "Average", value: "34m" },
+    { label: "Efficiency", value: "85%" },
+    { label: "Longest", value: "52m" },
+    { label: "Streak", value: "5d" },
+  ];
+  const hourlyData = [0, 15, 0, 0, 0, 30, 45, 20, 0, 10, 0, 0, 25, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const maxMinutes = Math.max(...hourlyData, 1);
+  const ticks = [0, 25, 50, 75, 100];
+
+  return (
+    <div className="rounded-2xl border border-black/8 dark:border-white/10 bg-white/75 dark:bg-white/[0.06] overflow-hidden">
+      <div className="px-4 pt-3 pb-4 space-y-4">
+        <p className="text-xs font-semibold tracking-[0.16em] text-[#8c8691] dark:text-[#a09ba5] uppercase">
+          Statistics
+        </p>
+
+        <div className="relative flex gap-1 p-1 bg-black/[0.04] dark:bg-white/[0.06] rounded-xl">
+          <div
+            className="absolute top-1 bottom-1 rounded-lg bg-white shadow-sm dark:bg-[#3a3840]"
+            style={{ left: "calc(4px + 0 * ((100% - 24px) / 5 + 4px))", width: "calc((100% - 24px) / 5)" }}
+          />
+          {["Today", "Week", "Month", "Year", "All"].map((label, i) => (
+            <span
+              key={label}
+              className={`relative z-10 flex flex-1 items-center justify-center py-1.5 text-xs font-medium ${
+                i === 0 ? "text-[#25242a] dark:text-[#e8e6ea]" : "text-[#7d7880] dark:text-[#a9a4ae]"
+              }`}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+
+        <div>
+          <p className="text-[11px] font-semibold tracking-[0.12em] text-[#8c8691] dark:text-[#a09ba5] uppercase mb-2">Overview</p>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-x-2 gap-y-4 md:gap-y-2">
+            {stats.map(({ label, value }) => (
+              <div key={label} className="text-center">
+                <p className="text-[11px] font-semibold tracking-[0.12em] text-[#8c8691] dark:text-[#a09ba5] uppercase">{label}</p>
+                <p className="mt-1 text-lg font-semibold text-[#25242a] dark:text-[#e8e6ea] tabular-nums">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-black/6 dark:border-white/10 pt-3">
+          <p className="text-[11px] font-semibold tracking-[0.12em] text-[#8c8691] dark:text-[#a09ba5] uppercase mb-2">Hourly Distribution</p>
+          <div className="space-y-1">
+            <div className="relative" style={{ height: "80px" }}>
+              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                {ticks.map((tick) => (
+                  <div key={tick} className="w-full border-t border-black/6 dark:border-white/10" />
+                ))}
+              </div>
+              <div className="relative flex items-end gap-px h-full">
+                {hourlyData.map((minutes, hour) => {
+                  const heightPercent = maxMinutes > 0 ? (minutes / maxMinutes) * 100 : 0;
+                  return (
+                    <div key={hour} className="flex-1 flex flex-col items-center justify-end h-full">
+                      {minutes > 0 && (
+                        <span className="text-[9px] text-[#7d7880] dark:text-[#a9a4ae] tabular-nums mb-0.5">{minutes}</span>
+                      )}
+                      <div
+                        className="w-full rounded-t-sm bg-[#25242a]/80 dark:bg-[#e8e6ea]/70"
+                        style={{ height: `${Math.max(heightPercent, minutes > 0 ? 8 : 0)}%`, minHeight: minutes > 0 ? "2px" : "0" }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex gap-px">
+              {hourlyData.map((_, hour) => (
+                <div key={hour} className="flex-1 text-center">
+                  <span className="text-[8px] text-[#8c8691] dark:text-[#a09ba5] tabular-nums leading-none">
+                    {hour % 3 === 0 ? (hour === 0 ? "12a" : hour < 12 ? `${hour}a` : hour === 12 ? "12p" : `${hour - 12}p`) : ""}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -782,12 +912,12 @@ function FocusPageView({ dark }: { dark: boolean }) {
 
 /* ─── Progress Page ─── */
 const PROG = [
-  { name: "Q2 OKR — Ship v2.0", desc: "Launch the new platform with core features", pct: 72, total: "18 / 25 tasks", color: "#f97316", mode: "Count" },
-  { name: "Read 12 books", desc: "Personal reading goal for the year", pct: 42, total: "5 / 12 books", color: "#3b82f6", mode: "Manual" },
-  { name: "Weekly exercise goal", desc: "5 sessions per week", pct: 80, total: "4 / 5 sessions", color: "#10b981", mode: "Count" },
+  { id: "1", name: "Q2 OKR — Ship v2.0", desc: "Launch the new platform with core features", pct: 72, total: "18 / 25 tasks", color: "#f97316", mode: "Count", completed: 18, boundTaskCount: 25 },
+  { id: "2", name: "Read 12 books", desc: "Personal reading goal for the year", pct: 42, total: "5 / 12 books", color: "#3b82f6", mode: "Manual", completed: 5, boundTaskCount: 12 },
+  { id: "3", name: "Weekly exercise goal", desc: "5 sessions per week", pct: 80, total: "4 / 5 sessions", color: "#10b981", mode: "Count", completed: 4, boundTaskCount: 5 },
 ];
 
-function ProgressPageView() {
+function ProgressPageView({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <div className="px-4 py-8 sm:px-14 lg:px-14 lg:py-12">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
@@ -806,8 +936,8 @@ function ProgressPageView() {
         {/* Progress cards */}
         <ul className="flex flex-col gap-3 px-2 lg:px-3">
           {PROG.map(p => (
-            <li key={p.name}>
-              <div className="group relative flex cursor-pointer items-stretch gap-4 overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-5 text-left shadow-sm transition-all hover:border-black/15 hover:bg-white/90 sm:gap-6 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/20 dark:hover:bg-white/[0.06]">
+            <li key={p.id}>
+              <div onClick={() => onOpen(p.id)} className="group relative flex cursor-pointer items-stretch gap-4 overflow-hidden rounded-2xl border border-black/8 bg-white/70 p-5 text-left shadow-sm transition-all hover:border-black/15 hover:bg-white/90 sm:gap-6 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-white/20 dark:hover:bg-white/[0.06]">
                 <div aria-hidden="true" className="self-center h-10 w-1 shrink-0 rounded-full sm:h-12" style={{ backgroundColor: p.color }} />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-col gap-1">
@@ -843,19 +973,133 @@ function ProgressPageView() {
   );
 }
 
+/* ─── Progress Detail Preview ─── */
+const BOUND_TASKS = [
+  { id: "t1", title: "Design new landing page", priority: "high" as const, done: false },
+  { id: "t2", title: "Implement auth flow", priority: "urgent" as const, done: true },
+  { id: "t3", title: "Write API documentation", priority: "medium" as const, done: false },
+  { id: "t4", title: "Set up CI/CD pipeline", priority: "medium" as const, done: true },
+  { id: "t5", title: "User testing sessions", priority: "high" as const, done: false },
+];
+
+const PRIO_DETAIL: Record<string, { color: string; label: string }> = {
+  urgent: { color: "#dc2626", label: "Urgent" },
+  high: { color: "#ea580c", label: "High" },
+  medium: { color: "#2563eb", label: "Medium" },
+  low: { color: "#6b7280", label: "Low" },
+};
+
+function ProgressDetailPreview({ progressId, onBack }: { progressId: string; onBack: () => void }) {
+  const prog = PROG.find(p => p.id === progressId) ?? PROG[0];
+  const [showCompleted, setShowCompleted] = useState(true);
+  const visibleTasks = showCompleted ? BOUND_TASKS : BOUND_TASKS.filter(t => !t.done);
+
+  return (
+    <div className="px-4 py-8 sm:px-14 lg:px-14 lg:py-12">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+        {/* Back button */}
+        <button type="button" onClick={onBack} className="flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-[#7d7880] transition-colors hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:text-[#f5f5f5]">
+          <ChevronLeft className="h-3.5 w-3.5" />
+          <span>Back to Progress</span>
+        </button>
+
+        {/* Overview card */}
+        <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+          <div className="space-y-5 px-6 py-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold tracking-[0.2em] text-[#9f99a3] uppercase">OVERVIEW</p>
+                <h1 className="mt-1 truncate font-display text-2xl font-semibold text-[#25242a] dark:text-[#f5f5f5]">{prog.name}</h1>
+              </div>
+              <div className="flex items-center gap-1">
+                <button type="button" className="flex h-7 cursor-pointer items-center rounded-full px-2 text-xs font-medium text-[#7d7880] transition-colors hover:bg-black/[0.04] dark:text-[#a3a3a3] dark:hover:bg-white/[0.06]">Edit</button>
+                <button type="button" className="flex h-7 cursor-pointer items-center gap-1.5 rounded-full px-2 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/15">
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete
+                </button>
+              </div>
+            </div>
+            {prog.desc && <p className="text-sm text-[#7d7880] dark:text-[#a3a3a3]">{prog.desc}</p>}
+            <div className="space-y-1.5">
+              <div className="relative w-full overflow-visible rounded-full bg-black/5 dark:bg-white/10 h-2">
+                <div className="h-full rounded-full" style={{ width: `${prog.pct}%`, backgroundColor: prog.color }} />
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-[#9f99a3] dark:text-[#737373]">
+                <span>{prog.total}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bound Tasks section */}
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-display text-lg font-semibold text-[#25242a] dark:text-[#f5f5f5]">Bound Tasks</h2>
+            <div className="flex items-center gap-1.5">
+              <button type="button" onClick={() => setShowCompleted(v => !v)}
+                className={`flex h-7 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition-colors ${showCompleted ? "border-black/8 bg-transparent text-[#7d7880] hover:bg-black/[0.04] dark:border-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/[0.06]" : "border-black/12 bg-white text-[#25242a] dark:border-white/12 dark:bg-[#2a2a2a] dark:text-[#f5f5f5]"}`}>
+                {showCompleted ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                <span>{showCompleted ? "Hide completed" : "Show completed"}</span>
+              </button>
+              <button type="button" className="flex h-7 cursor-pointer items-center gap-1.5 rounded-full border border-black/8 bg-transparent px-2.5 text-[11px] font-medium text-[#7d7880] transition-colors hover:bg-black/[0.04] dark:border-white/8 dark:text-[#a3a3a3] dark:hover:bg-white/[0.06]">
+                <Plus className="h-3 w-3" />
+                <span>Add Task</span>
+              </button>
+            </div>
+          </div>
+          <ul className="flex flex-col gap-1">
+            {visibleTasks.map(task => {
+              const prio = PRIO_DETAIL[task.priority] ?? PRIO_DETAIL.medium;
+              return (
+                <li key={task.id} className={`flex items-center gap-3 rounded-xl border border-black/6 bg-white/40 px-4 py-3 dark:border-white/8 dark:bg-white/[0.04] ${task.done ? "opacity-55" : ""}`}>
+                  <button type="button" className="shrink-0">
+                    {task.done
+                      ? <CheckCircle className="h-4 w-4 text-emerald-500" />
+                      : <Circle className="h-4 w-4 text-[#b0a9b2] dark:text-[#6a6570]" />}
+                  </button>
+                  <span className={`flex-1 text-sm font-medium ${task.done ? "line-through text-[#b0a9b2]" : "text-[#25242a] dark:text-[#f5f5f5]"}`}>{task.title}</span>
+                  <span className="inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-[0.05em] uppercase" style={{ borderColor: prio.color + "40", backgroundColor: prio.color + "15", color: prio.color }}>{prio.label}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Main Export ─── */
 export function InteractivePreview({ dark }: { dark: boolean }) {
   const [active, setActive] = useState<PageId>("digest");
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [progressDetailId, setProgressDetailId] = useState<string | null>(null);
   const bg = "bg-[#fcfbfa] dark:bg-[#101010]";
 
   return (
-    <div className={cn("flex h-[680px] w-full overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:border-white/[0.06] dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)]", bg)}>
-      <Sidebar active={active} onChange={setActive} dark={dark} />
+    <div className={cn("relative flex h-[680px] w-full overflow-hidden rounded-2xl border border-black/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.06)] dark:border-white/[0.06] dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)]", bg)}>
+      {/* Mobile backdrop overlay — within container */}
+      <div
+        className={`absolute inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity duration-200 sm:hidden ${isCollapsed ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"}`}
+        onClick={() => setIsCollapsed(true)}
+      />
+      {/* Mobile top header bar with toggle — within container */}
+      <div className="absolute inset-x-0 top-0 z-30 h-16 flex items-end pb-2 px-3 sm:hidden">
+        <div className={`absolute inset-y-0 left-0 bg-sidebar transition-[width] duration-200 ease-in-out ${isCollapsed ? "w-0" : "w-72"}`} />
+        <div className={`absolute inset-y-0 right-0 left-0 bg-linear-to-b from-[#fcfbfa] via-[#fcfbfa]/72 to-[#fcfbfa]/0 dark:from-[#101010] dark:via-[#101010]/72 dark:to-[#101010]/0 transition-opacity duration-200 ease-in-out ${isCollapsed ? "opacity-100" : "opacity-0 pointer-events-none"}`} />
+        <button type="button" onClick={() => setIsCollapsed(c => !c)}
+          className="relative z-40 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl text-black transition-colors hover:bg-black/[0.035] dark:text-[#f5f5f5] dark:hover:bg-white/8">
+          <ToggleIcon isCollapsed={isCollapsed} />
+        </button>
+      </div>
+      <Sidebar active={active} onChange={(p) => { setActive(p); setProgressDetailId(null); }} dark={dark} isCollapsed={isCollapsed} onToggleCollapse={() => setIsCollapsed(c => !c)} />
       <div className={cn("flex-1 overflow-y-auto", bg)}>
+        <div className="sm:hidden h-16" />
         {(active === "timeline" || active === "digest") && <TodayPage dark={dark} />}
         {active === "all" && <AllPageView dark={dark} />}
         {active === "focus" && <FocusPageView dark={dark} />}
-        {active === "progress" && <ProgressPageView />}
+        {active === "progress" && !progressDetailId && <ProgressPageView onOpen={setProgressDetailId} />}
+        {active === "progress" && progressDetailId && <ProgressDetailPreview progressId={progressDetailId} onBack={() => setProgressDetailId(null)} />}
       </div>
     </div>
   );

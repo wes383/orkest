@@ -100,10 +100,10 @@ function Header() {
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center px-4 sm:px-6">
         <Link
           href={addLocaleToPathname("/", locale)}
-          className="flex shrink-0 items-center gap-2.5 text-[#25242a] dark:text-[#f5f5f5]"
+          className="flex shrink-0 flex-1 items-center gap-2.5 text-[#25242a] dark:text-[#f5f5f5]"
         >
           <Logo className="h-7 w-7" />
           <span className="font-display text-lg font-semibold tracking-tight">
@@ -111,7 +111,7 @@ function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
           <a
             href="#features"
             className="text-sm font-medium text-[#6d6770] transition-colors hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:text-[#f5f5f5]"
@@ -138,7 +138,7 @@ function Header() {
           </Link>
         </nav>
 
-        <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3">
+        <div className="flex shrink-0 flex-1 items-center justify-end gap-2 sm:gap-3">
           {mounted ? (
             <Button
               variant="ghost"

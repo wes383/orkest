@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
-import { Plus, Trash2, Eye, EyeOff, ArrowUpDown, Calendar, ChevronDown, GripVertical, Flag } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, ArrowUpDown, Calendar, ChevronDown, ChevronLeft, GripVertical, Flag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -174,6 +174,14 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
+      <button
+        type="button"
+        onClick={() => router.push(addLocaleToPathname("/progress", locale))}
+        className="mb-4 flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-[#7d7880] transition-colors hover:text-[#25242a] dark:text-[#a3a3a3] dark:hover:text-[#f5f5f5]"
+      >
+        <ChevronLeft className="h-3.5 w-3.5" />
+        <span>{t("progress.detail.backToProgress")}</span>
+      </button>
       <div className="overflow-hidden rounded-2xl border border-black/8 bg-white/70 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
         <div className="space-y-5 px-6 py-5">
           <div className="flex items-start justify-between gap-3">
