@@ -448,9 +448,13 @@ export function CommandPalette({ open, onClose, onOpenComposer, onNavigate, onNa
             placeholder={t("commandPalette.placeholder")}
             className="flex-1 bg-transparent text-sm text-[#25242a] placeholder:text-[#9b95a0] focus:outline-none dark:text-[#f5f5f5] dark:placeholder:text-[#7a7a7a]"
           />
-          <kbd className="hidden rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 text-[10px] font-medium text-[#9b95a0] sm:inline dark:border-white/10 dark:bg-white/[0.05]">
+          <button
+            type="button"
+            onClick={onClose}
+            className="hidden cursor-pointer rounded border border-black/10 bg-black/[0.03] px-1.5 py-0.5 font-mono text-[10px] font-medium text-[#9b95a0] transition-colors hover:bg-black/[0.08] sm:inline dark:border-white/10 dark:bg-white/[0.05] dark:hover:bg-white/[0.1]"
+          >
             ESC
-          </kbd>
+          </button>
         </div>
 
         {/* Results */}
