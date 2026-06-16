@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { useI18n } from "@/lib/i18n";
 import { withAlpha } from "@/lib/projects/color-palette";
@@ -19,7 +19,7 @@ export function ProgressBar({ progress, compact = false, onValueChange }: Progre
   const pct = Math.min(100, Math.max(0, progress.percent));
   const isDraggable = Boolean(onValueChange) && progress.trackingMode === "manual";
   const trackRef = useRef<HTMLDivElement>(null);
-  const draggingRef = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const computeValueFromX = useCallback(
     (clientX: number) => {
@@ -38,7 +38,7 @@ export function ProgressBar({ progress, compact = false, onValueChange }: Progre
       if (!onValueChange || !isDraggable) return;
       e.preventDefault();
       e.stopPropagation();
-      draggingRef.current = true;
+      setIsDragging(true);
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       onValueChange(computeValueFromX(e.clientX));
     },
@@ -47,21 +47,21 @@ export function ProgressBar({ progress, compact = false, onValueChange }: Progre
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!draggingRef.current || !onValueChange) return;
+      if (!isDragging || !onValueChange) return;
       e.preventDefault();
       e.stopPropagation();
       onValueChange(computeValueFromX(e.clientX));
     },
-    [onValueChange, computeValueFromX],
+    [isDragging, onValueChange, computeValueFromX],
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!draggingRef.current) return;
-      draggingRef.current = false;
+      if (!isDragging) return;
+      setIsDragging(false);
       (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     },
-    [],
+    [isDragging],
   );
 
   const dotSize = compact ? 12 : 16;
@@ -76,7 +76,7 @@ export function ProgressBar({ progress, compact = false, onValueChange }: Progre
         }`}
       >
         <div
-          className={`h-full rounded-full ${draggingRef.current ? "" : "transition-all"}`}
+          className={`h-full rounded-full ${isDragging ? "" : "transition-all"}`}
           style={{
             width: `${pct}%`,
             backgroundColor: withAlpha(color, 0.95),
@@ -99,7 +99,7 @@ export function ProgressBar({ progress, compact = false, onValueChange }: Progre
               width: `${dotSize}px`,
               height: `${dotSize}px`,
             }}
-            data-dragging={draggingRef.current}
+            data-dragging={isDragging}
           />
         ) : null}
       </div>
