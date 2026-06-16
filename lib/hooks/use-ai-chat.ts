@@ -128,6 +128,7 @@ export function useAiChat(config: UseAiChatConfig) {
           recurrenceEndDate: item.recurrenceEndDate,
           recurrenceCount: item.recurrenceCount,
           recurrenceBysetpos: item.recurrenceBysetpos,
+          rrule: item.rrule,
           exdates: item.exdates ?? [],
           completedOccurrences: item.completedOccurrences ?? [],
           reopenedOccurrences: item.reopenedOccurrences ?? [],

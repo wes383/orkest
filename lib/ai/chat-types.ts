@@ -67,6 +67,7 @@ export type AiChatItemContext = {
   recurrenceEndDate?: string;
   recurrenceCount?: number;
   recurrenceBysetpos?: number;
+  rrule?: string;
   exdates?: string[];
   completedOccurrences?: string[];
   reopenedOccurrences?: string[];

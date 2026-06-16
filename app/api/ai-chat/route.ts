@@ -1,5 +1,6 @@
 import { convertToModelMessages, generateText, stepCountIs, streamText, tool, type UIMessage } from "ai";
 import { z } from "zod";
+import { rrulestr } from "rrule";
 
 import { getAiLanguageModel, getModelList, isQuotaExhaustedError } from "@/lib/ai/provider";
 import {
@@ -148,6 +149,7 @@ const itemContextSchema = z.object({
   recurrenceEndDate: z.string().optional(),
   recurrenceCount: z.number().optional(),
   recurrenceBysetpos: z.number().optional(),
+  rrule: z.string().optional(),
   exdates: z.array(z.string()).optional(),
   completedOccurrences: z.array(z.string()).optional(),
   reopenedOccurrences: z.array(z.string()).optional(),
@@ -3035,16 +3037,37 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
         for (const item of boundItems) {
           if (item.recurrenceType && item.recurrenceType !== "none") {
             const completedOccs = item.completedOccurrences?.length ?? 0;
-            const reopenedOccs = item.reopenedOccurrences?.length ?? 0;
-            const exdateCount = item.exdates?.length ?? 0;
-            // For recurring with end condition, use total planned instances minus excluded
-            if (item.recurrenceEndType && item.recurrenceEndType !== "never") {
-              const totalFromRule = item.recurrenceCount ?? 0;
-              const netFromRule = totalFromRule - exdateCount;
-              // Use rule-based count when available; fallback to visible count if rule data missing
-              boundCount += netFromRule > 0 ? netFromRule : (completedOccs + reopenedOccs + 1);
+
+            if (item.recurrenceEndType && item.recurrenceEndType !== "never" && item.rrule) {
+              // Finite recurrence: parse rrule and count actual occurrences minus exdates
+              try {
+                const parsedRule = rrulestr(item.rrule);
+                const allOccurrences = parsedRule.all();
+                const exdates = item.exdates ?? [];
+                let excludedCount = 0;
+                if (exdates.length > 0) {
+                  const tz = item.timezone || "UTC";
+                  const exdateSet = new Set(exdates);
+                  for (const occ of allOccurrences) {
+                    const occKey = dayjs.tz(
+                      `${occ.getUTCFullYear()}-${String(occ.getUTCMonth() + 1).padStart(2, "0")}-${String(occ.getUTCDate()).padStart(2, "0")}T${String(occ.getUTCHours()).padStart(2, "0")}:${String(occ.getUTCMinutes()).padStart(2, "0")}:${String(occ.getUTCSeconds()).padStart(2, "0")}`,
+                      tz,
+                    ).toISOString();
+                    if (exdateSet.has(occKey)) excludedCount++;
+                  }
+                }
+                boundCount += allOccurrences.length - excludedCount;
+              } catch {
+                // Fallback to simplified logic if rrule parsing fails
+                const exdateCount = item.exdates?.length ?? 0;
+                const totalFromRule = item.recurrenceCount ?? 0;
+                const netFromRule = totalFromRule - exdateCount;
+                boundCount += netFromRule > 0 ? netFromRule : (completedOccs + 1);
+              }
             } else {
-              boundCount += completedOccs + reopenedOccs + 1; // completed + reopened + next pending
+              // Infinite recurrence: use current visible instances
+              const reopenedOccs = item.reopenedOccurrences?.length ?? 0;
+              boundCount += completedOccs + reopenedOccs + 1;
             }
             completedCount += completedOccs;
           } else {
