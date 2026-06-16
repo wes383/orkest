@@ -3028,18 +3028,42 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
             .map((l) => l.itemId),
         );
         const boundItems = context.items.filter((item) => boundItemIds.has(item.id));
-        const completedItems = boundItems.filter((item) => item.status === "completed");
-        const activeItems = boundItems.filter((item) => item.status !== "completed" && item.status !== "cancelled");
+
+        // Count bound tasks and completed tasks, expanding recurring items
+        let boundCount = 0;
+        let completedCount = 0;
+        for (const item of boundItems) {
+          if (item.recurrenceType && item.recurrenceType !== "none") {
+            const completedOccs = item.completedOccurrences?.length ?? 0;
+            const reopenedOccs = item.reopenedOccurrences?.length ?? 0;
+            // For recurring with end condition, use total planned instances
+            if (item.recurrenceEndType && item.recurrenceEndType !== "never") {
+              const totalFromRule = item.recurrenceCount ?? 0;
+              const exdateCount = item.exdates?.length ?? 0;
+              boundCount += Math.max(totalFromRule - exdateCount, completedOccs + reopenedOccs + 1);
+            } else {
+              boundCount += completedOccs + reopenedOccs + 1; // completed + reopened + next pending
+            }
+            completedCount += completedOccs;
+          } else {
+            boundCount += 1;
+            if (item.status === "completed") {
+              completedCount += 1;
+            }
+          }
+        }
+
+        const activeCount = boundCount - completedCount;
         const currentValue = progress.trackingMode === "manual"
           ? progress.manualValue
-          : completedItems.length;
+          : completedCount;
         const summary = [
           `Progress "${progress.name}":`,
           `Current: ${currentValue} / ${progress.goalValue} ${progress.goalUnit}.`,
           `Tracking mode: ${progress.trackingMode}.`,
           `Status: ${progress.status}.`,
           progress.trackingMode !== "manual"
-            ? `Bound tasks: ${boundItems.length} total, ${completedItems.length} completed, ${activeItems.length} active.`
+            ? `Bound tasks: ${boundCount} total, ${completedCount} completed, ${activeCount} active.`
             : null,
         ].filter(Boolean).join(" ");
         return {
@@ -3051,9 +3075,9 @@ function buildTools(context: AiChatContext, supabase: Awaited<ReturnType<typeof 
             goalUnit: progress.goalUnit,
             trackingMode: progress.trackingMode,
             status: progress.status,
-            boundTasks: boundItems.length,
-            completedTasks: completedItems.length,
-            activeTasks: activeItems.length,
+            boundTasks: boundCount,
+            completedTasks: completedCount,
+            activeTasks: activeCount,
           },
         };
       },

@@ -5,7 +5,11 @@ import {
   getCompletedRecurringDisplayItems,
   getReopenedRecurringDisplayItems,
   getNextPendingRecurringDisplayItem,
+  getRecurrenceAnchor,
+  serializeOccurrenceKey,
+  fromRRuleDate,
 } from "../all-page-utils";
+import { rrulestr } from "rrule";
 
 export type ProgressSortMode = "default" | "alpha" | "recent" | "completion";
 
@@ -30,6 +34,45 @@ const clampPercent = (raw: number): number => {
   if (raw > 100) return 100;
   return raw;
 };
+
+/**
+ * For a recurring item with a finite end condition (end date or count),
+ * compute the total number of instances the rrule will generate,
+ * minus any excluded dates (exdates).
+ * Returns null for infinite recurrences.
+ */
+function getFiniteRecurringTotal(item: ManualItemRecord): number | null {
+  if (item.recurrenceEndType === "never") return null;
+
+  const fullItem = toItemFromManualRecord(item);
+  const ruleString = fullItem.rrule;
+  if (!ruleString) return null;
+
+  const anchor = getRecurrenceAnchor(fullItem);
+  if (!anchor) return null;
+
+  try {
+    const tz = fullItem.time.timezone || undefined;
+    const parsedRule = rrulestr(ruleString);
+    const allOccurrences = parsedRule.all();
+    const totalFromRule = allOccurrences.length;
+
+    // Subtract exdates that match any of the generated occurrences
+    const exdates = item.exdates ?? [];
+    if (exdates.length === 0) return totalFromRule;
+
+    // Convert RRule dates to timezone-aware dates before comparing,
+    // so that the keys match the exdate keys stored in the database.
+    const exdateSet = new Set(exdates.map((d) => serializeOccurrenceKey(new Date(d))));
+    const excludedCount = allOccurrences.filter(
+      (occ) => exdateSet.has(serializeOccurrenceKey(fromRRuleDate(occ, tz))),
+    ).length;
+
+    return totalFromRule - excludedCount;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Compute stats for each progress tracker.
@@ -75,7 +118,14 @@ export function computeProgressStats(
       const reopenedItems = getReopenedRecurringDisplayItems(fullItem);
       const nextPending = getNextPendingRecurringDisplayItem(fullItem);
 
-      bucket.bound += completedItems.length + reopenedItems.length + (nextPending ? 1 : 0);
+      const finiteTotal = getFiniteRecurringTotal(item);
+      if (finiteTotal !== null) {
+        // Finite recurrence: use total planned instances as bound
+        bucket.bound += finiteTotal;
+      } else {
+        // Infinite recurrence: use current visible instances
+        bucket.bound += completedItems.length + reopenedItems.length + (nextPending ? 1 : 0);
+      }
       bucket.completed += completedItems.length;
     } else {
       bucket.bound += 1;

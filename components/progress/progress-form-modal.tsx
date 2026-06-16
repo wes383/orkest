@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Trash2, CircleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,9 +12,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ProgressColorPicker } from "./progress-color-picker";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { useProgressStore } from "@/lib/stores/use-progress-store";
+import { useAllPageStore } from "@/lib/stores/use-all-page-store";
+import { computeProgressStats } from "@/lib/progress/progress-stats";
 import { normalizeProjectColor, DEFAULT_PROJECT_COLOR } from "@/lib/projects/color-palette";
 import type { Progress, ProgressTrackingMode } from "@/lib/types/progress";
 
@@ -82,10 +85,13 @@ function ProgressFormModalBody({ mode, editing, onClose, onSubmitted }: Progress
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  const manualItems = useAllPageStore((s) => s.manualItems);
+
   const boundCount = useMemo(() => {
     if (!editing) return 0;
-    return links.filter((l) => l.progressId === editing.id).length;
-  }, [editing, links]);
+    const stats = computeProgressStats([editing], manualItems, links);
+    return stats[0]?.boundTaskCount ?? 0;
+  }, [editing, manualItems, links]);
 
   const isGoalAutoFromTasks = trackingMode === "count";
   const effectiveGoalValue = isGoalAutoFromTasks ? Math.max(1, boundCount) : trackingMode === "percentage" ? 100 : goalValue;
@@ -267,8 +273,11 @@ function ProgressFormModalBody({ mode, editing, onClose, onSubmitted }: Progress
                   readOnly
                   className="w-full rounded-lg border border-black/8 bg-white px-3 py-2 text-sm text-[#25242a] disabled:cursor-not-allowed disabled:bg-black/[0.03] disabled:text-[#9f99a3] dark:border-white/10 dark:bg-[#202020] dark:text-[#f5f5f5] dark:disabled:bg-white/[0.04] dark:disabled:text-[#737373]"
                 />
-                <p className="mt-1 text-[11px] text-[#9f99a3] dark:text-[#737373]">
+                <p className="mt-1 flex items-center gap-1 text-[11px] text-[#9f99a3] dark:text-[#737373]">
                   {t("progress.goalAutoFromTasks", { count: boundCount })}
+                  <Tooltip content={t("progress.goalAutoFromTasksTip")} side="top" maxWidth={240}>
+                    <CircleAlert className="h-3 w-3 shrink-0 cursor-help" />
+                  </Tooltip>
                 </p>
               </div>
               <div>

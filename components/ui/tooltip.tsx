@@ -9,9 +9,10 @@ interface TooltipProps {
   side?: "right" | "top" | "bottom" | "left";
   delay?: number;
   disabled?: boolean;
+  maxWidth?: number;
 }
 
-export function Tooltip({ children, content, side = "right", delay = 300, disabled = false }: TooltipProps) {
+export function Tooltip({ children, content, side = "right", delay = 300, disabled = false, maxWidth }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -106,7 +107,10 @@ export function Tooltip({ children, content, side = "right", delay = 300, disabl
               transform: getTransformStyle(),
             }}
           >
-            <div className="rounded-lg bg-black/90 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-white/90 dark:text-black whitespace-nowrap">
+            <div
+              className="rounded-lg bg-black/90 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-white/90 dark:text-black whitespace-nowrap"
+              style={maxWidth ? { maxWidth, whiteSpace: "normal" } : undefined}
+            >
               {content}
             </div>
           </div>,
