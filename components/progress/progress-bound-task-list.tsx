@@ -9,10 +9,11 @@ import { buildDisplayItems, toItemFromManualRecord } from "@/lib/all-page-utils"
 
 interface ProgressBoundTaskListProps {
   items: ManualItemRecord[];
+  showCompleted: boolean;
   onUnlink: (itemId: string) => void;
 }
 
-export function ProgressBoundTaskList({ items, onUnlink }: ProgressBoundTaskListProps) {
+export function ProgressBoundTaskList({ items, showCompleted, onUnlink }: ProgressBoundTaskListProps) {
   const { t } = useI18n();
 
   if (items.length === 0) {
@@ -23,9 +24,13 @@ export function ProgressBoundTaskList({ items, onUnlink }: ProgressBoundTaskList
     );
   }
 
-  const displayItems: DisplayItem[] = buildDisplayItems(
+  let displayItems: DisplayItem[] = buildDisplayItems(
     items.map((record) => toItemFromManualRecord(record)),
   ).filter((item) => !item.parentId);
+
+  if (!showCompleted) {
+    displayItems = displayItems.filter((item) => item.status !== "completed");
+  }
 
   return (
     <ul className="flex flex-col gap-1.5">
@@ -36,6 +41,7 @@ export function ProgressBoundTaskList({ items, onUnlink }: ProgressBoundTaskList
             disableDrag
             disableLeadingBleed
             compactActions
+            forceDateIfNotToday
             extraActions={
               <button
                 type="button"

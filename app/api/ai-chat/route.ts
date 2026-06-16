@@ -91,7 +91,7 @@ export const maxDuration = 60;
 
 const prioritySchema = z.enum(["low", "medium", "high", "urgent"]).optional();
 const reminderSchema = z.object({
-  minutesBefore: z.number().min(1),
+  minutesBefore: z.number().min(0),
   method: z.enum(["push", "email"]).default("push"),
   triggerTime: z.string().optional(),
   dayOffset: z.number().optional(),

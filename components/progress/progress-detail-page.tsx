@@ -95,10 +95,6 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
   const displayItems = useMemo(() => {
     let result = [...boundItemsWithLinks];
 
-    if (!showCompleted) {
-      result = result.filter(({ item }) => item.status !== "completed");
-    }
-
     if (sortMode === "startTime") {
       result.sort((a, b) => {
         const aVal = a.item.startDate ? a.item.startDate + (a.item.startTime ?? "") : "";
@@ -118,7 +114,7 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
     }
 
     return result.map(({ item }) => item);
-  }, [boundItemsWithLinks, showCompleted, sortMode]);
+  }, [boundItemsWithLinks, sortMode]);
 
   const stats = useMemo(() => {
     if (!progress) return null;
@@ -331,7 +327,7 @@ export function ProgressDetailPage({ progressId }: ProgressDetailPageProps) {
             </div>
           ) : null}
         </div>
-        <ProgressBoundTaskList items={displayItems} onUnlink={handleUnlink} />
+        <ProgressBoundTaskList items={displayItems} showCompleted={showCompleted} onUnlink={handleUnlink} />
       </section>
 
       {user ? (
