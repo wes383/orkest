@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { useAllPageStore } from "@/lib/stores/use-all-page-store";
 import { useProjectStore } from "@/lib/stores/use-project-store";
 import { useDateLocale, useSettingsStore } from "@/lib/stores/use-settings-store";
-import { canDeleteRecurringSeriesFromDisplayItem, formatDateInput, formatDueDate, getAnchorDate, getTimelinePointColor, PRIORITY_CONFIG } from "@/lib/all-page-utils";
+import { canDeleteRecurringSeriesFromDisplayItem, formatDateInput, formatDueDate, getAnchorDate, PRIORITY_CONFIG } from "@/lib/all-page-utils";
 import { cn } from "@/lib/utils";
 import type { DisplayItem, ManualItemRecord, Reminder } from "@/lib/types/all-page";
 import type { Priority } from "@/lib/types/item";
@@ -245,7 +245,6 @@ export function TableRow({
   const startLabel = formatDateTimeCell(anchorForStart, showStartTime);
   const endLabel = formatDateTimeCell(endDate, showEndTime);
   const project = item.projectId ? projects.find((p) => p.id === item.projectId) : undefined;
-  const dateColor = getTimelinePointColor(anchorDate);
 
   function openCell(cell: EditableCell) {
     return (event: React.MouseEvent) => {
@@ -457,11 +456,6 @@ export function TableRow({
               <Circle className="h-4 w-4" />
             )}
           </button>
-          <span
-            className="h-1.5 w-1.5 shrink-0 rounded-full"
-            style={{ backgroundColor: dateColor }}
-            aria-hidden
-          />
           {editingCell === "title" ? (
             <TitleCellEditor
               value={item.title}
