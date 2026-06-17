@@ -8,8 +8,6 @@ export function ServiceWorkerProvider() {
     if (process.env.NODE_ENV === "development") return;
     if (!("serviceWorker" in navigator)) return;
 
-    console.log("[ORKEST-DEBUG][SW] provider mounted, controller=", !!navigator.serviceWorker.controller);
-
     // Track whether the initial controller has already been set.
     let hasController = !!navigator.serviceWorker.controller;
 
@@ -29,13 +27,10 @@ export function ServiceWorkerProvider() {
       if (!reg) {
         try {
           reg = await navigator.serviceWorker.register("/orkest-sw.js", { scope: "/" });
-          console.log("[ORKEST-DEBUG][SW] registered (fallback), scope=", reg.scope);
         } catch (err) {
-          console.warn("[ORKEST-DEBUG][SW] registration failed:", err);
+          console.warn("[SW] registration failed:", err);
           return;
         }
-      } else {
-        console.log("[ORKEST-DEBUG][SW] found existing registration, scope=", reg.scope, "active=", !!reg.active, "waiting=", !!reg.waiting, "installing=", !!reg.installing);
       }
 
       setupListeners(reg);
@@ -46,14 +41,12 @@ export function ServiceWorkerProvider() {
       // least 30s — the standard "background → foreground" refresh path.
       let lastHiddenAt = 0;
       const onVisibilityChange = () => {
-        console.log("[ORKEST-DEBUG][SW] visibilitychange to", document.visibilityState);
         if (document.visibilityState === "hidden") {
           lastHiddenAt = Date.now();
           return;
         }
         if (document.visibilityState === "visible" && lastHiddenAt && Date.now() - lastHiddenAt > 30_000) {
-          console.log("[ORKEST-DEBUG][SW] tab returned after >30s, checking for update");
-          reg.update().catch((e) => console.log("[ORKEST-DEBUG][SW] visibility update failed:", e));
+          reg.update().catch(() => {});
         }
         lastHiddenAt = 0;
       };
@@ -66,30 +59,17 @@ export function ServiceWorkerProvider() {
         const newUrl = newController?.scriptURL ?? null;
         const isDifferentVersion = newUrl && initialControllerUrl && newUrl !== initialControllerUrl;
         const withinCooldown = Date.now() - loadStartedAt < RELOAD_COOLDOWN_MS;
-        console.log(
-          "[ORKEST-DEBUG][SW] controllerchange fired, hasController=", hasController,
-          "initialUrl=", initialControllerUrl,
-          "newUrl=", newUrl,
-          "differentVersion=", !!isDifferentVersion,
-          "withinCooldown=", withinCooldown,
-        );
         if (hasController && isDifferentVersion && !withinCooldown) {
-          console.log("[ORKEST-DEBUG][SW] reloading because a genuinely new SW version took over");
           window.location.reload();
-        } else if (hasController) {
-          console.log("[ORKEST-DEBUG][SW] same-URL reinstall, ignoring (no reload)");
         }
         hasController = true;
       };
       navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
 
       const onUpdateFound = () => {
-        console.log("[ORKEST-DEBUG][SW] updatefound — new SW installing");
         const newWorker = reg.installing;
         if (!newWorker) return;
-        newWorker.addEventListener("statechange", () => {
-          console.log("[ORKEST-DEBUG][SW] new worker state ->", newWorker.state);
-        });
+        newWorker.addEventListener("statechange", () => {});
       };
       reg.addEventListener("updatefound", onUpdateFound);
     };

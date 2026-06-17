@@ -158,18 +158,6 @@ async function pushLocalChanges(
       const record = dbRowToManualItemRecord(item);
       const googleEvent = itemToGoogleEvent(record);
 
-      console.log("[GoogleSync DEBUG] sync-engine pushLocalChanges - item:", JSON.stringify({
-        id: item.id,
-        google_event_id: item.google_event_id,
-        timezone: item.timezone,
-        start_date: item.start_date,
-        start_time: item.start_time,
-        rrule: item.rrule,
-        days_of_week: item.days_of_week,
-        updated_at: item.updated_at,
-        last_google_sync_at: item.last_google_sync_at,
-      }, null, 2));
-
       if (item.google_event_id) {
         // Update existing Google event
         await updateOrRecreateGoogleEvent(supabase, connection, item, item.google_event_id, googleEvent);
@@ -470,15 +458,6 @@ async function updateLocalItemFromGoogle(
   event: calendar_v3.Schema$Event,
 ): Promise<void> {
   const patch = googleEventToItemPatch(event as Parameters<typeof googleEventToItemPatch>[0]);
-  console.log("[GoogleSync DEBUG] updateLocalItemFromGoogle:", JSON.stringify({
-    eventId: event.id,
-    eventSummary: event.summary,
-    eventStart: event.start,
-    eventEnd: event.end,
-    eventRecurrence: event.recurrence,
-    patch,
-    existingItemTimezone: existingItem.timezone,
-  }, null, 2));
   const rec = parseRruleToStructured(patch.rrule);
   const isAllDay = patch.allDay ?? false;
 

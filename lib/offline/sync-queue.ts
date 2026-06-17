@@ -82,7 +82,6 @@ export function enqueue(
   };
   queue.push(op);
   setQueue(queue);
-  console.log("[ORKEST-DEBUG][Queue] enqueue", op.id, type, table, recordId, "queueSize=", queue.length, "stack=", (new Error().stack ?? "").split("\n").slice(1, 4).join(" | "));
   return op;
 }
 

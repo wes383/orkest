@@ -76,16 +76,6 @@ export function itemToGoogleEvent(item: ManualItemRecord): GoogleEvent {
     event.transparency = "transparent";
   }
 
-  console.log("[GoogleSync DEBUG] itemToGoogleEvent:", JSON.stringify({
-    title: event.summary,
-    start: event.start,
-    end: event.end,
-    recurrence: event.recurrence,
-    itemTimezone: item.timezone,
-    itemStartDate: item.startDate,
-    itemStartTime: item.startTime,
-  }, null, 2));
-
   return event;
 }
 
@@ -179,14 +169,6 @@ function buildGoogleDateTimes(item: ManualItemRecord): {
       // east of UTC, causing BYDAY to match the wrong days.
       start.dateTime = tz ? dayjs.tz(dt, tz).format() : dayjs(dt).format();
       start.timeZone = tz;
-      console.log("[GoogleSync DEBUG] buildGoogleDateTimes start:", {
-        inputDt: dt,
-        tz,
-        hasTz: !!tz,
-        outputDateTime: start.dateTime,
-        outputTimeZone: start.timeZone,
-        systemTz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      });
     } else {
       start.date = item.startDate;
     }

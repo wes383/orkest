@@ -182,22 +182,6 @@ export async function POST(request: NextRequest) {
   const record = dbRowToManualItemRecord(item);
   const googleEvent = itemToGoogleEvent(record);
 
-  if (process.env.NODE_ENV === "development") {
-    console.log("[GoogleSync DEBUG] push route - item data:", JSON.stringify({
-      id: item.id,
-      google_event_id: item.google_event_id,
-      timezone: item.timezone,
-      start_date: item.start_date,
-      start_time: item.start_time,
-      end_date: item.end_date,
-      end_time: item.end_time,
-      rrule: item.rrule,
-      days_of_week: item.days_of_week,
-      updated_at: item.updated_at,
-      last_google_sync_at: item.last_google_sync_at,
-    }, null, 2));
-  }
-
   try {
     if (item.google_event_id) {
       // Update existing Google event

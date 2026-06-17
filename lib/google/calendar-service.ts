@@ -252,23 +252,11 @@ export async function createGoogleEvent(
   event: calendar_v3.Schema$Event,
   supabaseClient?: SupabaseClient,
 ): Promise<calendar_v3.Schema$Event> {
-  console.log("[GoogleSync DEBUG] createGoogleEvent request:", JSON.stringify({
-    calendarId: connection.calendar_id,
-    requestBody: event,
-  }, null, 2));
   const calendar = await getCalendarClient(connection, supabaseClient);
   const response = await calendar.events.insert({
     calendarId: connection.calendar_id,
     requestBody: event,
   });
-  console.log("[GoogleSync DEBUG] createGoogleEvent response:", JSON.stringify({
-    id: response.data.id,
-    summary: response.data.summary,
-    start: response.data.start,
-    end: response.data.end,
-    recurrence: response.data.recurrence,
-    status: response.data.status,
-  }, null, 2));
   return response.data;
 }
 
@@ -281,25 +269,12 @@ export async function updateGoogleEvent(
   event: calendar_v3.Schema$Event,
   supabaseClient?: SupabaseClient,
 ): Promise<calendar_v3.Schema$Event> {
-  console.log("[GoogleSync DEBUG] updateGoogleEvent request:", JSON.stringify({
-    calendarId: connection.calendar_id,
-    eventId,
-    requestBody: event,
-  }, null, 2));
   const calendar = await getCalendarClient(connection, supabaseClient);
   const response = await calendar.events.patch({
     calendarId: connection.calendar_id,
     eventId,
     requestBody: event,
   });
-  console.log("[GoogleSync DEBUG] updateGoogleEvent response:", JSON.stringify({
-    id: response.data.id,
-    summary: response.data.summary,
-    start: response.data.start,
-    end: response.data.end,
-    recurrence: response.data.recurrence,
-    status: response.data.status,
-  }, null, 2));
   return response.data;
 }
 

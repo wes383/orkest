@@ -170,11 +170,9 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
 
     const { error } = await supabase.from("items").upsert(dbRow, { onConflict: "id" });
     if (error) {
-      console.error("[ORKEST-DEBUG][Sync] items upsert failed for", op.recordId, error);
       console.error("[SyncEngine] upsert item failed:", error);
       return false;
     }
-    console.log("[ORKEST-DEBUG][Sync] items upsert ok for", op.recordId, "oldReminders.len=", oldReminders.length, "newReminders.len=", record.reminders?.length ?? 0);
 
     // Cancel old reminders if they existed
     if (oldReminders.length > 0) {
@@ -206,7 +204,6 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
         .then(async (res) => {
           if (res.ok) {
             const data = await res.json();
-            console.log("[ORKEST-DEBUG][Sync] /api/reminders POST ok for", op.recordId, "returned reminders.len=", data.reminders?.length);
             if (data.reminders?.length) {
               await supabase
                 .from("items")
@@ -214,11 +211,10 @@ async function syncItemOperation(op: SyncOperation, userId: string): Promise<boo
                 .eq("id", op.recordId);
             }
           } else {
-            console.error("[ORKEST-DEBUG][Sync] /api/reminders POST failed for", op.recordId, "status=", res.status, await res.text());
             console.error("[SyncEngine] schedule reminders failed:", res.status, await res.text());
           }
         })
-        .catch((err) => console.error("[ORKEST-DEBUG][Sync] /api/reminders POST threw for", op.recordId, err));
+        .catch((err) => console.error("[SyncEngine] schedule reminders threw:", err));
     }
 
     // Invalidate daily digest cache so changes are reflected
@@ -428,7 +424,6 @@ export async function processQueue(): Promise<void> {
   if (isProcessing) {
     // A previous run is still in progress (e.g. a Supabase call is pending).
     // Schedule a retry so we don't silently drop this invocation.
-    console.log("[ORKEST-DEBUG][Sync] processQueue reentry, scheduling retry");
     if (retryTimer) clearTimeout(retryTimer);
     retryTimer = setTimeout(() => void processQueue(), 1000);
     return;
@@ -444,13 +439,11 @@ export async function processQueue(): Promise<void> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.log("[ORKEST-DEBUG][Sync] processQueue: no user, aborting");
       isProcessing = false;
       return;
     }
 
     const pending = getPendingOperations();
-    console.log("[ORKEST-DEBUG][Sync] processQueue: pending=", pending.length, pending.map((p) => ({ id: p.id, type: p.type, table: p.table, recordId: p.recordId, status: p.status, retryCount: p.retryCount })));
     if (pending.length === 0) {
       isProcessing = false;
       return;
@@ -459,11 +452,9 @@ export async function processQueue(): Promise<void> {
     for (const op of pending) {
       if (op.status === "syncing") continue;
 
-      console.log("[ORKEST-DEBUG][Sync] processing op", op.id, op.type, op.table, op.recordId, "retryCount=", op.retryCount);
       updateOperationStatus(op.id, "syncing");
 
       const success = await syncItemOperation(op, user.id);
-      console.log("[ORKEST-DEBUG][Sync] op", op.id, "success=", success);
 
       if (success) {
         removeOperation(op.id);
@@ -479,7 +470,6 @@ export async function processQueue(): Promise<void> {
         }
       } else {
         const newRetryCount = op.retryCount + 1;
-        console.log("[ORKEST-DEBUG][Sync] op", op.id, "failed, newRetryCount=", newRetryCount);
         if (newRetryCount >= 5) {
           updateOperationStatus(op.id, "failed", newRetryCount);
         } else {
@@ -496,7 +486,6 @@ export async function processQueue(): Promise<void> {
   if (stillPending.length > 0) {
     const maxRetry = Math.max(...stillPending.map((op) => op.retryCount));
     const delay = getBackoffMs(maxRetry);
-    console.log("[ORKEST-DEBUG][Sync] still pending after run:", stillPending.length, "scheduling retry in", delay, "ms");
     if (retryTimer) clearTimeout(retryTimer);
     retryTimer = setTimeout(() => {
       void processQueue();

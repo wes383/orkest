@@ -103,12 +103,7 @@ export function SyncStatusIndicator() {
   useEffect(() => {
     const update = () => {
       const next = getQueueStats();
-      setStats((prev) => {
-        if (prev.pending !== next.pending || prev.syncing !== next.syncing || prev.failed !== next.failed) {
-          console.log("[ORKEST-DEBUG][Indicator] stats changed", prev, "->", next);
-        }
-        return next;
-      });
+      setStats(next);
     };
     update();
     const interval = setInterval(update, 1000);
