@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server-client";
 import { sendFeedbackEmail } from "@/lib/email/resend";
+import { checkSharedRateLimit } from "@/lib/auth/rate-limit";
 
 function getFeedbackReceiverEmail() {
   if (process.env.FEEDBACK_RECEIVER_EMAIL) {
@@ -24,6 +25,18 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limit: max 3 per minute, 10 per hour per user
+    const rateLimit = await checkSharedRateLimit([
+      { key: `feedback:user-minute:${user.id}`, limit: 3, windowMs: 60_000 },
+      { key: `feedback:user-hour:${user.id}`, limit: 10, windowMs: 3_600_000 },
+    ]);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds ?? 60) } },
+      );
     }
 
     const body = await request.json().catch(() => ({}));
@@ -61,7 +74,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to submit feedback";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Feedback] Failed to submit:", err);
+    return NextResponse.json({ error: "Failed to submit feedback" }, { status: 500 });
   }
 }

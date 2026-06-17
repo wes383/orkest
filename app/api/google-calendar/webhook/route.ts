@@ -54,15 +54,15 @@ export async function POST(request: NextRequest) {
   if (error || !connections?.length) {
     // Return 200 so Google stops retrying this stale channel.
     // 404 causes Google to retry for days, spamming the logs.
-    console.warn("[Webhook] Unknown channel (stale notification):", channelId);
+    console.warn("[Webhook] Unknown channel (stale notification)");
     return new NextResponse(null, { status: 200 });
   }
 
   const connection = connections[0];
 
-  // Verify token if provided by Google
-  if (channelToken && connection.notification_channel_token !== channelToken) {
-    console.warn("[Webhook] Token mismatch for channel:", channelId);
+  // Verify token — reject if missing or mismatched
+  if (!channelToken || connection.notification_channel_token !== channelToken) {
+    console.warn("[Webhook] Token verification failed for channel");
     return new NextResponse(null, { status: 200 });
   }
 

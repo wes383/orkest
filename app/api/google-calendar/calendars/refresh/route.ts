@@ -124,7 +124,7 @@ export async function POST() {
   } catch (error) {
     console.error("Failed to refresh calendars:", error);
     return NextResponse.json(
-      { error: "Refresh failed", details: error instanceof Error ? error.message : String(error) },
+      { error: "Refresh failed" },
       { status: 500 },
     );
   }

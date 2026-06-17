@@ -119,12 +119,13 @@ export async function POST(request: Request) {
     data = result.data;
     generateError = result.error;
   } catch (error) {
-    const message = error instanceof Error ? error.message : translate(locale, "auth.error.generateCode");
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("[Auth] generateLink error:", error);
+    return NextResponse.json({ error: translate(locale, "auth.error.generateCode") }, { status: 500 });
   }
 
   if (generateError) {
-    return NextResponse.json({ error: generateError.message }, { status: 400 });
+    console.error("[Auth] generateLink returned error:", generateError);
+    return NextResponse.json({ error: translate(locale, "auth.error.generateCode") }, { status: 400 });
   }
 
   const properties = data?.properties;
@@ -143,8 +144,8 @@ export async function POST(request: Request) {
       locale,
     });
   } catch (sendError) {
-    const message = sendError instanceof Error ? sendError.message : translate(locale, "auth.error.sendEmail");
-    return NextResponse.json({ error: message }, { status: 502 });
+    console.error("[Auth] sendAuthEmail error:", sendError);
+    return NextResponse.json({ error: translate(locale, "auth.error.sendEmail") }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true });

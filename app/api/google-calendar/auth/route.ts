@@ -24,7 +24,11 @@ export async function GET(request: NextRequest) {
   const authUrl = getGoogleAuthUrl(state);
 
   // Read returnTo from query params (e.g. /settings or /all)
-  const returnTo = request.nextUrl.searchParams.get("returnTo") || "/all";
+  // Validate to prevent open redirect via protocol-relative URLs
+  const rawReturnTo = request.nextUrl.searchParams.get("returnTo") || "/all";
+  const returnTo = rawReturnTo.startsWith("/") && !rawReturnTo.startsWith("//")
+    ? rawReturnTo
+    : "/all";
 
   // Store state in a short-lived, httpOnly cookie for verification in callback
   const response = NextResponse.json({ url: authUrl });

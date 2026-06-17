@@ -3237,7 +3237,22 @@ export async function POST(request: Request) {
     await incrementAiUsage(user.id);
 
     const body = await request.json();
-    const messages = (Array.isArray(body.messages) ? body.messages : []) as UIMessage[];
+
+    // Validate messages array with Zod to prevent malformed input
+    const messageSchema = z.object({
+      id: z.string().optional(),
+      role: z.enum(["user", "assistant", "system", "tool"]).optional(),
+      content: z.string().max(10000).optional(),
+      parts: z.array(z.unknown()).optional(),
+    }).passthrough();
+    const messagesSchema = z.array(messageSchema).max(100);
+    const messagesResult = messagesSchema.safeParse(
+      Array.isArray(body.messages) ? body.messages : [],
+    );
+    if (!messagesResult.success) {
+      return Response.json({ error: "Invalid messages format" }, { status: 400 });
+    }
+    const messages = messagesResult.data as UIMessage[];
     const rawContext = chatContextSchema.parse(body.context ?? {});
 
     // Defense in depth: re-sanitize the username server-side in case a

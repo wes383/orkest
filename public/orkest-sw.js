@@ -1,39 +1,32 @@
 // Orkest Service Worker
 // Handles caching for offline support + imports OneSignal push SW
-
+//
+// SECURITY NOTE: This loads an external CDN script without SRI integrity check.
+// For production hardening, download and self-host OneSignalSDK.sw.js in /public/
+// and pin to a specific version (e.g. v16.x.x) to mitigate supply-chain risks.
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
-
-console.log("[ORKEST-DEBUG][SW-File] script evaluated at", new Date().toISOString());
 
 const CACHE_NAME = "orkest-v2";
 const PRECACHE_URLS = ["/", "/logo.svg", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 // Install: precache app shell
 self.addEventListener("install", (event) => {
-  console.log("[ORKEST-DEBUG][SW-File] install, precaching", PRECACHE_URLS);
   event.waitUntil(
     caches
       .open(CACHE_NAME)
       .then((cache) => Promise.all(PRECACHE_URLS.map((u) =>
-        cache.add(u).catch((e) => console.log("[ORKEST-DEBUG][SW-File] precache failed for", u, e))
+        cache.add(u).catch(() => { /* precache failed for non-critical asset */ })
       )))
-      .then(() => {
-        console.log("[ORKEST-DEBUG][SW-File] precache done, calling skipWaiting");
-        return self.skipWaiting();
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
 // Activate: clean up old caches
 self.addEventListener("activate", (event) => {
-  console.log("[ORKEST-DEBUG][SW-File] activate, calling clients.claim");
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => {
-        console.log("[ORKEST-DEBUG][SW-File] existing caches", keys);
-        return Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)));
-      })
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -44,7 +37,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (request.mode === "navigate") {
-    console.log("[ORKEST-DEBUG][SW-File] navigate", request.url);
+    // Navigation request — handled by networkFirst below
   }
 
   // Only handle GET requests
@@ -115,16 +108,12 @@ async function staleWhileRevalidate(request) {
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
-    if (response.redirected) {
-      console.log("[ORKEST-DEBUG][SW-File] networkFirst followed redirect", request.url, "->", response.url, "status=", response.status);
-    }
     if (response.ok) {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, response.clone());
     }
     return response;
-  } catch (err) {
-    console.log("[ORKEST-DEBUG][SW-File] networkFirst fetch failed for", request.url, err);
+  } catch {
     const cached = await caches.match(request);
     return cached || caches.match("/");
   }

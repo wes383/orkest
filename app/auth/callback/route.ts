@@ -2,10 +2,17 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server-client";
 import { DEFAULT_LOCALE, addLocaleToPathname, getLocaleFromPathname } from "@/lib/i18n/config";
 
+/** Ensure redirect path is a safe same-origin relative path (no protocol-relative URLs). */
+function safeRedirectPath(input: string, fallback = "/"): string {
+  const trimmed = input.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return fallback;
+  return trimmed;
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin, pathname } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const next = safeRedirectPath(searchParams.get("next") ?? "/");
   const locale = getLocaleFromPathname(pathname) ?? DEFAULT_LOCALE;
 
   if (code) {

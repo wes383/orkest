@@ -37,6 +37,7 @@ function hasCalendarDate(item: Pick<ItemRow, "start_date" | "end_date">): boolea
 async function clearGoogleMapping(
   supabase: Awaited<ReturnType<typeof createClient>>,
   itemId: string,
+  userId: string,
 ): Promise<void> {
   await supabase
     .from("items")
@@ -45,17 +46,20 @@ async function clearGoogleMapping(
       google_calendar_id: null,
       last_google_sync_at: new Date().toISOString(),
     })
-    .eq("id", itemId);
+    .eq("id", itemId)
+    .eq("user_id", userId);
 }
 
 async function markGoogleSynced(
   supabase: Awaited<ReturnType<typeof createClient>>,
   itemId: string,
+  userId: string,
 ): Promise<void> {
   await supabase
     .from("items")
     .update({ last_google_sync_at: new Date().toISOString() })
-    .eq("id", itemId);
+    .eq("id", itemId)
+    .eq("user_id", userId);
 }
 
 async function deleteMappedGoogleEvent(
@@ -63,6 +67,7 @@ async function deleteMappedGoogleEvent(
   connection: GoogleConnection,
   itemId: string,
   eventId: string,
+  userId: string,
 ): Promise<void> {
   try {
     await deleteGoogleEvent(connection, eventId, supabase);
@@ -77,7 +82,7 @@ async function deleteMappedGoogleEvent(
     });
   }
 
-  await clearGoogleMapping(supabase, itemId);
+  await clearGoogleMapping(supabase, itemId, userId);
 }
 
 export async function POST(request: NextRequest) {
@@ -115,6 +120,7 @@ export async function POST(request: NextRequest) {
       .from("items")
       .select("google_event_id, google_calendar_id")
       .eq("id", itemId)
+      .eq("user_id", user.id)
       .single();
 
     if (item?.google_event_id) {
@@ -124,7 +130,7 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        await deleteMappedGoogleEvent(supabase, connection, itemId, item.google_event_id);
+        await deleteMappedGoogleEvent(supabase, connection, itemId, item.google_event_id, user.id);
       } catch (error) {
         console.error("[Push] Failed to delete Google event:", error);
         return NextResponse.json({ error: "Failed to delete Google event" }, { status: 500 });
@@ -138,6 +144,7 @@ export async function POST(request: NextRequest) {
     .from("items")
     .select("*")
     .eq("id", itemId)
+    .eq("user_id", user.id)
     .is("deleted_at", null)
     .single();
 
@@ -153,13 +160,13 @@ export async function POST(request: NextRequest) {
   if (!hasCalendarDate(item)) {
     if (item.google_event_id) {
       try {
-        await deleteMappedGoogleEvent(supabase, connection, item.id, item.google_event_id);
+        await deleteMappedGoogleEvent(supabase, connection, item.id, item.google_event_id, user.id);
       } catch (error) {
         console.error("[Push] Failed to delete undated Google event:", error);
         return NextResponse.json({ error: "Failed to delete Google event for undated item" }, { status: 500 });
       }
     } else {
-      await markGoogleSynced(supabase, item.id);
+      await markGoogleSynced(supabase, item.id, user.id);
     }
 
     return NextResponse.json({ success: true, skipped: true, reason: "undated_item" });
@@ -215,7 +222,8 @@ export async function POST(request: NextRequest) {
             google_calendar_id: null,
             last_google_sync_at: new Date().toISOString(),
           })
-          .eq("id", item.id);
+          .eq("id", item.id)
+          .eq("user_id", user.id);
 
         return NextResponse.json({ success: true, cleared: true });
       }
@@ -231,7 +239,8 @@ export async function POST(request: NextRequest) {
           google_calendar_id: connection.calendar_id,
           last_google_sync_at: new Date().toISOString(),
         })
-        .eq("id", item.id);
+        .eq("id", item.id)
+        .eq("user_id", user.id);
 
       return NextResponse.json({ success: true, googleEventId: created.id });
     }
@@ -240,7 +249,8 @@ export async function POST(request: NextRequest) {
     await supabase
       .from("items")
       .update({ last_google_sync_at: new Date().toISOString() })
-      .eq("id", item.id);
+      .eq("id", item.id)
+      .eq("user_id", user.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

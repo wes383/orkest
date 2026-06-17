@@ -3,7 +3,6 @@ import { z } from "zod";
 import { ensureMovie } from "@/lib/daily-content";
 import { createClient } from "@/lib/supabase/server-client";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getDateKeyWithOffset } from "@/lib/daily-digest-utils";
 
 const requestSchema = z.object({
   locale: z.enum(["en", "zh-CN", "es", "fr", "de", "ja", "pt"]).default("en"),
@@ -18,7 +17,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { locale, dateKey, timezoneOffset } = parsed.data;
+  const { locale, dateKey } = parsed.data;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -31,11 +30,8 @@ export async function POST(request: Request) {
   try {
     const result = await ensureMovie(admin, dateKey, locale, user.id);
 
-    const cutoffDate = getDateKeyWithOffset(
-      timezoneOffset,
-      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    );
-    await admin.from("daily_movie_translations").delete().lt("movie_date", cutoffDate);
+    // Note: Cleanup of old translations moved to a cron job to prevent
+    // any user from triggering global data deletion via admin client.
 
     return Response.json(result);
   } catch (error) {
