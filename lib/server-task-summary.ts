@@ -88,6 +88,7 @@ interface ServerDisplayItem {
   endDate?: Date;
   dueDate?: Date;
   allDay: boolean;
+  timezone?: string;
   isRecurringInstance: boolean;
   occurrenceKey?: string;
 }
@@ -109,14 +110,18 @@ function makeDate(date?: string | null, time?: string | null, tz?: string | null
   return value;
 }
 
-function formatDateKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+function formatDateKeyInTz(date: Date, tz: string): string {
+  return dayjs(date).tz(tz).format("YYYY-MM-DD");
 }
 
-function startOfDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
+function startOfDayInTz(date: Date, tz: string): Date {
+  // Build a Date that is midnight in the target tz, expressed as UTC ms.
+  // Using `setHours(0,0,0,0)` would zero the time in the SERVER's local zone
+  // (Vercel = UTC), which can shift the date by ±1 day for items whose
+  // timezone differs from the server's. Going through dayjs keeps the
+  // y/m/d components in the item's/user's own timezone.
+  const d = dayjs(date).tz(tz);
+  return new Date(Date.UTC(d.year(), d.month(), d.date()));
 }
 
 function isCompletedLike(status: ItemRow["status"]) {
@@ -182,10 +187,10 @@ function shiftDateByOffset(date: Date | undefined, offsetMs: number): Date | und
  * Uses `userToday` (already computed in user's timezone) instead of `new Date()`
  * to avoid server timezone mismatch.
  */
-function getNextRecurringOccurrence(item: ParsedItem, userToday: Date): Date | null {
+function getNextRecurringOccurrence(item: ParsedItem, userToday: Date, fallbackTz?: string): Date | null {
   if (!item.rrule) return null;
 
-  const tz = item.timezone || "UTC";
+  const tz = item.timezone || fallbackTz || "UTC";
   const parsedRule = rrulestr(item.rrule);
   const skippedOccurrences = new Set(
     [...item.exdates, ...item.completedOccurrences].map(serializeOccurrenceKey),
@@ -225,6 +230,7 @@ function createRecurringDisplayItem(
     endDate: shiftDateByOffset(item.endDate, offsetMs),
     dueDate: item.startDate ? shiftDateByOffset(item.dueDate, offsetMs) : item.dueDate,
     allDay: item.allDay,
+    timezone: item.timezone,
     isRecurringInstance: true,
     occurrenceKey: serializeOccurrenceKey(occurrenceDate),
   };
@@ -252,8 +258,8 @@ function getReopenedRecurringDisplayItems(item: ParsedItem): ServerDisplayItem[]
     .filter((v): v is ServerDisplayItem => v !== null);
 }
 
-function getNextPendingRecurringDisplayItem(item: ParsedItem, userToday: Date): ServerDisplayItem | null {
-  const occurrenceDate = getNextRecurringOccurrence(item, userToday);
+function getNextPendingRecurringDisplayItem(item: ParsedItem, userToday: Date, fallbackTz?: string): ServerDisplayItem | null {
+  const occurrenceDate = getNextRecurringOccurrence(item, userToday, fallbackTz);
   if (!occurrenceDate) return null;
   return createRecurringDisplayItem(item, occurrenceDate, "active");
 }
@@ -264,7 +270,7 @@ function isRecurringItem(item: ParsedItem): boolean {
 
 // --- Build display items (mirrors frontend buildDisplayItems) ---
 
-function buildServerDisplayItems(items: ParsedItem[], userToday: Date): ServerDisplayItem[] {
+function buildServerDisplayItems(items: ParsedItem[], userToday: Date, fallbackTz?: string): ServerDisplayItem[] {
   const displayItems = items
     .filter((item) => !item.parentId)
     .flatMap((item) => {
@@ -278,7 +284,7 @@ function buildServerDisplayItems(items: ParsedItem[], userToday: Date): ServerDi
 
       const completedItems = getCompletedRecurringDisplayItems(item);
       const reopenedItems = getReopenedRecurringDisplayItems(item);
-      const nextPendingItem = getNextPendingRecurringDisplayItem(item, userToday);
+      const nextPendingItem = getNextPendingRecurringDisplayItem(item, userToday, fallbackTz);
 
       return nextPendingItem
         ? [...completedItems, ...reopenedItems, nextPendingItem]
@@ -296,28 +302,29 @@ function buildServerDisplayItems(items: ParsedItem[], userToday: Date): ServerDi
 
 // --- Today view logic (mirrors frontend buildTodayViewModel) ---
 
-function isDateRangeCoveringToday(item: ServerDisplayItem, today: Date): boolean {
+function isDateRangeCoveringToday(item: ServerDisplayItem, today: Date, userTz: string): boolean {
   if (!item.startDate || !item.endDate) return false;
-  const currentDay = startOfDay(today).getTime();
-  const startDay = startOfDay(item.startDate).getTime();
-  const endDay = startOfDay(item.endDate).getTime();
+  const itemTz = item.timezone || userTz;
+  const currentDay = startOfDayInTz(today, userTz).getTime();
+  const startDay = startOfDayInTz(item.startDate, itemTz).getTime();
+  const endDay = startOfDayInTz(item.endDate, itemTz).getTime();
   return startDay <= currentDay && currentDay <= endDay;
 }
 
-function isPlannedForToday(item: ServerDisplayItem, plannedTodayDates: string[], today: Date): boolean {
-  return plannedTodayDates.includes(formatDateKey(today));
+function isPlannedForToday(item: ServerDisplayItem, plannedTodayDates: string[], today: Date, userTz: string): boolean {
+  return plannedTodayDates.includes(formatDateKeyInTz(today, userTz));
 }
 
 function hasNoDate(item: ServerDisplayItem): boolean {
   return !item.startDate && !item.endDate && !item.dueDate;
 }
 
-function getTodayAnchorDate(item: ServerDisplayItem, plannedTodayDates: string[], today: Date): Date | undefined {
-  if (isPlannedForToday(item, plannedTodayDates, today)) {
-    return startOfDay(today);
+function getTodayAnchorDate(item: ServerDisplayItem, plannedTodayDates: string[], today: Date, userTz: string): Date | undefined {
+  if (isPlannedForToday(item, plannedTodayDates, today, userTz)) {
+    return startOfDayInTz(today, userTz);
   }
-  if (isDateRangeCoveringToday(item, today)) {
-    return startOfDay(today);
+  if (isDateRangeCoveringToday(item, today, userTz)) {
+    return startOfDayInTz(today, userTz);
   }
   return item.startDate ?? item.dueDate ?? item.endDate;
 }
@@ -342,16 +349,16 @@ export function buildServerTaskSummary(
   rows: ItemRow[],
   todayKey: string,
   timezoneOffset: number,
+  userTimezone?: string,
 ): ServerTaskSummaryResult {
-  // Compute "today" in user's local timezone (same formula as getDateKeyWithOffset)
-  const nowUtc = new Date();
-  const utcMs = nowUtc.getTime() + nowUtc.getTimezoneOffset() * 60_000;
-  const userMs = utcMs - timezoneOffset * 60_000;
-  const userToday = new Date(userMs);
-  userToday.setHours(0, 0, 0, 0);
-
-  const tomorrow = new Date(userToday);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  // Compute "today" at 00:00 in the user's IANA timezone.
+  // Using `dayjs.tz` here (not `setHours(0,0,0,0)`) is critical: the latter
+  // would zero the time in the SERVER's local zone (Vercel = UTC), which
+  // misaligns with the user's "today" boundary and causes today's tasks to
+  // be reported as overdue and recurring occurrences to shift to the next day.
+  const resolvedTz = userTimezone || "UTC";
+  const userToday = dayjs().tz(resolvedTz).startOf("day").toDate();
+  const tomorrow = dayjs().tz(resolvedTz).add(1, "day").startOf("day").toDate();
 
   // Parse rows, filter deleted
   const parsedItems = rows
@@ -367,12 +374,12 @@ export function buildServerTaskSummary(
   }
 
   // Build display items (expands recurring), passing userToday for RRule search
-  const displayItems = buildServerDisplayItems(parsedItems, userToday);
+  const displayItems = buildServerDisplayItems(parsedItems, userToday, userTimezone);
 
   // Filter out dismissed items
   const visibleItems = displayItems.filter((item) => {
     const dismissed = dismissedMap.get(item.id) ?? [];
-    return !dismissed.includes(formatDateKey(userToday));
+    return !dismissed.includes(formatDateKeyInTz(userToday, resolvedTz));
   });
 
   // --- scheduledItems (mirrors frontend) ---
@@ -380,12 +387,12 @@ export function buildServerTaskSummary(
     .filter((item) => {
       if (item.allDay) {
         return (
-          isDateRangeCoveringToday(item, userToday) ||
+          isDateRangeCoveringToday(item, userToday, resolvedTz) ||
           (item.startDate && item.startDate >= userToday && item.startDate < tomorrow)
         );
       }
       if (!item.startDate) return false;
-      if (isDateRangeCoveringToday(item, userToday)) return true;
+      if (isDateRangeCoveringToday(item, userToday, resolvedTz)) return true;
       return item.startDate >= userToday && item.startDate < tomorrow;
     })
     .sort((a, b) => {
@@ -400,20 +407,20 @@ export function buildServerTaskSummary(
 
   // --- todayScopedItems (mirrors frontend for summary stats) ---
   const todayScopedItems = visibleItems.filter((item) => {
-    if (hasNoDate(item) && !isPlannedForToday(item, plannedMap.get(item.id) ?? [], userToday)) {
+    if (hasNoDate(item) && !isPlannedForToday(item, plannedMap.get(item.id) ?? [], userToday, resolvedTz)) {
       return false;
     }
-    const anchor = getTodayAnchorDate(item, plannedMap.get(item.id) ?? [], userToday);
+    const anchor = getTodayAnchorDate(item, plannedMap.get(item.id) ?? [], userToday, resolvedTz);
     if (!anchor) return false;
     return anchor >= userToday && anchor < tomorrow;
   });
 
   // --- Overdue ---
   const overdueCount = visibleItems.filter((item) => {
-    if (hasNoDate(item) || isPlannedForToday(item, plannedMap.get(item.id) ?? [], userToday) || isCompletedLike(item.status)) {
+    if (hasNoDate(item) || isPlannedForToday(item, plannedMap.get(item.id) ?? [], userToday, resolvedTz) || isCompletedLike(item.status)) {
       return false;
     }
-    const anchor = getTodayAnchorDate(item, plannedMap.get(item.id) ?? [], userToday);
+    const anchor = getTodayAnchorDate(item, plannedMap.get(item.id) ?? [], userToday, resolvedTz);
     if (!anchor) return false;
     return anchor < userToday;
   }).length;

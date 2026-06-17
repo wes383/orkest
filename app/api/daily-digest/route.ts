@@ -13,6 +13,7 @@ const requestSchema = z.object({
   locale: z.enum(["en", "zh-CN", "es", "fr", "de", "ja", "pt"]).default("en"),
   dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   timezoneOffset: z.number().default(0),
+  userTimezone: z.string().optional(),
   forceRegenerate: z.boolean().optional(),
 });
 
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { username, locale, dateKey, timezoneOffset, forceRegenerate } = parsed.data;
+  const { username, locale, dateKey, timezoneOffset, userTimezone, forceRegenerate } = parsed.data;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
     .eq("user_id", user.id)
     .is("deleted_at", null);
 
-  const { taskContext } = buildServerTaskSummary(items ?? [], dateKey, timezoneOffset);
+  const { taskContext } = buildServerTaskSummary(items ?? [], dateKey, timezoneOffset, userTimezone);
 
   const memories = await fetchUserMemories(supabase, user.id);
   const memoryContext = memories.length > 0

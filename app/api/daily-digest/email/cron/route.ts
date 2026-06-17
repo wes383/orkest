@@ -83,7 +83,9 @@ export async function GET(request: Request) {
         .eq("user_id", sub.user_id)
         .is("deleted_at", null);
 
-      const { taskSummary } = buildServerTaskSummary(items ?? [], todayKey, sub.timezone_offset);
+      // Derive user's IANA timezone from their items (most items have timezone set)
+      const userTimezone = (items ?? []).find((i) => i.timezone)?.timezone ?? undefined;
+      const { taskSummary } = buildServerTaskSummary(items ?? [], todayKey, sub.timezone_offset, userTimezone);
 
       const extras: DailyDigestExtras = {};
 
