@@ -64,3 +64,27 @@ export function isQuotaExhaustedError(error: unknown): boolean {
     msg.includes("free tier")
   );
 }
+
+/**
+ * Check if an error indicates a model produced empty or invalid structured
+ * output. This commonly happens with "thinking" / reasoning models (e.g.
+ * qwen3-thinking, DeepSeek-R1) that spend most of their token budget on
+ * internal reasoning and emit only `{}` as the final text, causing
+ * AI_NoObjectGeneratedError / schema validation failures.
+ *
+ * When detected we skip to the next model in the fallback list rather than
+ * propagating the error to the caller.
+ */
+export function isEmptyOutputError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const name = (error as { name?: string }).name ?? "";
+  const msg = error.message;
+  // AI SDK v4 error names
+  if (name === "AI_NoObjectGeneratedError") return true;
+  if (name === "AI_TypeValidationError") return true;
+  // Fallback: message-based heuristics
+  if (msg.includes("No object generated")) return true;
+  if (msg.includes("response did not match schema")) return true;
+  if (msg.includes("Type validation failed")) return true;
+  return false;
+}

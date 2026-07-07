@@ -1,7 +1,7 @@
 import { generateObject } from "ai";
 import { z } from "zod";
 
-import { getAiLanguageModel, getModelList, isQuotaExhaustedError } from "@/lib/ai/provider";
+import { getAiLanguageModel, getModelList, isQuotaExhaustedError, isEmptyOutputError } from "@/lib/ai/provider";
 import { recordAiUsage } from "@/lib/ai/daily-limit";
 import type { AiFeature } from "@/lib/ai/feature-types";
 
@@ -62,6 +62,16 @@ export async function structuredGenerate<T extends z.ZodType>(
       lastError = err;
       if (isQuotaExhaustedError(err)) {
         console.warn(`[structuredGenerate:${feature}] Model "${modelName}" quota exhausted, trying next...`);
+        continue;
+      }
+      if (isEmptyOutputError(err)) {
+        // Thinking/reasoning models (e.g. qwen3-thinking, DeepSeek-R1) often
+        // spend their entire token budget on internal reasoning and output only
+        // `{}`, causing schema validation to fail.  Treat this as a transient
+        // model-level failure and fall back to the next model in the list.
+        console.warn(
+          `[structuredGenerate:${feature}] Model "${modelName}" returned empty/invalid structured output (likely a thinking model). Trying next...`,
+        );
         continue;
       }
       // Record failed usage
